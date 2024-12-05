@@ -10,10 +10,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Remove="Resources\Default.shader" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="Aether.Physics2D" Version="2.1.0" />
 		<PackageReference Include="DotTiled" Version="0.3.0" />
 		<PackageReference Include="OpenTK.Graphics" Version="4.9.1" />
@@ -22,6 +18,10 @@
 
 	<ItemGroup>
 		<EmbeddedResource Include="Resources\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\ResourceBuilder\ResourceBuilder.csproj" />
 	</ItemGroup>
 
 </Project>

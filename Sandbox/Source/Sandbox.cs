@@ -1,17 +1,24 @@
 ﻿using Engine;
 using Engine.Rendering;
+using Engine.Resources;
 using System.Drawing;
 
-namespace Sandobx;
+namespace Sandbox;
 
-static class Program
+static class Sandbox
 {
-	private static void Main()
+	static void Main()
 	{
 		new MyWorld().Load();
+		Application.OnLaunch += OnLaunch;
 
 		Window.Title += " - Sandbox";
 		Application.Launch();
+	}
+
+	private static void OnLaunch()
+	{
+		using var binary = Resource.Load<BinaryResource>("MyRes.txt");
 	}
 }
 

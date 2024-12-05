@@ -44,7 +44,7 @@ public static class Renderer
 		GL.DebugMessageCallback(OnDebugMessageCallback, 0);
 
 		// Initializes the default engine shader.
-		using var stream = Resources.GetEngineResource("Default.shader");
+		using var stream = Resource.LoadFromEngine("Default.shader");
 		Log.Assert(stream != null, "Missing default engine shader!");
 		using var reader = new StreamReader(stream);
 		_defaultShader = new Shader(reader.ReadToEnd());

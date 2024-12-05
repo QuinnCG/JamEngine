@@ -12,6 +12,13 @@ public abstract class World
 
 	public abstract IEnumerable<Entity> OnLoad();
 
+	/// <summary>
+	/// Unloads any existing world and loads this world.
+	/// <br>Loaded worlds receive updates.</br>
+	/// <br><c>Application</c> will call this during launch, but it should still be called by the client at least once before launching the app.</br>
+	/// <br>Calling this before the <c>Application</c> has launched will "prime" the world to be automatically loaded after the <c>Application is launched.</c></br>
+	/// <br>You can call this after <c>Application</c> has launched. It must just be called once on some world before launch.</br>
+	/// </summary>
 	public void Load()
 	{
 		_loaded?.Unload();
