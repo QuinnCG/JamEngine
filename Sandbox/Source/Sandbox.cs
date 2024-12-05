@@ -18,7 +18,7 @@ static class Sandbox
 
 	private static void OnLaunch()
 	{
-		using var text = Resource.Load<TextResource>("MyRes.txt");
+		using var text = Resource.Load<TextResource>("Sub Folder/MySubRes1.txt");
 		Log.Info(text);
 	}
 }

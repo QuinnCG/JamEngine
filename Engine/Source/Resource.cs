@@ -10,6 +10,8 @@ public static class Resource
 
 	public static T Load<T>(string name) where T : IResource, new()
 	{
+		name = name.Replace('/', '\\');
+
 		if (!_nameToIndex.TryGetValue(name, out long fileIndex))
 		{
 			throw new InvalidOperationException($"Failed to find a resource with the name '{name}'!");
