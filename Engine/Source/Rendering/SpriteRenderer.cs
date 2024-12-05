@@ -42,7 +42,7 @@ public class SpriteRenderer : Component, IRenderable
 		GL.BindBuffer(BufferTarget.ElementArrayBuffer, _ibo);
 		GL.BufferData(BufferTarget.ElementArrayBuffer, sizeof(uint) * _indices.Length, _indices, BufferUsageHint.StaticDraw);
 
-		int stride = sizeof(float) * Vertex.ComponentCount;
+		int stride = sizeof(float) * Vertex.FloatCount;
 
 		GL.EnableVertexAttribArray(0);
 		GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, stride, 0);

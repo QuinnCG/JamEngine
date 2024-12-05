@@ -6,26 +6,31 @@ namespace Engine.Rendering;
 [StructLayout(LayoutKind.Sequential)]
 public struct Vertex(Vector2 Position, Vector2 UV)
 {
-	public const int ComponentCount = 2 + 2;
+	/// <summary>
+	/// The number of floats per vertex.
+	/// </summary>
+	internal const int FloatCount = 2 + 2;
 
 	public Vector2 Position = Position;
 	public Vector2 UV = UV;
 
 	public static float[] GetRaw(Vertex[] vertices)
 	{
-		var raw = new float[ComponentCount * vertices.Length];
+		var raw = new float[FloatCount * vertices.Length];
+		int vertexIndex = 0;
 
-		for (int i = 0; i < vertices.Length; i++)
+		for (int rawIndex = 0; rawIndex < raw.Length; rawIndex += FloatCount)
 		{
-			Vertex v = vertices[i];
+			Vertex v = vertices[vertexIndex];
+			vertexIndex++;
 
 			// Position.
-			raw[i + 0] = v.Position.X;
-			raw[i + 1] = v.Position.Y;
+			raw[rawIndex + 0] = v.Position.X;
+			raw[rawIndex + 1] = v.Position.Y;
 
 			// UV.
-			raw[i + 2] = v.UV.X;
-			raw[i + 3] = v.UV.Y;
+			raw[rawIndex + 2] = v.UV.X;
+			raw[rawIndex + 3] = v.UV.Y;
 		}
 
 		return raw;
