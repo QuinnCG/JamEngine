@@ -23,13 +23,12 @@ public abstract class Entity : IEnumerable<Component>
 	internal void Create(World world)
 	{
 		_world = world;
+		OnCreate();
 
 		foreach (var component in _components.Values)
 		{
 			component.Create(this);
 		}
-
-		OnCreate();
 	}
 
 	internal void Update()

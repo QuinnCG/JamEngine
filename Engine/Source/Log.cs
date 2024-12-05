@@ -7,22 +7,38 @@ public static class Log
 {
 	public static void Info(string message)
 	{
-		Print(message, ConsoleColor.Gray);
+		Print(string.Empty, message, ConsoleColor.Gray);
+	}
+	public static void Info(string type, string message)
+	{
+		Print(type, message, ConsoleColor.Gray);
 	}
 
 	public static void Warning(string message)
 	{
-		Print(message, ConsoleColor.Yellow);
+		Print(string.Empty, message, ConsoleColor.Yellow);
+	}
+	public static void Warning(string type, string message)
+	{
+		Print(type, message, ConsoleColor.Yellow);
 	}
 
 	public static void Error(string message)
 	{
-		Print(message, ConsoleColor.Red);
+		Print(string.Empty, message, ConsoleColor.Red);
+	}
+	public static void Error(string type, string message)
+	{
+		Print(type, message, ConsoleColor.Red);
 	}
 
 	public static void Fatal(string message)
 	{
-		Print(message, ConsoleColor.DarkRed);
+		Print(string.Empty, message, ConsoleColor.DarkRed);
+	}
+	public static void Fatal(string type, string message)
+	{
+		Print(type, message, ConsoleColor.DarkRed);
 	}
 
 	public static void Assert([DoesNotReturnIf(false)] bool condition)
@@ -34,12 +50,20 @@ public static class Log
 		Debug.Assert(condition, message);
 	}
 
-	private static void Print(string message, ConsoleColor color)
+	[DoesNotReturn]
+	public static void Break()
+	{
+		Debug.Assert(false);
+	}
+
+	private static void Print(string type, string message, ConsoleColor color)
 	{
 		var time = DateTime.Now.TimeOfDay;
 
+		string typeSegment = string.IsNullOrWhiteSpace(type) ? string.Empty : $"[{type}]";
+
 		Console.ForegroundColor = color;
-		Console.WriteLine($"[{time.Hours:00}:{time.Minutes:00}:{time.Seconds:00}]: {message}");
+		Console.WriteLine($"[{time.Hours:00}:{time.Minutes:00}:{time.Seconds:00}]{typeSegment}: {message}");
 		Console.ResetColor();
 	}
 }

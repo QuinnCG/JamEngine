@@ -48,6 +48,11 @@ public static unsafe class Window
 		GLFW.MakeContextCurrent(_handle);
 	}
 
+	internal static void Close()
+	{
+		GLFW.SetWindowShouldClose(_handle, true);
+	}
+
 	internal static void PollEvents()
 	{
 		GLFW.PollEvents();

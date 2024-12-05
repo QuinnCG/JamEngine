@@ -2,32 +2,33 @@
 
 public abstract class World
 {
-	public static World Active => _active!;
-	private static World? _active;
+	public static World Loaded => _loaded!;
+	private static World? _loaded;
 
 	public bool IsLoaded { get; private set; }
 
 	private readonly HashSet<Entity> _entites = [];
-
-	public static void SetActive(World world)
-	{
-		_active = world;
-		world.Load();
-	}
+	private readonly HashSet<Entity> _toDestroy = [];
 
 	public abstract IEnumerable<Entity> OnLoad();
 
 	public void Load()
 	{
+		_loaded?.Unload();
+		_loaded = this;
+
+		if (!Application.IsLaunched)
+			return;
+
 		if (!IsLoaded)
 		{
-			IsLoaded = true;
-
 			foreach (var entity in OnLoad())
 			{
 				_entites.Add(entity);
 				entity.Create(this);
 			}
+
+			IsLoaded = true;
 		}
 	}
 
@@ -35,12 +36,13 @@ public abstract class World
 	{
 		if (IsLoaded)
 		{
-			IsLoaded = false;
-
 			foreach (var entity in _entites)
 			{
 				entity.Destroy();
 			}
+
+			IsLoaded = false;
+			_entites.Clear();
 		}
 	}
 
@@ -58,7 +60,7 @@ public abstract class World
 	public void DestroyEntity(Entity entity)
 	{
 		Log.Assert(_entites.Contains(entity), $"Failed to destroy entity as it's not apart of this world!");
-		entity.Destroy();
+		_toDestroy.Add(entity);
 	}
 
 	/// <summary>
@@ -71,6 +73,14 @@ public abstract class World
 
 	internal void Update()
 	{
+		foreach (var entity in _toDestroy)
+		{
+			_entites.Remove(entity);
+			entity.Destroy();
+		}
+
+		_toDestroy.Clear();
+
 		foreach (var entity in _entites)
 		{
 			entity.Update();

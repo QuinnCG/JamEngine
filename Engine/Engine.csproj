@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
+		<Version>0.1.0</Version>
 		<OutputType>Library</OutputType>
 		<TargetFramework>net9.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
@@ -9,10 +10,18 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<None Remove="Resources\Default.shader" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Aether.Physics2D" Version="2.1.0" />
 		<PackageReference Include="DotTiled" Version="0.3.0" />
 		<PackageReference Include="OpenTK.Graphics" Version="4.9.1" />
 		<PackageReference Include="OpenTK.Windowing.GraphicsLibraryFramework" Version="4.9.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="Resources\**" />
 	</ItemGroup>
 
 </Project>

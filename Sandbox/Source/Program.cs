@@ -1,4 +1,6 @@
 ﻿using Engine;
+using Engine.Rendering;
+using System.Drawing;
 
 namespace Sandobx;
 
@@ -6,7 +8,7 @@ static class Program
 {
 	private static void Main()
 	{
-		World.SetActive(new MyWorld());
+		new MyWorld().Load();
 
 		Window.Title += " - Sandbox";
 		Application.Launch();
@@ -17,16 +19,14 @@ class MyWorld : World
 {
 	public override IEnumerable<Entity> OnLoad()
 	{
-		return [new Logger("Hello World")];
+		return [new MySprite()];
 	}
 }
 
-class Logger(string message) : Entity
+class MySprite : Entity
 {
-	private readonly string _msg = message;
-
-	protected override void OnUpdate()
+	protected override void OnCreate()
 	{
-		Log.Info(_msg);
+		CreateComponent<SpriteRenderer>().Tint = Color.Red;
 	}
 }

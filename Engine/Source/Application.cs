@@ -5,6 +5,7 @@ namespace Engine;
 
 public static class Application
 {
+	public static bool IsLaunched { get; private set; }
 	/// <summary>
 	/// You can change this before launching the application or after launching via <c>Time.FixedStepDivision</c>.
 	/// </summary>
@@ -17,6 +18,9 @@ public static class Application
 		Window.Launch();
 		Renderer.Initialize();
 
+		IsLaunched = true;
+		World.Loaded.Load();
+
 		float nextFixedUpdate = 0f;
 
 		while (!Window.ShouldClose)
@@ -25,19 +29,26 @@ public static class Application
 			Time.Update(time);
 
 			Window.PollEvents();
-			World.Active.Update();
+			World.Loaded.Update();
 			
 			if (Time.Now > nextFixedUpdate)
 			{
-				World.Active.FixedUpdate();
+				World.Loaded.FixedUpdate();
 				nextFixedUpdate = Time.Now + Time.FixedDelta;
 			}
 
 			Renderer.Clear();
+			Renderer.Render();
+
 			Window.SwapBuffers();
 		}
 
 		Renderer.CleanUp();
 		Window.CleanUp();
+	}
+
+	public static void Quit()
+	{
+		Window.Close();
 	}
 }
