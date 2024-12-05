@@ -33,8 +33,10 @@ class MyWorld : World
 
 class MySprite : Entity
 {
-	protected override void OnCreate()
+	protected override async void OnCreate()
 	{
 		CreateComponent<SpriteRenderer>().Tint = Color.Red;
+		await Wait.Seconds(2.5f);
+		GetComponent<SpriteRenderer>().Tint = Color.Yellow;
 	}
 }

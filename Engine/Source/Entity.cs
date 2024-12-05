@@ -5,6 +5,7 @@ namespace Engine;
 public abstract class Entity : IEnumerable<Component>
 {
 	protected World World => _world!;
+	protected Wait Wait { get; } = new();
 
 	private World? _world;
 	private readonly Dictionary<Type, Component> _components = [];
@@ -59,6 +60,8 @@ public abstract class Entity : IEnumerable<Component>
 		{
 			component.Destroy();
 		}
+
+		Wait.Destroy();
 	}
 
 	/// <summary>
@@ -86,6 +89,8 @@ public abstract class Entity : IEnumerable<Component>
 
 	protected T CreateComponent<T>() where T : Component, new()
 	{
+		Log.Assert(!HasComponent<T>(), $"Cannot create component of type '{typeof(T)}'! There can only be one instance of any type on a given entity.");
+
 		var comp = new T();
 		_components.Add(typeof(T), comp);
 
@@ -97,11 +102,17 @@ public abstract class Entity : IEnumerable<Component>
 		return comp;
 	}
 
+	protected T GetComponent<T>() where T : Component
+	{
+		return (T)_components[typeof(T)];
+	}
+
 	protected void DestroyComponent<T>(T component) where T : Component
 	{
-		if (_components.Remove(typeof(T)))
+		if (HasComponent<T>())
 		{
 			component.Destroy();
+			_components.Remove(typeof(T));
 		}
 	}
 

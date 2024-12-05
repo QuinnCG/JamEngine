@@ -3,6 +3,7 @@
 public abstract class Component
 {
 	protected Entity Entity => _entity!;
+	protected Wait Wait { get; } = new();
 
 	private Entity? _entity;
 
@@ -25,6 +26,7 @@ public abstract class Component
 	internal void Destroy()
 	{
 		OnDestroy();
+		Wait.Destroy();
 	}
 
 	protected virtual void OnCreate() { }

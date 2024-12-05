@@ -65,8 +65,8 @@ public static class Renderer
 		{
 			_defaultShader!.Bind();
 			_defaultShader!.SetUniform("u_tint", renderable.Tint_Internal);
-			renderable.Bind_Internal();
 
+			renderable.Bind_Internal();
 			GL.DrawElements(PrimitiveType.Triangles, renderable.IndexCount_Internal, DrawElementsType.UnsignedInt, 0);
 		}
 	}

@@ -18,6 +18,10 @@ public static class Application
 	/// Called right after the <c>Application</c> is launched but just before entering the update loop.
 	/// </summary>
 	public static event Action? OnLaunch;
+	/// <summary>
+	/// Called right after <c>World.Update()</c> is called.
+	/// </summary>
+	public static event Action? OnUpdate;
 
 	public static void Launch()
 	{
@@ -40,6 +44,8 @@ public static class Application
 			Time.Update(time);
 
 			Window.PollEvents();
+
+			OnUpdate?.Invoke();
 			World.Loaded.Update();
 			
 			if (Time.Now > nextFixedUpdate)
