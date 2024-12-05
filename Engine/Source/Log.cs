@@ -5,38 +5,38 @@ namespace Engine;
 
 public static class Log
 {
-	public static void Info(string message)
+	public static void Info(object message)
 	{
 		Print(string.Empty, message, ConsoleColor.Gray);
 	}
-	public static void Info(string type, string message)
+	public static void Info(string type, object message)
 	{
 		Print(type, message, ConsoleColor.Gray);
 	}
 
-	public static void Warning(string message)
+	public static void Warning(object message)
 	{
 		Print(string.Empty, message, ConsoleColor.Yellow);
 	}
-	public static void Warning(string type, string message)
+	public static void Warning(string type, object message)
 	{
 		Print(type, message, ConsoleColor.Yellow);
 	}
 
-	public static void Error(string message)
+	public static void Error(object message)
 	{
 		Print(string.Empty, message, ConsoleColor.Red);
 	}
-	public static void Error(string type, string message)
+	public static void Error(string type, object message)
 	{
 		Print(type, message, ConsoleColor.Red);
 	}
 
-	public static void Fatal(string message)
+	public static void Fatal(object message)
 	{
 		Print(string.Empty, message, ConsoleColor.DarkRed);
 	}
-	public static void Fatal(string type, string message)
+	public static void Fatal(string type, object message)
 	{
 		Print(type, message, ConsoleColor.DarkRed);
 	}
@@ -56,7 +56,7 @@ public static class Log
 		Debug.Assert(false);
 	}
 
-	private static void Print(string type, string message, ConsoleColor color)
+	private static void Print(string type, object message, ConsoleColor color)
 	{
 		var time = DateTime.Now.TimeOfDay;
 

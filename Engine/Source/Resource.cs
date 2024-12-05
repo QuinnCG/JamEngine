@@ -26,6 +26,7 @@ public static class Resource
 
 		var data = new byte[dataSize];
 		fs.ReadExactly(data, 0, dataSize);
+		Decrypt(data);
 
 		var res = new T();
 		res.Load(data);

@@ -18,7 +18,8 @@ static class Sandbox
 
 	private static void OnLaunch()
 	{
-		using var binary = Resource.Load<BinaryResource>("MyRes.txt");
+		using var text = Resource.Load<TextResource>("MyRes.txt");
+		Log.Info(text);
 	}
 }
 
