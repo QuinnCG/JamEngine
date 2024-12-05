@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Library</OutputType>
+		<TargetFramework>net9.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Aether.Physics2D" Version="2.1.0" />
+		<PackageReference Include="DotTiled" Version="0.3.0" />
+		<PackageReference Include="OpenTK.Graphics" Version="4.9.1" />
+		<PackageReference Include="OpenTK.Windowing.GraphicsLibraryFramework" Version="4.9.1" />
+	</ItemGroup>
+
+</Project>
