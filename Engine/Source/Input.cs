@@ -10,6 +10,7 @@ public static class Input
 		get => Window.GetMousePosition();
 		set => Window.SetMousePosition(value);
 	}
+	public static float ScrollDelta { get; private set; }
 
 	private static readonly HashSet<Keys> _pressedKeys = [];
 	private static readonly HashSet<Keys> _heldKeys = [];
@@ -80,6 +81,8 @@ public static class Input
 
 		Window.OnButtonPressed += OnButtonPressed;
 		Window.OnButtonReleased += OnButtonReleased;
+
+		Window.OnScroll += OnScroll;
 	}
 
 	internal static void Reset()
@@ -89,6 +92,8 @@ public static class Input
 
 		_pressedButtons.Clear();
 		_releasedButtons.Clear();
+
+		ScrollDelta = 0f;
 	}
 
 	private static void OnKeyPressed(Keys key)
@@ -113,5 +118,10 @@ public static class Input
 	{
 		_heldButtons.Remove(button);
 		_releasedButtons.Remove(button);
+	}
+
+	private static void OnScroll(float delta)
+	{
+		ScrollDelta = delta;
 	}
 }

@@ -37,6 +37,7 @@ public static unsafe class Window
 
 	internal static event Action<Keys>? OnKeyPressed, OnKeyReleased;
 	internal static event Action<MouseButton>? OnButtonPressed, OnButtonReleased;
+	internal static event Action<float>? OnScroll;
 
 	private static GLFWWindow* _handle;
 	private static WindowLaunchOptions? _launchOptions;
@@ -61,6 +62,7 @@ public static unsafe class Window
 
 		GLFW.SetKeyCallback(_handle, OnKeyStateChange);
 		GLFW.SetMouseButtonCallback(_handle, OnButtonStateChange);
+		GLFW.SetScrollCallback(_handle, OnScrollDelta);
 	}
 
 	internal static Vector2 GetMousePosition()
@@ -96,6 +98,11 @@ public static unsafe class Window
 		{
 			OnButtonReleased?.Invoke(button);
 		}
+	}
+
+	private static void OnScrollDelta(GLFWWindow* window, double x, double y)
+	{
+		OnScroll?.Invoke((float)y);
 	}
 
 	internal static void Close()
