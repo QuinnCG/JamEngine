@@ -38,6 +38,9 @@ public static class Renderer
 		GL.Enable(EnableCap.CullFace);
 		GL.FrontFace(FrontFaceDirection.Cw);
 
+		GL.Enable(EnableCap.Blend);
+		GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
 		GL.Enable(EnableCap.DebugOutput);
 		GL.DebugMessageCallback(OnDebugMessageCallback, 0);
 

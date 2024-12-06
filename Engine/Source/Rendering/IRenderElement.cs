@@ -1,9 +1,17 @@
 ﻿namespace Engine.Rendering;
 
-/// <summary>
-/// This is not something to be rendered. This is any bindable and dispoable item used during rendering.
-/// </summary>
-internal interface IRenderElement : IDisposable
+public abstract class RenderElement : IDisposable
 {
-	public void Bind();
+	internal void Bind()
+	{
+		OnBind();
+	}
+	public void Dispose()
+	{
+		OnDipose();
+		GC.SuppressFinalize(this);
+	}
+
+	protected abstract void OnBind();
+	protected abstract void OnDipose();
 }

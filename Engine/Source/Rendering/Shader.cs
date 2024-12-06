@@ -3,9 +3,9 @@ using OpenTK.Mathematics;
 
 namespace Engine.Rendering;
 
-internal class Shader : IRenderElement
+internal class Shader : RenderElement
 {
-	public int Handle { get; }
+	private readonly int _handle;
 
 	public Shader(string source)
 		: this(source[..source.IndexOf("// Fragment")],
@@ -15,13 +15,13 @@ internal class Shader : IRenderElement
 		int vs = CreateShader(ShaderType.VertexShader, vertexSource);
 		int fs = CreateShader(ShaderType.FragmentShader, fragmentSource);
 
-		Handle = GL.CreateProgram();
-		GL.AttachShader(Handle, vs);
-		GL.AttachShader(Handle, fs);
-		GL.LinkProgram(Handle);
-		GL.ValidateProgram(Handle);
+		_handle = GL.CreateProgram();
+		GL.AttachShader(_handle, vs);
+		GL.AttachShader(_handle, fs);
+		GL.LinkProgram(_handle);
+		GL.ValidateProgram(_handle);
 
-		string info = GL.GetProgramInfoLog(Handle);
+		string info = GL.GetProgramInfoLog(_handle);
 		if (!string.IsNullOrWhiteSpace(info))
 		{
 			Log.Error(Renderer.DebugLogCategory, info);
@@ -34,14 +34,14 @@ internal class Shader : IRenderElement
 		Bind();
 	}
 
-	public void Bind()
+	protected override void OnBind()
 	{
-		GL.UseProgram(Handle);
+		GL.UseProgram(_handle);
 	}
 
-	public void Dispose()
+	protected override void OnDipose()
 	{
-		GL.DeleteProgram(Handle);
+		GL.DeleteProgram(_handle);
 	}
 
 	public void SetUniform(string name, Color4 color)
@@ -55,7 +55,7 @@ internal class Shader : IRenderElement
 
 	private int GetUnfiromLoc(string name)
 	{
-		return GL.GetUniformLocation(Handle, name);
+		return GL.GetUniformLocation(_handle, name);
 	}
 
 	private static int CreateShader(ShaderType type, string source)

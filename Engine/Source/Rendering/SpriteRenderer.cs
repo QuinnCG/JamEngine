@@ -22,6 +22,8 @@ public class SpriteRenderer : Component, IRenderable
 		];
 	private static int _vao, _vbo, _ibo;
 
+	// TODO: This should be a sprite that references a texture and holds UV data.
+	public Texture? Texture { get; set; }
 	public Color4 Tint { get; set; } = Color4.White;
 
 	private Transform? _transform;

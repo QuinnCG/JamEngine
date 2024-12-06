@@ -11,6 +11,7 @@ public interface IRenderable
 	internal float Rotation_Internal => Rotation;
 	internal Vector2 Scale_Internal => Scale;
 
+	internal Texture? Texture_Internal => Texture;
 	internal Color4 Tint_Internal => Tint;
 	internal int IndexCount_Internal => IndexCount;
 
@@ -21,6 +22,7 @@ public interface IRenderable
 	protected float Rotation { get; }
 	protected Vector2 Scale { get; }
 
+	protected Texture? Texture { get; }
 	/// <summary>
 	/// This value is multiplied in the shader with the texture.
 	/// <br>If no textured was provided, this value becomes the effective color.</br>

@@ -14,6 +14,7 @@
 		<PackageReference Include="DotTiled" Version="0.3.0" />
 		<PackageReference Include="OpenTK.Graphics" Version="4.9.1" />
 		<PackageReference Include="OpenTK.Windowing.GraphicsLibraryFramework" Version="4.9.1" />
+		<PackageReference Include="StbiSharp" Version="1.2.1" />
 	</ItemGroup>
 
 	<ItemGroup>

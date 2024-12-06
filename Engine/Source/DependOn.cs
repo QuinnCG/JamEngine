@@ -1,4 +1,4 @@
-﻿namespace Engine.Rendering;
+﻿namespace Engine;
 
 [AttributeUsage(AttributeTargets.Class)]
 public class DependOn<T> : Attribute

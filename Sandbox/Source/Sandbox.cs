@@ -38,12 +38,18 @@ class MyWorld : World
 
 class MySprite : Entity
 {
-	protected override async void OnCreate()
+	private Texture? _tex;
+
+	protected override void OnCreate()
 	{
 		CreateComponent<Transform>();
 		CreateComponent<SpriteRenderer>().Tint = Color.Red;
-		await Wait.Seconds(2.5f);
-		GetComponent<SpriteRenderer>().Tint = Color.Yellow;
+
+		using var res = Resource.Load<TextureResource>("Logo.png");
+		var texture = new Texture(res);
+
+		GetComponent<SpriteRenderer>().Texture = texture;
+		_tex = texture;
 	}
 
 	protected override void OnUpdate()
@@ -56,6 +62,11 @@ class MySprite : Entity
 		transform.SetPositionX(MathX.Sin(Time.Now));
 		transform.Rotation = Time.Now * 180f;
 		transform.ScaleUniform = ((MathX.Cos(Time.Now) + 1f) / 2f) + 0.5f;
+	}
+
+	protected override void OnDestroy()
+	{
+		_tex?.Dispose();
 	}
 }
 
