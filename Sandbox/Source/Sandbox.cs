@@ -1,6 +1,7 @@
 ﻿using Engine;
 using Engine.Rendering;
 using Engine.Resources;
+using OpenTK.Mathematics;
 using System.Drawing;
 
 namespace Sandbox;
@@ -29,7 +30,7 @@ class MyWorld : World
 	{
 		return 
 			[
-				new Camera(),
+				new MyCamera(),
 				new MySprite()
 			];
 	}
@@ -45,9 +46,23 @@ class MySprite : Entity
 		GetComponent<SpriteRenderer>().Tint = Color.Yellow;
 	}
 
-	protected override void OnFixedUpdate()
+	protected override void OnUpdate()
 	{
+		float hue = MathX.Range(-1f, 1f, 0f, 1f, MathX.Sin(Time.Now));
+		GetComponent<SpriteRenderer>().Tint = Color4.FromHsv(new(hue, 1f, 1f, 1f));
+
 		var transform = GetComponent<Transform>();
+
 		transform.SetPositionX(MathX.Sin(Time.Now));
+		transform.Rotation = Time.Now * 180f;
+		transform.ScaleUniform = ((MathX.Cos(Time.Now) + 1f) / 2f) + 0.5f;
+	}
+}
+
+class MyCamera : Camera
+{
+	protected override void OnUpdate()
+	{
+		Transform.SetPositionY(MathX.Cos(Time.Now * 0.5f));
 	}
 }

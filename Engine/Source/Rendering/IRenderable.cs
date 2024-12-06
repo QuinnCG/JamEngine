@@ -8,6 +8,9 @@ namespace Engine.Rendering;
 public interface IRenderable
 {
 	internal Vector2 Position_Internal => Position;
+	internal float Rotation_Internal => Rotation;
+	internal Vector2 Scale_Internal => Scale;
+
 	internal Color4 Tint_Internal => Tint;
 	internal int IndexCount_Internal => IndexCount;
 
@@ -15,6 +18,8 @@ public interface IRenderable
 	/// The position in world-space.
 	/// </summary>
 	protected Vector2 Position { get; }
+	protected float Rotation { get; }
+	protected Vector2 Scale { get; }
 
 	/// <summary>
 	/// This value is multiplied in the shader with the texture.

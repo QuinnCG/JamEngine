@@ -18,11 +18,16 @@ public class Camera : Entity
 
 	public float OrthgraphicScale { get; set; } = 5f;
 
-	private readonly Transform _transform;
+	protected Transform Transform { get; }
 
 	public Camera()
 	{
-		_transform = CreateComponent<Transform>();
+		if (_active == null)
+		{
+			SetActive();
+		}
+
+		Transform = CreateComponent<Transform>();
 	}
 
 	public void SetActive()
@@ -33,16 +38,8 @@ public class Camera : Entity
 	internal Matrix4 GetMatrix()
 	{
 		var proj = Matrix4.CreateOrthographic(Window.AspectRatio * OrthgraphicScale, OrthgraphicScale, 0f, 1f);
-		var view = Matrix4.CreateTranslation(-_transform.Position.ToVector3());
+		var view = Matrix4.CreateTranslation(-Transform.Position.ToVector3());
 
-		return proj * view;
-	}
-
-	protected override void OnCreate()
-	{
-		if (_active == null)
-		{
-			SetActive();
-		}
+		return view * proj;
 	}
 }

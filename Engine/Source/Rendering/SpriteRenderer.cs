@@ -27,6 +27,9 @@ public class SpriteRenderer : Component, IRenderable
 	private Transform? _transform;
 
 	Vector2 IRenderable.Position => _transform!.Position;
+	float IRenderable.Rotation => _transform!.Rotation;
+	Vector2 IRenderable.Scale => _transform!.Scale;
+
 	Color4 IRenderable.Tint => Tint;
 	int IRenderable.IndexCount => 6;
 

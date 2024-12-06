@@ -66,10 +66,12 @@ public static class Renderer
 			_defaultShader.Bind();
 			_defaultShader.SetUniform("u_tint", renderable.Tint_Internal);
 
-			var modelMatrix = Matrix4.Identity;
-			modelMatrix *= Matrix4.CreateTranslation(renderable.Position_Internal.ToVector3());
+			var model = Matrix4.Identity;
+			model *= Matrix4.CreateRotationZ(-renderable.Rotation_Internal.ToRadians());
+			model *= Matrix4.CreateScale(renderable.Scale_Internal.ToVector3());
+			model *= Matrix4.CreateTranslation(renderable.Position_Internal.ToVector3());
 
-			var mvp = modelMatrix * Camera.Active.GetMatrix();
+			var mvp = model * Camera.Active.GetMatrix();
 			_defaultShader.SetUniform("u_mvp", mvp);
 
 			renderable.Bind_Internal();
