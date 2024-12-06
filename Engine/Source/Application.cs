@@ -13,6 +13,10 @@ public static class Application
 	/// You can change this before launching the application or after launching via <c>Time.FixedStepDivision</c>.
 	/// </summary>
 	public static int DefaultFixedStepDivision { get; set; } = 60;
+	/// <summary>
+	/// Contains <c>Window</c> options that can't be set after launching.
+	/// </summary>
+	public static WindowLaunchOptions WindowLaunchOptions { get; set; } = new();
 
 	/// <summary>
 	/// Called right after the <c>Application</c> is launched but just before entering the update loop.
@@ -27,7 +31,7 @@ public static class Application
 	{
 		Time.FixedStepDivision = DefaultFixedStepDivision;
 
-		Window.Launch();
+		Window.Launch(WindowLaunchOptions);
 		Renderer.Initialize();
 
 		Resource.Initialize();

@@ -33,4 +33,16 @@ public abstract class Component
 	protected virtual void OnUpdate() { }
 	protected virtual void OnFixedUpdate() { }
 	protected virtual void OnDestroy() { }
+
+	/// <summary>
+	/// This can't be called before the parent <c>Entity</c> has been initialized.
+	/// <br>Either call this afterwards (such as in <c>OnCreate</c>) or make sure this component is only ever created on an already active <c>Entity</c>.</br>
+	/// </summary>
+	/// <typeparam name="T">The type of the <c>Component</c> to get.</typeparam>
+	/// <returns>The retrieved component. An assertion is used to make sure the component exists.
+	/// <br>If you can't be certain the <c>Component</c> will exist then make sure to use <c>Entity.HasComponent()</c> first.</br></returns>
+	protected T GetComponent<T>() where T : Component
+	{
+		return Entity.GetComponent_Internal<T>();
+	}
 }

@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace Engine.Rendering;
 
+[DependOn<Transform>]
 public class SpriteRenderer : Component, IRenderable
 {
 	private readonly static Vertex[] _vertices =
@@ -25,7 +26,7 @@ public class SpriteRenderer : Component, IRenderable
 
 	private Transform? _transform;
 
-	Vector2 IRenderable.Position => Vector2.Zero;
+	Vector2 IRenderable.Position => _transform!.Position;
 	Color4 IRenderable.Tint => Tint;
 	int IRenderable.IndexCount => 6;
 
@@ -53,6 +54,7 @@ public class SpriteRenderer : Component, IRenderable
 
 	protected override void OnCreate()
 	{
+		_transform = GetComponent<Transform>();
 		Renderer.Register(this);
 	}
 

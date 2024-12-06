@@ -35,9 +35,7 @@ public static class Renderer
 	{
 		GL.LoadBindings(new GLFWBindingsContext());
 
-		// TODO: Clockwise.
-		// TODO: Debug output.
-
+		GL.Enable(EnableCap.CullFace);
 		GL.FrontFace(FrontFaceDirection.Cw);
 
 		GL.Enable(EnableCap.DebugOutput);
@@ -61,10 +59,18 @@ public static class Renderer
 
 	internal static void Render()
 	{
+		Log.Assert(_defaultShader != null, "Default Shader should not be null!");
+
 		foreach (var renderable in _renderables)
 		{
-			_defaultShader!.Bind();
-			_defaultShader!.SetUniform("u_tint", renderable.Tint_Internal);
+			_defaultShader.Bind();
+			_defaultShader.SetUniform("u_tint", renderable.Tint_Internal);
+
+			var modelMatrix = Matrix4.Identity;
+			modelMatrix *= Matrix4.CreateTranslation(renderable.Position_Internal.ToVector3());
+
+			var mvp = modelMatrix * Camera.Active.GetMatrix();
+			_defaultShader.SetUniform("u_mvp", mvp);
 
 			renderable.Bind_Internal();
 			GL.DrawElements(PrimitiveType.Triangles, renderable.IndexCount_Internal, DrawElementsType.UnsignedInt, 0);

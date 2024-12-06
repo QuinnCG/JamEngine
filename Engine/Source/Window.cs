@@ -1,4 +1,5 @@
-﻿using OpenTK.Mathematics;
+﻿using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using GLFWWindow = OpenTK.Windowing.GraphicsLibraryFramework.Window;
 
@@ -29,23 +30,31 @@ public static unsafe class Window
 		}
 	}
 
+	public static float AspectRatio => (float)Size.X / Size.Y;
+	public static WindowLaunchOptions LaunchOptions => _launchOptions!;
+
 	internal static bool ShouldClose => GLFW.WindowShouldClose(_handle);
 
 	private static GLFWWindow* _handle;
+	private static WindowLaunchOptions? _launchOptions;
 	private static string _title = "Jam Engine";
 	private static Vector2i _size = new(1440, 800);
 
-	internal static void Launch()
+	internal static void Launch(WindowLaunchOptions options)
 	{
+		_launchOptions = options;
+
 		GLFW.Init();
 
 		GLFW.WindowHint(WindowHintOpenGlProfile.OpenGlProfile, OpenGlProfile.Core);
 		GLFW.WindowHint(WindowHintInt.ContextVersionMajor, 4);
 		GLFW.WindowHint(WindowHintInt.ContextVersionMinor, 3);
-		GLFW.WindowHint(WindowHintBool.Resizable, false);
+		GLFW.WindowHint(WindowHintBool.Resizable, options.CanResize);
 
 		_handle = GLFW.CreateWindow(_size.X, _size.Y, _title, null, null);
 		GLFW.MakeContextCurrent(_handle);
+
+		GLFW.SetFramebufferSizeCallback(_handle, OnFrameBufferSizeChange);
 	}
 
 	internal static void Close()
@@ -69,5 +78,11 @@ public static unsafe class Window
 		GLFW.Terminate();
 
 		_handle = null;
+	}
+
+	private static void OnFrameBufferSizeChange(GLFWWindow* window, int width, int height)
+	{
+		GL.Viewport(0, 0, width, height);
+		Size = new(width, height);
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Diagnostics;
 
 namespace Engine;
 
@@ -9,6 +10,11 @@ public abstract class Entity : IEnumerable<Component>
 
 	private World? _world;
 	private readonly Dictionary<Type, Component> _components = [];
+
+	public IEnumerator<Component> GetEnumerator()
+	{
+		return _components.Values.GetEnumerator();
+	}
 
 	/// <summary>
 	/// Use this to set the <c>World</c> of the <c>Entity</c> after it's been created; e.g. when being transfered to another world.
@@ -64,6 +70,11 @@ public abstract class Entity : IEnumerable<Component>
 		Wait.Destroy();
 	}
 
+	internal T GetComponent_Internal<T>() where T : Component
+	{
+		return GetComponent<T>();
+	}
+
 	/// <summary>
 	/// Called when the world is loaded or when the entity is created after the world has loaded.
 	/// </summary>
@@ -94,7 +105,7 @@ public abstract class Entity : IEnumerable<Component>
 		var comp = new T();
 		_components.Add(typeof(T), comp);
 
-		if (World.IsLoaded)
+		if (_world != null && World.IsLoaded)
 		{
 			comp.Create(this);
 		}
@@ -104,6 +115,7 @@ public abstract class Entity : IEnumerable<Component>
 
 	protected T GetComponent<T>() where T : Component
 	{
+		Debug.Assert(HasComponent<T>(), $"Failed to find component '{typeof(T).Name}' on entity '{this}'!");
 		return (T)_components[typeof(T)];
 	}
 
@@ -114,11 +126,6 @@ public abstract class Entity : IEnumerable<Component>
 			component.Destroy();
 			_components.Remove(typeof(T));
 		}
-	}
-
-	public IEnumerator<Component> GetEnumerator()
-	{
-		return _components.Values.GetEnumerator();
 	}
 
 	IEnumerator IEnumerable.GetEnumerator()

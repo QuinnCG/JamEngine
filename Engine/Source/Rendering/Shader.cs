@@ -44,11 +44,13 @@ internal class Shader : IRenderElement
 		GL.DeleteProgram(Handle);
 	}
 
-	// TODO: Uniforms.
-
 	public void SetUniform(string name, Color4 color)
 	{
 		GL.Uniform4(GetUnfiromLoc(name), color);
+	}
+	public void SetUniform(string name, Matrix4 matrix)
+	{
+		GL.UniformMatrix4(GetUnfiromLoc(name), true, ref matrix);
 	}
 
 	private int GetUnfiromLoc(string name)

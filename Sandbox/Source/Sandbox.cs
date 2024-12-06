@@ -27,7 +27,11 @@ class MyWorld : World
 {
 	public override IEnumerable<Entity> OnLoad()
 	{
-		return [new MySprite()];
+		return 
+			[
+				new Camera(),
+				new MySprite()
+			];
 	}
 }
 
@@ -35,8 +39,15 @@ class MySprite : Entity
 {
 	protected override async void OnCreate()
 	{
+		CreateComponent<Transform>();
 		CreateComponent<SpriteRenderer>().Tint = Color.Red;
 		await Wait.Seconds(2.5f);
 		GetComponent<SpriteRenderer>().Tint = Color.Yellow;
+	}
+
+	protected override void OnFixedUpdate()
+	{
+		var transform = GetComponent<Transform>();
+		transform.SetPositionX(MathX.Sin(Time.Now));
 	}
 }
