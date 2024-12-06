@@ -8,9 +8,12 @@ out vec2 v_uv;
 
 uniform mat4 u_mvp;
 
+uniform vec2 u_UVOffset;
+uniform vec2 u_UVScale;
+
 void main()
 {
-	v_uv = a_uv;
+	v_uv = (a_uv * u_UVScale) + u_UVOffset;
 	gl_Position = vec4(a_position, 0.0, 1.0) * u_mvp;
 }
 

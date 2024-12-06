@@ -48,7 +48,7 @@ class MySprite : Entity
 		using var res = Resource.Load<TextureResource>("Logo.png");
 		var texture = new Texture(res);
 
-		GetComponent<SpriteRenderer>().Texture = texture;
+		GetComponent<SpriteRenderer>().Sprite = new Sprite(texture);
 		_tex = texture;
 	}
 

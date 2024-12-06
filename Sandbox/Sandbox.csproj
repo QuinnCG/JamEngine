@@ -8,6 +8,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<EmbeddedResource Include="Resources\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\Engine\Engine.csproj" />
 	</ItemGroup>
 

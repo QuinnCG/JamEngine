@@ -21,8 +21,4 @@
 		<EmbeddedResource Include="Resources\**" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\ResourceBuilder\ResourceBuilder.csproj" />
-	</ItemGroup>
-
 </Project>

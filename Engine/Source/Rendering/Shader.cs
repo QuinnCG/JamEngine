@@ -52,6 +52,10 @@ internal class Shader : RenderElement
 	{
 		GL.UniformMatrix4(GetUnfiromLoc(name), true, ref matrix);
 	}
+	public void SetUniform(string name, Vector2 vector)
+	{
+		GL.Uniform2(GetUnfiromLoc(name), vector);
+	}
 
 	private int GetUnfiromLoc(string name)
 	{

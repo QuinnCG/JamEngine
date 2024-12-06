@@ -1,5 +1,6 @@
 ﻿namespace Engine.Rendering;
 
+// TODO: Reference count render elements and dipose automatically?
 public abstract class RenderElement : IDisposable
 {
 	internal void Bind()

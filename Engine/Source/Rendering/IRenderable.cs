@@ -12,6 +12,9 @@ public interface IRenderable
 	internal Vector2 Scale_Internal => Scale;
 
 	internal Texture? Texture_Internal => Texture;
+	internal Vector2 UVOffset_Internal => UVOffset;
+	internal Vector2 UVScale_Internal => UVScale;
+
 	internal Color4 Tint_Internal => Tint;
 	internal int IndexCount_Internal => IndexCount;
 
@@ -23,6 +26,9 @@ public interface IRenderable
 	protected Vector2 Scale { get; }
 
 	protected Texture? Texture { get; }
+	protected Vector2 UVOffset { get; }
+	protected Vector2 UVScale { get; }
+
 	/// <summary>
 	/// This value is multiplied in the shader with the texture.
 	/// <br>If no textured was provided, this value becomes the effective color.</br>

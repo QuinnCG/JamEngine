@@ -41,6 +41,8 @@ public static class Renderer
 		GL.Enable(EnableCap.Blend);
 		GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
+		GL.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Line);
+
 		GL.Enable(EnableCap.DebugOutput);
 		GL.DebugMessageCallback(OnDebugMessageCallback, 0);
 
@@ -76,6 +78,9 @@ public static class Renderer
 
 			var mvp = model * Camera.Active.GetMatrix();
 			_defaultShader.SetUniform("u_mvp", mvp);
+
+			_defaultShader.SetUniform("u_UVOffset", renderable.UVOffset_Internal);
+			_defaultShader.SetUniform("u_UVScale", renderable.UVScale_Internal);
 
 			renderable.Bind_Internal();
 			GL.DrawElements(PrimitiveType.Triangles, renderable.IndexCount_Internal, DrawElementsType.UnsignedInt, 0);

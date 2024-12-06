@@ -1,5 +1,7 @@
 ﻿using System.Collections;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace Engine;
 
@@ -29,6 +31,13 @@ public abstract class Entity : IEnumerable<Component>
 
 	internal void Create(World world)
 	{
+#if DEBUG
+		foreach (var component in _components.Values)
+		{
+			ValidateComponentDependency(component);
+		}
+#endif
+
 		_world = world;
 		OnCreate();
 
@@ -103,14 +112,21 @@ public abstract class Entity : IEnumerable<Component>
 		Log.Assert(!HasComponent<T>(), $"Cannot create component of type '{typeof(T)}'! There can only be one instance of any type on a given entity.");
 
 		var comp = new T();
-		_components.Add(typeof(T), comp);
+		CreateComponent(comp);
+
+		return comp;
+	}
+	protected void CreateComponent<T>(T component) where T : Component
+	{
+		Log.Assert(!HasComponent<T>(), $"Cannot create component of type '{typeof(T)}'! There can only be one instance of any type on a given entity.");
+
+		_components.Add(typeof(T), component);
 
 		if (_world != null && World.IsLoaded)
 		{
-			comp.Create(this);
+			ValidateComponentDependency(component);
+			component.Create(this);
 		}
-
-		return comp;
 	}
 
 	protected T GetComponent<T>() where T : Component
@@ -131,5 +147,31 @@ public abstract class Entity : IEnumerable<Component>
 	IEnumerator IEnumerable.GetEnumerator()
 	{
 		return GetEnumerator();
+	}
+
+	[Conditional("DEBUG")]
+	private void ValidateComponentDependency<T>(T component) where T : Component
+	{
+		var attributes = component.GetType().GetCustomAttributes(typeof(DependOn<>));
+
+		foreach (var attribute in attributes)
+		{
+			Type dependedOnType = attribute.GetType().GetGenericArguments()[0];
+			bool found = false;
+
+			foreach (var c in _components.Values)
+			{
+				if (c.GetType() == dependedOnType)
+				{
+					found = true;
+					break;
+				}
+			}
+
+			if (!found)
+			{
+				Log.Error($"Component '{component}' on entity '{this}' does depends on component of type '{dependedOnType}'!");
+			}
+		}
 	}
 }

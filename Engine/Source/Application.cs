@@ -31,10 +31,10 @@ public static class Application
 	{
 		Time.FixedStepDivision = DefaultFixedStepDivision;
 
+		Resource.Initialize();
+
 		Window.Launch(WindowLaunchOptions);
 		Renderer.Initialize();
-
-		Resource.Initialize();
 
 		IsLaunched = true;
 		OnLaunch?.Invoke();

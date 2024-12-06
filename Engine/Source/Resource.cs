@@ -1,34 +1,23 @@
-﻿using System.Text;
+﻿using System.Reflection;
 
 namespace Engine;
 
 public static class Resource
 {
-	private static readonly Dictionary<string, long> _nameToIndex = [];
+	private static Assembly? _clientAssembly, _engineAssembly;
+	private static string? _clientName;
 
-	// TODO: Only use binary data for release mode. In debug mode, use the resource files directly (have them copied over in debug mode).
-
-	public static T Load<T>(string name) where T : IResource, new()
+	public static T Load<T>(string path) where T : IResource, new()
 	{
-		name = name.Replace('/', '\\');
+		path = FormatPath(path);
 
-		if (!_nameToIndex.TryGetValue(name, out long fileIndex))
-		{
-			throw new InvalidOperationException($"Failed to find a resource with the name '{name}'!");
-		}
+		Log.Assert(_clientName != null);
+		using var stream = _clientAssembly!.GetManifestResourceStream($"{_clientName}.Resources.{path}");
 
-		using var fs = File.OpenRead("res.dat");
-		fs.Position = fileIndex;
+		Log.Assert(stream != null, $"Failed to load client resource of name '{path}'!");
 
-		var dataSizeBytes = new byte[4];
-		fs.ReadExactly(dataSizeBytes, 0, 4);
-
-		Decrypt(dataSizeBytes);
-		int dataSize = BitConverter.ToInt32(dataSizeBytes, 0);
-
-		var data = new byte[dataSize];
-		fs.ReadExactly(data, 0, dataSize);
-		Decrypt(data);
+		var data = new byte[stream.Length];
+		stream.ReadExactly(data, 0, data.Length);
 
 		var res = new T();
 		res.Load(data);
@@ -38,17 +27,14 @@ public static class Resource
 
 	internal static void Initialize()
 	{
-		using var fs = File.OpenRead("index.dat");
-		using var reader = new BinaryReader(fs);
+		_engineAssembly = typeof(Resource).Assembly;
 
-		while (fs.Position < fs.Length)
-		{
-			int nameSize = BitConverter.ToInt32(Decrypt(reader.ReadBytes(4)), 0);
-			string name = Encoding.Default.GetString(Decrypt(reader.ReadBytes(nameSize)));
-			long dataIndex = BitConverter.ToInt64(Decrypt(reader.ReadBytes(8)), 0);
+		var files = Directory.EnumerateFiles(".");
+		string exePath = files.First(x => x.EndsWith(".exe"));
+		string fileNoExt = exePath[..exePath.LastIndexOf('.')];
 
-			_nameToIndex.Add(name, dataIndex);
-		}
+		_clientName = fileNoExt[(fileNoExt.LastIndexOf('\\') + 1)..];
+		_clientAssembly = Assembly.LoadFrom($"{fileNoExt}.dll");
 	}
 
 	/// <summary>
@@ -57,19 +43,24 @@ public static class Resource
 	/// </summary>
 	/// <returns>A stream of the returned resource or null if it wasn't found.
 	/// <br>Remeber to dispose of the stream.</br></returns>
-	internal static Stream? LoadFromEngine(string path)
+	internal static Stream LoadFromEngine(string path)
 	{
+		path = FormatPath(path);
+
 		path = $"Engine.Resources.{path}";
-		return typeof(Resource).Assembly.GetManifestResourceStream(path);
+		var stream = _engineAssembly!.GetManifestResourceStream(path);
+
+		Log.Assert(stream != null, $"Failed to load engine resource '{path}'!");
+
+		return stream;
 	}
 
-	private static byte[] Decrypt(byte[] data)
+	private static string FormatPath(string path)
 	{
-		for (int i = 0; i < data.Length; i++)
-		{
-			data[i] -= 100;
-		}
+		path = path.Replace(' ', '_');
+		path = path.Replace('/', '\\');
+		path = path.Replace('\\', '.');
 
-		return data;
+		return path;
 	}
 }

@@ -4,6 +4,9 @@ using System.Runtime.InteropServices;
 
 namespace Engine.Rendering;
 
+// TODO: Make IRenderable a class instance and create and hold it internally?
+// How to handle data update? Callback or OnRender method?
+
 [DependOn<Transform>]
 public class SpriteRenderer : Component, IRenderable
 {
@@ -22,8 +25,7 @@ public class SpriteRenderer : Component, IRenderable
 		];
 	private static int _vao, _vbo, _ibo;
 
-	// TODO: This should be a sprite that references a texture and holds UV data.
-	public Texture? Texture { get; set; }
+	public Sprite Sprite { get; set; }
 	public Color4 Tint { get; set; } = Color4.White;
 
 	private Transform? _transform;
@@ -31,6 +33,10 @@ public class SpriteRenderer : Component, IRenderable
 	Vector2 IRenderable.Position => _transform!.Position;
 	float IRenderable.Rotation => _transform!.Rotation;
 	Vector2 IRenderable.Scale => _transform!.Scale;
+
+	Texture? IRenderable.Texture => Sprite.Texture;
+	Vector2 IRenderable.UVOffset => Sprite.UVOffset;
+	Vector2 IRenderable.UVScale => Sprite.UVScale;
 
 	Color4 IRenderable.Tint => Tint;
 	int IRenderable.IndexCount => 6;
