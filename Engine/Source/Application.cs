@@ -36,6 +36,10 @@ public static class Application
 		Window.Launch(WindowLaunchOptions);
 		Renderer.Initialize();
 
+		Input.Initialize();
+
+		/* CLIENT CODE MAY EXIST AFTER THIS POINT */
+		 
 		IsLaunched = true;
 		OnLaunch?.Invoke();
 
@@ -62,6 +66,7 @@ public static class Application
 			Renderer.Render();
 
 			Window.SwapBuffers();
+			Input.Reset();
 		}
 
 		Renderer.CleanUp();

@@ -41,7 +41,7 @@ public static class Renderer
 		GL.Enable(EnableCap.Blend);
 		GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
-		GL.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Line);
+		//GL.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Line);
 
 		GL.Enable(EnableCap.DebugOutput);
 		GL.DebugMessageCallback(OnDebugMessageCallback, 0);

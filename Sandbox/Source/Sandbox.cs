@@ -38,6 +38,7 @@ class MyWorld : World
 
 class MySprite : Entity
 {
+	private readonly float _moveSpeed = 3f;
 	private Texture? _tex;
 
 	protected override void OnCreate()
@@ -57,11 +58,13 @@ class MySprite : Entity
 		float hue = MathX.Range(-1f, 1f, 0f, 1f, MathX.Sin(Time.Now));
 		GetComponent<SpriteRenderer>().Tint = Color4.FromHsv(new(hue, 1f, 1f, 1f));
 
-		var transform = GetComponent<Transform>();
+		var moveDir = new Vector2()
+		{
+			X = Input.GetAxis(Key.A, Key.D),
+			Y = Input.GetAxis(Key.S, Key.W)
+		}.NormalizedOrZero();
 
-		transform.SetPositionX(MathX.Sin(Time.Now));
-		transform.Rotation = Time.Now * 180f;
-		transform.ScaleUniform = ((MathX.Cos(Time.Now) + 1f) / 2f) + 0.5f;
+		GetComponent<Transform>().Position += moveDir * _moveSpeed * Time.Delta;
 	}
 
 	protected override void OnDestroy()

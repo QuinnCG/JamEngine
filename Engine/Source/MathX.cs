@@ -91,4 +91,12 @@ public static class MathX
 	{
 		return MathX.PI / 180f * degrees;
 	}
+
+	public static Vector2 NormalizedOrZero(this Vector2 v)
+	{
+		if (v.LengthSquared == 0f)
+			return Vector2.Zero;
+
+		return v.Normalized();
+	}
 }

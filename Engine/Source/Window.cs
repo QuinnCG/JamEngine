@@ -35,6 +35,9 @@ public static unsafe class Window
 
 	internal static bool ShouldClose => GLFW.WindowShouldClose(_handle);
 
+	internal static event Action<Keys>? OnKeyPressed, OnKeyReleased;
+	internal static event Action<MouseButton>? OnButtonPressed, OnButtonReleased;
+
 	private static GLFWWindow* _handle;
 	private static WindowLaunchOptions? _launchOptions;
 	private static string _title = "Jam Engine";
@@ -55,6 +58,44 @@ public static unsafe class Window
 		GLFW.MakeContextCurrent(_handle);
 
 		GLFW.SetFramebufferSizeCallback(_handle, OnFrameBufferSizeChange);
+
+		GLFW.SetKeyCallback(_handle, OnKeyStateChange);
+		GLFW.SetMouseButtonCallback(_handle, OnButtonStateChange);
+	}
+
+	internal static Vector2 GetMousePosition()
+	{
+		GLFW.GetCursorPos(_handle, out double x, out double y);
+		return new((float)x, (float)y);
+	}
+
+	internal static void SetMousePosition(Vector2 pos)
+	{
+		GLFW.SetCursorPos(_handle, pos.X, pos.Y);
+	}
+
+	private static void OnKeyStateChange(GLFWWindow* window, Keys key, int scanCode, InputAction action, KeyModifiers mods)
+	{
+		if (action == InputAction.Press)
+		{
+			OnKeyPressed?.Invoke(key);
+		}
+		else if (action == InputAction.Release)
+		{
+			OnKeyReleased?.Invoke(key);
+		}
+	}
+
+	private static void OnButtonStateChange(GLFWWindow* window, MouseButton button, InputAction action, KeyModifiers mods)
+	{
+		if (action == InputAction.Press)
+		{
+			OnButtonPressed?.Invoke(button);
+		}
+		else if (action == InputAction.Release)
+		{
+			OnButtonReleased?.Invoke(button);
+		}
 	}
 
 	internal static void Close()
