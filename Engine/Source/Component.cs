@@ -9,6 +9,8 @@ public abstract class Component
 
 	internal void Create(Entity entity)
 	{
+		Log.Assert(_entity == null, $"Cannot attach component '{this}' to entity '{entity}' because it is already attached to entity '{_entity}'!");
+
 		_entity = entity;
 		OnCreate();
 	}

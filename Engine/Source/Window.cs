@@ -1,5 +1,4 @@
-﻿using OpenTK.Graphics.OpenGL4;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using GLFWWindow = OpenTK.Windowing.GraphicsLibraryFramework.Window;
 
@@ -14,8 +13,8 @@ public static unsafe class Window
 		{
 			_title = value;
 
-			if (_handle != null)
-				GLFW.SetWindowTitle(_handle, value);
+			if (Handle != null)
+				GLFW.SetWindowTitle(Handle, value);
 		}
 	}
 	public static Vector2i Size
@@ -25,8 +24,8 @@ public static unsafe class Window
 		{
 			_size = value;
 
-			if (_handle != null)
-				GLFW.SetWindowSize(_handle, value.X, value.Y);
+			if (Handle != null)
+				GLFW.SetWindowSize(Handle, value.X, value.Y);
 		}
 	}
 
@@ -35,16 +34,20 @@ public static unsafe class Window
 
 	public static event Action<Vector2i>? OnWindowResize;
 
-	internal static bool ShouldClose => GLFW.WindowShouldClose(_handle);
+	internal static bool ShouldClose => GLFW.WindowShouldClose(Handle);
 
 	internal static event Action<Keys>? OnKeyPressed, OnKeyReleased;
 	internal static event Action<MouseButton>? OnButtonPressed, OnButtonReleased;
 	internal static event Action<float>? OnScroll;
 
-	private static GLFWWindow* _handle;
+	internal static GLFWWindow* Handle { get; private set; }
+
 	private static WindowLaunchOptions? _launchOptions;
 	private static string _title = "Jam Engine";
 	private static Vector2i _size = new(1440, 800);
+
+	// TODO: Cursor hiding/locking.
+	//GLFW.SetInputMode(_handle, CursorStateAttribute.Cursor, CursorModeValue.CursorHidden);
 
 	internal static void Launch(WindowLaunchOptions options)
 	{
@@ -56,26 +59,31 @@ public static unsafe class Window
 		GLFW.WindowHint(WindowHintInt.ContextVersionMajor, 4);
 		GLFW.WindowHint(WindowHintInt.ContextVersionMinor, 3);
 		GLFW.WindowHint(WindowHintBool.Resizable, options.CanResize);
+		
+		if (options.EnableVSync)
+		{
+			GLFW.SwapInterval(1);
+		}
 
-		_handle = GLFW.CreateWindow(_size.X, _size.Y, _title, null, null);
-		GLFW.MakeContextCurrent(_handle);
+		Handle = GLFW.CreateWindow(_size.X, _size.Y, _title, null, null);
+		GLFW.MakeContextCurrent(Handle);
 
-		GLFW.SetFramebufferSizeCallback(_handle, OnFrameBufferSizeChange);
+		GLFW.SetFramebufferSizeCallback(Handle, OnFrameBufferSizeChange);
 
-		GLFW.SetKeyCallback(_handle, OnKeyStateChange);
-		GLFW.SetMouseButtonCallback(_handle, OnButtonStateChange);
-		GLFW.SetScrollCallback(_handle, OnScrollDelta);
+		GLFW.SetKeyCallback(Handle, OnKeyStateChange);
+		GLFW.SetMouseButtonCallback(Handle, OnButtonStateChange);
+		GLFW.SetScrollCallback(Handle, OnScrollDelta);
 	}
 
 	internal static Vector2 GetMousePosition()
 	{
-		GLFW.GetCursorPos(_handle, out double x, out double y);
+		GLFW.GetCursorPos(Handle, out double x, out double y);
 		return new((float)x, (float)y);
 	}
 
 	internal static void SetMousePosition(Vector2 pos)
 	{
-		GLFW.SetCursorPos(_handle, pos.X, pos.Y);
+		GLFW.SetCursorPos(Handle, pos.X, pos.Y);
 	}
 
 	private static void OnKeyStateChange(GLFWWindow* window, Keys key, int scanCode, InputAction action, KeyModifiers mods)
@@ -109,7 +117,7 @@ public static unsafe class Window
 
 	internal static void Close()
 	{
-		GLFW.SetWindowShouldClose(_handle, true);
+		GLFW.SetWindowShouldClose(Handle, true);
 	}
 
 	internal static void PollEvents()
@@ -119,15 +127,15 @@ public static unsafe class Window
 
 	internal static void SwapBuffers()
 	{
-		GLFW.SwapBuffers(_handle);
+		GLFW.SwapBuffers(Handle);
 	}
 
 	internal static void CleanUp()
 	{
-		GLFW.DestroyWindow(_handle);
+		GLFW.DestroyWindow(Handle);
 		GLFW.Terminate();
 
-		_handle = null;
+		Handle = null;
 	}
 
 	private static void OnFrameBufferSizeChange(GLFWWindow* window, int width, int height)

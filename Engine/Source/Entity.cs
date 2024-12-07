@@ -5,23 +5,74 @@ using System.Reflection;
 
 namespace Engine;
 
-public abstract class Entity : IEnumerable<Component>
+/// <summary>
+/// The abstract class for entities to enhierit from.
+/// <br>An entity exists in a <see cref="Engine.World"/> and recieves <see cref="Application"/> updates.</br>
+/// <br>Youy can enumerate an entity to access its child entities.</br>
+/// </summary>
+public abstract class Entity : IEnumerable<Entity>
 {
+	/// <summary>
+	/// The <c>Entity</c> that is parent to this <c>Entity</c>.
+	/// <br>This can be null if this <c>Entity</c> has no parent.</br>
+	/// </summary>
+	public Entity? Parent
+	{
+		get => _parent;
+
+		set
+		{
+			// Ignore redundant update.
+			if (_parent != value)
+			{
+				// If we have another parent, remove us from that parent.
+				_parent?._children.Remove(this);
+
+				// Set new parent.
+				_parent = value;
+				// Add to children of new parent if not setting parent to null.
+				if (value != null && _parent != null)
+					_parent._children.Add(this);
+			}
+		}
+	}
+
 	protected World World => _world!;
 	protected Wait Wait { get; } = new();
 
+	private Entity? _parent;
 	private World? _world;
-	private readonly Dictionary<Type, Component> _components = [];
 
-	public IEnumerator<Component> GetEnumerator()
+	private readonly Dictionary<Type, Component> _components = [];
+	private readonly HashSet<Entity> _children = [];
+
+	public bool HasChild(Entity entity)
 	{
-		return _components.Values.GetEnumerator();
+		return _children.Contains(entity);
+	}
+
+	public void AddChild(Entity entity)
+	{
+		_children.Add(entity);
+		entity.Parent = this;
+	}
+
+	public void RemoveChild(Entity entity)
+	{
+		Log.Assert(HasChild(entity), $"Cannot from entity '{entity}' from parent entity '{this}' because it is not a child of that entity!");
+		_children.Remove(entity);
+		entity._parent = null;
+	}
+
+	public IEnumerator<Entity> GetEnumerator()
+	{
+		return _children.GetEnumerator();
 	}
 
 	/// <summary>
-	/// Use this to set the <c>World</c> of the <c>Entity</c> after it's been created; e.g. when being transfered to another world.
-	/// <br>Note: this will remove the entity from its old world.</br>
-	/// <br>Note: this does not add the entity to the specified world. As such this is supposed to be called directly by a <c>World</c>.</br>
+	/// Use this to set the <see cref="Engine.World"/> of the <see cref="Entity"/> after it's been created; e.g. when being transfered to another world.
+	/// <br>This will remove the <see cref="Entity"/> from its old world.</br>
+	/// <br>This does not add the <see cref="Entity"/> to the specified world. As such this is supposed to be called directly by a <see cref="Engine.World"/>.</br>
 	/// </summary>
 	internal void SetWorld(World world)
 	{

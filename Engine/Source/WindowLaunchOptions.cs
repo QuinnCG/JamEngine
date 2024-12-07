@@ -6,4 +6,5 @@
 public record WindowLaunchOptions
 {
 	public bool CanResize { get; init; } = true;
+	public bool EnableVSync { get; init; }
 }

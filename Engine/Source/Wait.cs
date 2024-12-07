@@ -7,7 +7,7 @@ public class Wait
 {
 	private readonly CancellationTokenSource _cancellationSource = new();
 
-	private bool _isNextFrame;
+	//private bool _isNextFrame;
 	private bool _isFirstUpdate;
 
 	public Wait()
@@ -31,6 +31,9 @@ public class Wait
 		});
 	}
 
+	/// <summary>
+	/// End any async Tasks that are active and clean up any other references.
+	/// </summary>
 	internal void Destroy()
 	{ 
 		_cancellationSource.Cancel();
@@ -41,7 +44,7 @@ public class Wait
 	{
 		if (!_isFirstUpdate)
 		{
-			_isNextFrame = true;
+			//_isNextFrame = true;
 		}
 
 		_isFirstUpdate = true;

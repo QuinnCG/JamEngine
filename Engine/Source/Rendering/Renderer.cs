@@ -189,7 +189,7 @@ public static class Renderer
 	private static void OnWindowResize(Vector2i size)
 	{
 		GL.Viewport(0, 0, size.X, size.Y);
-		UpdateDeferredFrameBufferTexture();
+		//UpdateDeferredFrameBufferTexture();
 	}
 
 	private static void InitializeDeferredFramebuffer()
