@@ -24,7 +24,7 @@ public static class Renderer
 	// Used to avoid spamming the same message in a row.
 	// Set to -1 to avoid being equal to any debug message on first debug message.
 	private static int _lastDebugMsgID = -1;
-	private static readonly HashSet<IRenderable> _renderables = [];
+	private static readonly HashSet<RenderObject> _renderObjects = [];
 	private static Shader? _defaultShader;
 
 	private static int _deferredTextureObj;
@@ -32,14 +32,14 @@ public static class Renderer
 	private static Shader? _deferredShader;
 	private static int _deferredVAO, _deferredVBO, _deferredIBO;
 
-	public static void Register(IRenderable renderable)
+	public static void Register(RenderObject renderObj)
 	{
-		_renderables.Add(renderable);
+		_renderObjects.Add(renderObj);
 	}
 
-	public static void Unregister(IRenderable renderable)
+	public static void Unregister(RenderObject renderObj)
 	{
-		_renderables.Remove(renderable);
+		_renderObjects.Remove(renderObj);
 	}
 
 	internal static void Initialize()
@@ -94,29 +94,29 @@ public static class Renderer
 		_defaultShader.Bind();
 
 		// Render each renderable.
-		foreach (var renderable in _renderables)
+		foreach (var renderObj in _renderObjects)
 		{
 			// Set shader tint.
-			_defaultShader.SetUniform("u_tint", renderable.Tint_Internal);
+			_defaultShader.SetUniform("u_tint", renderObj.GetTint());
 
 			// Calculate model for MVP.
 			var model = Matrix4.Identity;
-			model *= Matrix4.CreateRotationZ(-renderable.Rotation_Internal.ToRadians());
-			model *= Matrix4.CreateScale(renderable.Scale_Internal.ToVector3());
-			model *= Matrix4.CreateTranslation(renderable.Position_Internal.ToVector3());
+			model *= Matrix4.CreateRotationZ(-renderObj.GetRotation().ToRadians());
+			model *= Matrix4.CreateScale(renderObj.GetScale().ToVector3());
+			model *= Matrix4.CreateTranslation(renderObj.GetPosition().ToVector3());
 
 			// Shader MVP.
 			var mvp = model * Camera.Active.GetMatrix();
 			_defaultShader.SetUniform("u_mvp", mvp);
 
 			// Shader UV.
-			_defaultShader.SetUniform("u_UVOffset", renderable.UVOffset_Internal);
-			_defaultShader.SetUniform("u_UVScale", renderable.UVScale_Internal);
+			_defaultShader.SetUniform("u_UVOffset", renderObj.GetUVOffset());
+			_defaultShader.SetUniform("u_UVScale", renderObj.GetUVScale());
 
 
 			// Bind mesh data and draw to buffer.
-			renderable.Bind_Internal();
-			GL.DrawElements(PrimitiveType.Triangles, renderable.IndexCount_Internal, DrawElementsType.UnsignedInt, 0);
+			renderObj.OnBind();
+			GL.DrawElements(PrimitiveType.Triangles, renderObj.GetIndexCount(), DrawElementsType.UnsignedInt, 0);
 		}
 
 		//// Unbind deferred framebuffer so that we can now render deferred quad to screen.
@@ -144,11 +144,13 @@ public static class Renderer
 	{
 		// Dispose of GL objects and left-over renderables.
 		_defaultShader?.Dispose();
-		foreach (var renderable in _renderables)
+		foreach (var renderable in _renderObjects)
 		{
-			renderable.CleanUp_Internal();
+			renderable.OnDispose();
 		}
-		_renderables.Clear();
+		_renderObjects.Clear();
+
+		SpriteRenderer.CleanUp();
 
 
 		// Dispose of GL objects used for deferred rendering.

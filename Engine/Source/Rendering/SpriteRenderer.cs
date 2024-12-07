@@ -8,25 +8,16 @@ namespace Engine.Rendering;
 // How to handle data update? Callback or OnRender method?
 
 [DependOn<Transform>]
-public class SpriteRenderer : Component, IRenderable
+public class SpriteRenderer : Component
 {
 	private static int _vao, _vbo, _ibo;
 
-	public Sprite Sprite { get; set; }
+	public Sprite? Sprite { get; set; }
 	public Color4 Tint { get; set; } = Color4.White;
 
 	private Transform? _transform;
 
-	Vector2 IRenderable.Position => _transform!.Position;
-	float IRenderable.Rotation => _transform!.Rotation;
-	Vector2 IRenderable.Scale => _transform!.Scale;
-
-	Texture? IRenderable.Texture => Sprite.Texture;
-	Vector2 IRenderable.UVOffset => Sprite.UVOffset;
-	Vector2 IRenderable.UVScale => Sprite.UVScale;
-
-	Color4 IRenderable.Tint => Tint;
-	int IRenderable.IndexCount => 6;
+	private readonly RenderObject _renderObj;
 
 	internal static void Initialize()
 	{
@@ -48,26 +39,52 @@ public class SpriteRenderer : Component, IRenderable
 		GL.BindVertexArray(0);
 	}
 
-	protected override void OnCreate()
-	{
-		_transform = GetComponent<Transform>();
-		Renderer.Register(this);
-	}
-
-	protected override void OnDestroy()
-	{
-		Renderer.Unregister(this);
-	}
-
-	void IRenderable.Bind()
-	{
-		GL.BindVertexArray(_vao);
-	}
-
-	void IRenderable.CleanUp()
+	internal static void CleanUp()
 	{
 		GL.DeleteVertexArray(_vao);
 		GL.DeleteBuffer(_vbo);
 		GL.DeleteBuffer(_ibo);
+	}
+
+	public SpriteRenderer()
+	{
+		_renderObj = new RenderObject()
+		{
+			OnBind = OnBind,
+			OnDispose = OnDispose,
+
+			GetIndexCount = () => Shape.Quad.Indices.Length,
+
+			GetPosition = () => _transform!.Position,
+			GetRotation = () => _transform!.Rotation,
+			GetScale = () => _transform!.Scale,
+
+			GetTint = () => Tint,
+
+			GetTexture = () => Sprite?.Texture,
+			GetUVOffset = () => Sprite.HasValue ? Sprite.Value.UVOffset : Vector2.Zero,
+			GetUVScale = () => Sprite.HasValue ? Sprite.Value.UVScale : Vector2.One
+		};
+	}
+
+	private void OnBind()
+	{
+		GL.BindVertexArray(_vao);
+	}
+
+	/// <summary>
+	/// Clean up is handled by static <c>SpriteRenderer.CleanUp()</c> method.
+	/// </summary>
+	private void OnDispose() { }
+
+	protected override void OnCreate()
+	{
+		_transform = GetComponent<Transform>();
+		Renderer.Register(_renderObj);
+	}
+
+	protected override void OnDestroy()
+	{
+		Renderer.Unregister(_renderObj);
 	}
 }
