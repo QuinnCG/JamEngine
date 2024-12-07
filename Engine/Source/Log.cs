@@ -20,7 +20,7 @@ public static class Log
 	}
 	public static void Warning(string type, object message)
 	{
-		Print(type, message, ConsoleColor.Yellow);
+		Print(type, message, ConsoleColor.DarkYellow);
 	}
 
 	public static void Error(object message)

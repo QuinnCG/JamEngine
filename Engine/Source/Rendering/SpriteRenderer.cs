@@ -10,19 +10,6 @@ namespace Engine.Rendering;
 [DependOn<Transform>]
 public class SpriteRenderer : Component, IRenderable
 {
-	private readonly static Vertex[] _vertices =
-		[
-			// Position.			// UV.
-			new(new(-0.5f, -0.5f),  new(0f, 0f)),
-			new(new(-0.5f,  0.5f),  new(0f, 1f)),
-			new(new( 0.5f,  0.5f),  new(1f, 1f)),
-			new(new( 0.5f, -0.5f),  new(1f, 0f))
-		];
-	private readonly static uint[] _indices =
-		[
-			0, 1, 2,
-			3, 0, 2
-		];
 	private static int _vao, _vbo, _ibo;
 
 	public Sprite Sprite { get; set; }
@@ -43,24 +30,22 @@ public class SpriteRenderer : Component, IRenderable
 
 	internal static void Initialize()
 	{
+		var vertices = Shape.Quad.Vertices;
+		var indices = Shape.Quad.Indices;
+
 		_vao = GL.GenVertexArray();
 		GL.BindVertexArray(_vao);
 
 		_vbo = GL.GenBuffer();
 		GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
-		GL.BufferData(BufferTarget.ArrayBuffer, Marshal.SizeOf<Vertex>() * _vertices.Length, Vertex.GetRaw(_vertices), BufferUsageHint.StaticDraw);
+		GL.BufferData(BufferTarget.ArrayBuffer, Marshal.SizeOf<Vertex>() * vertices.Length, Vertex.GetRaw(vertices), BufferUsageHint.StaticDraw);
 
 		_ibo = GL.GenBuffer();
 		GL.BindBuffer(BufferTarget.ElementArrayBuffer, _ibo);
-		GL.BufferData(BufferTarget.ElementArrayBuffer, sizeof(uint) * _indices.Length, _indices, BufferUsageHint.StaticDraw);
+		GL.BufferData(BufferTarget.ElementArrayBuffer, sizeof(uint) * indices.Length, indices, BufferUsageHint.StaticDraw);
 
-		int stride = sizeof(float) * Vertex.FloatCount;
-
-		GL.EnableVertexAttribArray(0);
-		GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, stride, 0);
-
-		GL.EnableVertexAttribArray(1);
-		GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, stride, sizeof(float) * 2);
+		Vertex.SetGLLayout();
+		GL.BindVertexArray(0);
 	}
 
 	protected override void OnCreate()

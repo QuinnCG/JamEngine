@@ -38,7 +38,7 @@ public static class Application
 
 		Input.Initialize();
 
-		/* CLIENT CODE MAY EXIST AFTER THIS POINT */
+		/* CLIENT CODE MAY EXECUTE AFTER THIS POINT */
 		 
 		IsLaunched = true;
 		OnLaunch?.Invoke();
@@ -62,7 +62,6 @@ public static class Application
 				nextFixedUpdate = Time.Now + Time.FixedDelta;
 			}
 
-			Renderer.Clear();
 			Renderer.Render();
 
 			Window.SwapBuffers();

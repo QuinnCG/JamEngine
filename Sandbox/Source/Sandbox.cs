@@ -12,6 +12,7 @@ static class Sandbox
 	{
 		new MyWorld().Load();
 		Application.OnLaunch += OnLaunch;
+		Application.OnUpdate += OnUpdate;
 
 		Window.Title += " - Sandbox";
 		Application.Launch();
@@ -21,6 +22,14 @@ static class Sandbox
 	{
 		using var text = Resource.Load<TextResource>("Sub Folder/MySubRes1.txt");
 		Log.Info(text);
+	}
+
+	private static void OnUpdate()
+	{
+		if (Input.IsPressed(Key.Escape))
+		{
+			Application.Quit();
+		}
 	}
 }
 

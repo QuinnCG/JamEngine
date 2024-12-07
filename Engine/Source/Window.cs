@@ -33,6 +33,8 @@ public static unsafe class Window
 	public static float AspectRatio => (float)Size.X / Size.Y;
 	public static WindowLaunchOptions LaunchOptions => _launchOptions!;
 
+	public static event Action<Vector2i>? OnWindowResize;
+
 	internal static bool ShouldClose => GLFW.WindowShouldClose(_handle);
 
 	internal static event Action<Keys>? OnKeyPressed, OnKeyReleased;
@@ -130,7 +132,7 @@ public static unsafe class Window
 
 	private static void OnFrameBufferSizeChange(GLFWWindow* window, int width, int height)
 	{
-		GL.Viewport(0, 0, width, height);
 		Size = new(width, height);
+		OnWindowResize?.Invoke(Size);
 	}
 }

@@ -1,4 +1,5 @@
-﻿using OpenTK.Mathematics;
+﻿using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using System.Runtime.InteropServices;
 
 namespace Engine.Rendering;
@@ -34,5 +35,16 @@ public struct Vertex(Vector2 Position, Vector2 UV)
 		}
 
 		return raw;
+	}
+
+	internal static void SetGLLayout()
+	{
+		int stride = sizeof(float) * 4;
+
+		GL.EnableVertexAttribArray(0);
+		GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, stride, 0);
+
+		GL.EnableVertexAttribArray(1);
+		GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, stride, sizeof(float) * 2);
 	}
 }
