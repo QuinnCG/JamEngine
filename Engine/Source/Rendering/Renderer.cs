@@ -69,45 +69,7 @@ public static class Renderer
 		// Initialize the sprite rendering system.
 		SpriteRenderer.Initialize();
 
-
-		// Set up deferred rendering shader.
-		using var dStream = Resource.LoadFromEngine("Deferred.shader");
-		using var dReader = new StreamReader(dStream);
-		_deferredShader = new Shader(dReader.ReadToEnd());
-
-		// Render target texture.
-		_deferredTextureObj = GL.GenTexture();
-		UpdateDeferredFrameBufferTexture();
-		GL.TextureParameter(_deferredTextureObj, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Linear);
-		GL.TextureParameter(_deferredTextureObj, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Linear);
-
-		// Framebuffer to render the scene to.
-		_deferredFrameObj = GL.GenFramebuffer();
-		GL.BindFramebuffer(FramebufferTarget.Framebuffer, _deferredFrameObj);
-		GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, _deferredTextureObj, 0);
-
-		// Mesh for screen quad.
-		_deferredVAO = GL.GenVertexArray();
-		GL.BindVertexArray(_deferredVAO);
-
-		Vertex[] vertices = Shape.Quad.Vertices;
-		uint[] indices = Shape.Quad.Indices;
-
-		_deferredVBO = GL.GenBuffer();
-		GL.BindBuffer(BufferTarget.ArrayBuffer, _deferredVBO);
-		GL.BufferData(BufferTarget.ArrayBuffer, Marshal.SizeOf<Vertex>() * vertices.Length, Vertex.GetRaw(vertices), BufferUsageHint.StaticDraw);
-
-		_deferredIBO = GL.GenBuffer();
-		GL.BindBuffer(BufferTarget.ElementArrayBuffer, _deferredIBO);
-		GL.BufferData(BufferTarget.ElementArrayBuffer, sizeof(uint) * indices.Length, indices, BufferUsageHint.StaticDraw);
-
-		// Set the attribute layout for screen quad.
-		Vertex.SetGLLayout();
-
-		// Unbind deferred rendering GL objects.
-		GL.BindVertexArray(0);
-		GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-
+		//InitializeDeferredFramebuffer();
 
 		// Invoke client code.
 		OnInitialize?.Invoke();
@@ -118,7 +80,7 @@ public static class Renderer
 	internal static void Render()
 	{
 		Log.Assert(_defaultShader != null, "Default shader should not be null!");
-		Log.Assert(_deferredShader != null, "Deferred shader should not be null!");
+		//Log.Assert(_deferredShader != null, "Deferred shader should not be null!");
 
 		// Bind deferred framebuffer 
 		// The actual scene will be rendered to this.
@@ -157,25 +119,25 @@ public static class Renderer
 			GL.DrawElements(PrimitiveType.Triangles, renderable.IndexCount_Internal, DrawElementsType.UnsignedInt, 0);
 		}
 
-		// Unbind deferred framebuffer so that we can now render deferred quad to screen.
-		GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+		//// Unbind deferred framebuffer so that we can now render deferred quad to screen.
+		//GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
-		// Clear screen.
-		GL.ClearColor(0f, 0f, 0f, 1f);
-		GL.Clear(ClearBufferMask.ColorBufferBit);
+		//// Clear screen.
+		//GL.ClearColor(0f, 0f, 0f, 1f);
+		//GL.Clear(ClearBufferMask.ColorBufferBit);
 
-		GL.BindVertexArray(_deferredVAO);
-		GL.BindTexture(TextureTarget.Texture2D, _deferredTextureObj);
-		_deferredShader.Bind();
+		//GL.BindVertexArray(_deferredVAO);
+		//GL.BindTexture(TextureTarget.Texture2D, _deferredTextureObj);
+		//_deferredShader.Bind();
 
-		// Render to screen.
-		GL.DrawElements(PrimitiveType.Triangles, Shape.Quad.Indices.Length, DrawElementsType.UnsignedInt, 0);
+		//// Render to screen.
+		//GL.DrawElements(PrimitiveType.Triangles, Shape.Quad.Indices.Length, DrawElementsType.UnsignedInt, 0);
 
 
-		// Unbind GL objects used to render deferred quad to the screen.
-		GL.BindVertexArray(0);
-		GL.BindTexture(TextureTarget.Texture2D, 0);
-		GL.UseProgram(0);
+		//// Unbind GL objects used to render deferred quad to the screen.
+		//GL.BindVertexArray(0);
+		//GL.BindTexture(TextureTarget.Texture2D, 0);
+		//GL.UseProgram(0);
 	}
 
 	internal static void CleanUp()
@@ -190,12 +152,12 @@ public static class Renderer
 
 
 		// Dispose of GL objects used for deferred rendering.
-		GL.DeleteVertexArray(_deferredVAO);
-		GL.DeleteBuffer(_deferredVBO);
-		GL.DeleteBuffer(_deferredIBO);
-		GL.DeleteTexture(_deferredTextureObj);
-		_deferredShader?.Dispose();
-		GL.DeleteFramebuffer(_deferredFrameObj);
+		//GL.DeleteVertexArray(_deferredVAO);
+		//GL.DeleteBuffer(_deferredVBO);
+		//GL.DeleteBuffer(_deferredIBO);
+		//GL.DeleteTexture(_deferredTextureObj);
+		//_deferredShader?.Dispose();
+		//GL.DeleteFramebuffer(_deferredFrameObj);
 	}
 
 	private static unsafe void OnDebugMessageCallback(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, nint message, nint userParam)
@@ -226,6 +188,47 @@ public static class Renderer
 	{
 		GL.Viewport(0, 0, size.X, size.Y);
 		UpdateDeferredFrameBufferTexture();
+	}
+
+	private static void InitializeDeferredFramebuffer()
+	{
+		// Set up deferred rendering shader.
+		using var dStream = Resource.LoadFromEngine("Deferred.shader");
+		using var dReader = new StreamReader(dStream);
+		_deferredShader = new Shader(dReader.ReadToEnd());
+
+		// Render target texture.
+		_deferredTextureObj = GL.GenTexture();
+		UpdateDeferredFrameBufferTexture();
+		GL.TextureParameter(_deferredTextureObj, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Linear);
+		GL.TextureParameter(_deferredTextureObj, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Linear);
+
+		// Framebuffer to render the scene to.
+		_deferredFrameObj = GL.GenFramebuffer();
+		GL.BindFramebuffer(FramebufferTarget.Framebuffer, _deferredFrameObj);
+		GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, _deferredTextureObj, 0);
+
+		// Mesh for screen quad.
+		_deferredVAO = GL.GenVertexArray();
+		GL.BindVertexArray(_deferredVAO);
+
+		Vertex[] vertices = Shape.Quad.Vertices;
+		uint[] indices = Shape.Quad.Indices;
+
+		_deferredVBO = GL.GenBuffer();
+		GL.BindBuffer(BufferTarget.ArrayBuffer, _deferredVBO);
+		GL.BufferData(BufferTarget.ArrayBuffer, Marshal.SizeOf<Vertex>() * vertices.Length, Vertex.GetRaw(vertices), BufferUsageHint.StaticDraw);
+
+		_deferredIBO = GL.GenBuffer();
+		GL.BindBuffer(BufferTarget.ElementArrayBuffer, _deferredIBO);
+		GL.BufferData(BufferTarget.ElementArrayBuffer, sizeof(uint) * indices.Length, indices, BufferUsageHint.StaticDraw);
+
+		// Set the attribute layout for screen quad.
+		Vertex.SetGLLayout();
+
+		// Unbind deferred rendering GL objects.
+		GL.BindVertexArray(0);
+		GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 	}
 
 	private static void UpdateDeferredFrameBufferTexture()
