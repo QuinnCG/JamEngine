@@ -60,7 +60,7 @@ public static class Log
 	{
 		var time = DateTime.Now.TimeOfDay;
 
-		string typeSegment = string.IsNullOrWhiteSpace(type) ? string.Empty : $"[{type}]";
+		string typeSegment = string.IsNullOrWhiteSpace(type) ? string.Empty : $" [{type}]";
 
 		Console.ForegroundColor = color;
 		Console.WriteLine($"[{time.Hours:00}:{time.Minutes:00}:{time.Seconds:00}]{typeSegment}: {message}");

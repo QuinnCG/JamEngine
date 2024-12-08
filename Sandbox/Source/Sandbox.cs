@@ -1,6 +1,7 @@
 ﻿using Engine;
 using Engine.Rendering;
 using Engine.Resources;
+using Engine.UI;
 using OpenTK.Mathematics;
 using System.Drawing;
 
@@ -37,10 +38,20 @@ class MyWorld : World
 {
 	public override IEnumerable<Entity> OnLoad()
 	{
-		return 
+		var a = new UIEntity()
+		{
+			new UILayout()
+			{
+				new UIEntity(Color4.Red),
+				new UIEntity(Color4.Blue)
+			}
+		};
+
+		return
 			[
 				new MyCamera(),
-				new MySprite()
+				new MySprite(),
+				a
 			];
 	}
 }

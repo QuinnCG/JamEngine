@@ -71,11 +71,13 @@ public static class Renderer
 
 		//InitializeDeferredFramebuffer();
 
+
 		// Invoke client code.
 		OnInitialize?.Invoke();
 	}
 
 	// TODO: Support renderable sorting.
+	// Layers -> Index -> Order in Hierarchy
 
 	internal static void Render()
 	{
@@ -96,8 +98,14 @@ public static class Renderer
 		// Render each renderable.
 		foreach (var renderObj in _renderObjects)
 		{
+			if (renderObj.IsInvisible())
+			{
+				continue;
+			}
+
 			// Set shader tint.
 			_defaultShader.SetUniform("u_tint", renderObj.GetTint());
+			_defaultShader.SetUniform("u_isTextured", renderObj.GetTexture() != null);
 
 			// Calculate model for MVP.
 			var model = Matrix4.Identity;
@@ -106,7 +114,7 @@ public static class Renderer
 			model *= Matrix4.CreateTranslation(renderObj.GetPosition().ToVector3());
 
 			// Shader MVP.
-			var mvp = model * Camera.Active.GetMatrix();
+			var mvp = model * Camera.Active.GetMatrix(renderObj.IsScreenSpace());
 			_defaultShader.SetUniform("u_mvp", mvp);
 
 			// Shader UV.
@@ -118,6 +126,9 @@ public static class Renderer
 			renderObj.OnBind();
 			GL.DrawElements(PrimitiveType.Triangles, renderObj.GetIndexCount(), DrawElementsType.UnsignedInt, 0);
 		}
+
+
+		// UNDONE: Implement deferred rendering or remove all commented code relating to it in this file.
 
 		//// Unbind deferred framebuffer so that we can now render deferred quad to screen.
 		//GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);

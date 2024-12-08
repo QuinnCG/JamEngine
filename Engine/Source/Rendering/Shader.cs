@@ -44,6 +44,10 @@ internal class Shader : RenderElement
 		GL.DeleteProgram(_handle);
 	}
 
+	public void SetUniform(string name, bool value)
+	{
+		GL.Uniform1(GetUnfiromLoc(name), Convert.ToInt32(value));
+	}
 	public void SetUniform(string name, Color4 color)
 	{
 		GL.Uniform4(GetUnfiromLoc(name), color);

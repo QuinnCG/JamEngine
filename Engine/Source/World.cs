@@ -5,9 +5,13 @@ public abstract class World
 	public static World Loaded => _loaded!;
 	private static World? _loaded;
 
+	/// <summary>
+	/// Is loaded and active. Only one <see cref="World"/> can be active at a time.
+	/// </summary>
 	public bool IsLoaded { get; private set; }
 
 	private readonly HashSet<Entity> _entites = [];
+	private readonly HashSet<Entity> _toAdd = [];
 	private readonly HashSet<Entity> _toDestroy = [];
 
 	public abstract IEnumerable<Entity> OnLoad();
@@ -29,6 +33,12 @@ public abstract class World
 
 		if (!IsLoaded)
 		{
+			// In case any entities were added outside of OnLoad().
+			foreach (var entity in _entites)
+			{
+				entity.Create(this);
+			}
+
 			foreach (var entity in OnLoad())
 			{
 				_entites.Add(entity);
@@ -53,20 +63,29 @@ public abstract class World
 		}
 	}
 
-	public bool ContainsEntity(Entity entity)
+	public bool HasEntity(Entity entity)
 	{
 		return _entites.Contains(entity);
 	}
 
+	/// <summary>
+	/// Remove this <see cref="Entity"/> from its old <see cref="World"/> (if it had one) and add it to this one.
+	/// <br>Adding is deferred until the start of the next update.</br>
+	/// </summary>
 	public void AddEntity(Entity entity)
 	{
-		_entites.Add(entity);
-		entity.SetWorld(this);
+		if (!HasEntity(entity))
+		{
+			_toAdd.Add(entity);
+		}
 	}
 
+	/// <summary>
+	/// Note: adding is deferred until the start of the next update.
+	/// </summary>
 	public void DestroyEntity(Entity entity)
 	{
-		Log.Assert(_entites.Contains(entity), $"Failed to destroy entity as it's not apart of this world!");
+		Log.Assert(_entites.Contains(entity), $"Failed to destroy entity as it's not apart of this world or was and has already been destroyed!");
 		_toDestroy.Add(entity);
 	}
 
@@ -80,6 +99,15 @@ public abstract class World
 
 	internal void Update()
 	{
+		foreach (var entity in _toAdd)
+		{
+			entity.SetWorld(this);
+			_entites.Add(entity);
+		}
+
+		_toAdd.Clear();
+
+
 		foreach (var entity in _toDestroy)
 		{
 			_entites.Remove(entity);
@@ -87,6 +115,7 @@ public abstract class World
 		}
 
 		_toDestroy.Clear();
+
 
 		foreach (var entity in _entites)
 		{

@@ -10,7 +10,8 @@ namespace Engine.Rendering;
 [DependOn<Transform>]
 public class SpriteRenderer : Component
 {
-	private static int _vao, _vbo, _ibo;
+	internal static int SpriteQuadVertexArray { get; private set; }
+	private static int _vbo, _ibo;
 
 	public Sprite? Sprite { get; set; }
 	public Color4 Tint { get; set; } = Color4.White;
@@ -24,8 +25,8 @@ public class SpriteRenderer : Component
 		var vertices = Shape.Quad.Vertices;
 		var indices = Shape.Quad.Indices;
 
-		_vao = GL.GenVertexArray();
-		GL.BindVertexArray(_vao);
+		SpriteQuadVertexArray = GL.GenVertexArray();
+		GL.BindVertexArray(SpriteQuadVertexArray);
 
 		_vbo = GL.GenBuffer();
 		GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
@@ -41,7 +42,7 @@ public class SpriteRenderer : Component
 
 	internal static void CleanUp()
 	{
-		GL.DeleteVertexArray(_vao);
+		GL.DeleteVertexArray(SpriteQuadVertexArray);
 		GL.DeleteBuffer(_vbo);
 		GL.DeleteBuffer(_ibo);
 	}
@@ -51,7 +52,7 @@ public class SpriteRenderer : Component
 		_renderObj = new RenderObject()
 		{
 			OnBind = OnBind,
-			OnDispose = OnDispose,
+			OnDispose = () => { },
 
 			GetIndexCount = () => Shape.Quad.Indices.Length,
 
@@ -69,13 +70,9 @@ public class SpriteRenderer : Component
 
 	private void OnBind()
 	{
-		GL.BindVertexArray(_vao);
+		GL.BindVertexArray(SpriteQuadVertexArray);
+		Sprite?.Texture.Bind();
 	}
-
-	/// <summary>
-	/// Clean up is handled by static <c>SpriteRenderer.CleanUp()</c> method.
-	/// </summary>
-	private void OnDispose() { }
 
 	protected override void OnCreate()
 	{

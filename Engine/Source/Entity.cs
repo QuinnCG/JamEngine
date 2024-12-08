@@ -19,23 +19,32 @@ public abstract class Entity : IEnumerable<Entity>
 	public Entity? Parent
 	{
 		get => _parent;
-
 		set
 		{
 			// Ignore redundant update.
 			if (_parent != value)
 			{
+				Entity? oldParent = _parent;
+
 				// If we have another parent, remove us from that parent.
 				_parent?._children.Remove(this);
 
 				// Set new parent.
 				_parent = value;
+
+				if (value != null)
+					Log.Assert(!value.HasChild(this), $"Cannot add child '{this}' to entity '{value}' more than once!");
+
 				// Add to children of new parent if not setting parent to null.
 				if (value != null && _parent != null)
 					_parent._children.Add(this);
+
+				OnParentChange(oldParent, value);
 			}
 		}
 	}
+	public IEnumerable<Entity> Children => _children;
+	public int ChildCount => _children.Count;
 
 	protected World World => _world!;
 	protected Wait Wait { get; } = new();
@@ -44,29 +53,56 @@ public abstract class Entity : IEnumerable<Entity>
 	private World? _world;
 
 	private readonly Dictionary<Type, Component> _components = [];
-	private readonly HashSet<Entity> _children = [];
+	private readonly List<Entity> _children = [];
+
+	public int GetChildIndex(Entity child)
+	{
+		return _children.IndexOf(child);
+	}
 
 	public bool HasChild(Entity entity)
 	{
 		return _children.Contains(entity);
 	}
 
-	public void AddChild(Entity entity)
+	/// <summary>
+	/// Adds a child entity.
+	/// </summary>
+	public void Add(Entity child)
 	{
-		_children.Add(entity);
-		entity.Parent = this;
+		Log.Assert(!HasChild(child), $"Cannot add same child '{child}' to entity '{this}' more than once!");
+		child.Parent = this;
+
+		if (World != null && World.IsLoaded)
+			World.AddEntity(child);
 	}
 
-	public void RemoveChild(Entity entity)
+	/// <summary>
+	/// Removes a child entity.
+	/// </summary>
+	public void Remove(Entity child)
 	{
-		Log.Assert(HasChild(entity), $"Cannot from entity '{entity}' from parent entity '{this}' because it is not a child of that entity!");
-		_children.Remove(entity);
-		entity._parent = null;
+		Log.Assert(HasChild(child), $"Cannot from entity '{child}' from parent entity '{this}' because it is not a child of that entity!");
+		_children.Remove(child);
+		child._parent = null;
+
+		child.OnParentChange(this, null);
 	}
 
 	public IEnumerator<Entity> GetEnumerator()
 	{
 		return _children.GetEnumerator();
+	}
+
+	/// <summary>
+	/// Access the child entities of this <see cref="Entity"/>.
+	/// </summary>
+	/// <param name="index">The index of the child.</param>
+	/// <returns>A child <see cref="Entity"/> at the specified index.</returns>
+	public Entity this[int index]
+	{
+		get => _children[index];
+		set => _children[index] = value;
 	}
 
 	/// <summary>
@@ -78,6 +114,11 @@ public abstract class Entity : IEnumerable<Entity>
 	{
 		_world?.RemoveEntity(this);
 		_world = world;
+
+		foreach (var child in _children)
+		{
+			child.SetWorld(world);
+		}
 	}
 
 	internal void Create(World world)
@@ -95,6 +136,14 @@ public abstract class Entity : IEnumerable<Entity>
 		foreach (var component in _components.Values)
 		{
 			component.Create(this);
+		}
+
+		// Missed being called directly by World so it must be called manually here.
+		// Has the benefit of making children be called in hierarchical order.
+		foreach (var child in _children)
+		{
+			World.AddEntity(child);
+			child.Create(world);
 		}
 	}
 
@@ -152,6 +201,8 @@ public abstract class Entity : IEnumerable<Entity>
 	/// <br>It is not actually "destroyed" yet; that will only happen if there are no references to it and the C# garbage collector decides to collect.</br>
 	/// </summary>
 	protected virtual void OnDestroy() { }
+
+	protected virtual void OnParentChange(Entity? oldParent, Entity? newParent) { }
 
 	protected bool HasComponent<T>() where T : Component
 	{

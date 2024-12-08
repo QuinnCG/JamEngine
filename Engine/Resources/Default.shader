@@ -24,9 +24,17 @@ in vec2 v_uv;
 out vec4 f_color;
 
 uniform vec4 u_tint;
+uniform bool u_isTextured;
 uniform sampler2D u_texture;
 
 void main()
 {
-	f_color = u_tint * texture(u_texture, v_uv);
+	if (u_isTextured)
+	{
+		f_color = u_tint * texture(u_texture, v_uv);
+	}
+	else
+	{
+		f_color = u_tint;
+	}
 }

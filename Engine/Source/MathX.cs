@@ -62,6 +62,15 @@ public static class MathX
 		};
 	}
 
+	public static Vector2 WithX(this Vector2 v, float x)
+	{
+		return new(x, v.Y);
+	}
+	public static Vector2 WithY(this Vector2 v, float y)
+	{
+		return new(v.X, y);
+	}
+
 	public static float Distance(this Vector2 v1, Vector2 v2)
 	{
 		return Vector2.Distance(v1, v2);
