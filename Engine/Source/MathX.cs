@@ -24,6 +24,16 @@ public static class MathX
 		return MathF.Tan(x);
 	}
 
+	public static float Atan(float x)
+	{
+		return MathF.Atan(x);
+	}
+
+	public static float Atan2(float x, float y)
+	{
+		return MathF.Atan2(y, x);
+	}
+
 	public static float Lerp(float x, float y, float t)
 	{
 		return (x * t) + (y * (1f - t));

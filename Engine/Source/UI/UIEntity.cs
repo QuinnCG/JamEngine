@@ -11,6 +11,9 @@ public class UIEntity : Entity
 {
 	// TODO: Support margins and padding?
 
+	// TODO: Support anchors. Position and scale are relative to anchors.
+	// Perhaps, anchors have fixed point mode (bot-left, top-center, etc) and fullscreen mode.
+
 	public UIEntity? UIParent { get; private set; }
 
 	public Sprite? Sprite { get; set; }

@@ -51,7 +51,8 @@ class MyWorld : World
 			[
 				new MyCamera(),
 				new MySprite(),
-				a
+				a,
+				new UIText(null)
 			];
 	}
 }
