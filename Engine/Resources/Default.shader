@@ -25,6 +25,7 @@ out vec4 f_color;
 
 uniform vec4 u_tint;
 uniform bool u_isTextured;
+uniform bool u_discardBlack;
 uniform sampler2D u_texture;
 
 void main()
@@ -36,5 +37,10 @@ void main()
 	else
 	{
 		f_color = u_tint;
+	}
+
+	if (f_color.xyz == vec3(0.0, 0.0, 0.0))
+	{
+		discard;
 	}
 }

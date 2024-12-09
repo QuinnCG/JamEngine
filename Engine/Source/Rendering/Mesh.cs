@@ -10,8 +10,12 @@ public class Mesh : RenderElement
 	internal int VBO { get; set; }
 	internal int IBO { get; set; }
 
+	private bool _isStatic;
+
 	public Mesh(Vertex[] vertices, uint[] indices, bool isStatic = true)
 	{
+		_isStatic = isStatic;
+
 		float[] vertexData = Vertex.GetRaw(vertices);
 		var usage = isStatic ? BufferUsageHint.StaticDraw : BufferUsageHint.DynamicDraw;
 
@@ -30,6 +34,14 @@ public class Mesh : RenderElement
 		GL.BindVertexArray(0);
 
 		IndexCount = indices.Length;
+	}
+
+	public void Update(Vertex[] vertices, uint[] indices)
+	{
+		Log.Assert(!_isStatic, $"Cannot update Mesh because it is static!");
+
+		// TODO: Support mesh updating.
+		throw new NotImplementedException();
 	}
 
 	protected override void OnBind()

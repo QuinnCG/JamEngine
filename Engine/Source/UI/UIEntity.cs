@@ -14,6 +14,9 @@ public class UIEntity : Entity
 	// TODO: Support anchors. Position and scale are relative to anchors.
 	// Perhaps, anchors have fixed point mode (bot-left, top-center, etc) and fullscreen mode.
 
+	// TODO: Should bounds be separate from transform-like position and scale? Maybe use Transform comp ontop of UI bounds info.
+	// If not then text shouldn't respect scale for anything other than bounds, which means no bounce animation of text.
+
 	public UIEntity? UIParent { get; private set; }
 
 	public Sprite? Sprite { get; set; }
@@ -64,7 +67,9 @@ public class UIEntity : Entity
 
 		_renderObj = new RenderObject()
 		{
-			IsInvisible = () => Tint.A == 0f,
+			IsInvisible = IsInvisible,
+			DiscardBlack = DiscardBlack,
+
 			OnBind = OnBind,
 			OnDispose = OnDipose,
 
@@ -81,6 +86,15 @@ public class UIEntity : Entity
 			GetUVOffset = GetUVOffset,
 			GetUVScale = GetUVScale
 		};
+	}
+
+	protected virtual bool IsInvisible()
+	{
+		return Tint.A == 0f;
+	}
+	protected virtual bool DiscardBlack()
+	{
+		return false;
 	}
 
 	protected virtual void OnBind()

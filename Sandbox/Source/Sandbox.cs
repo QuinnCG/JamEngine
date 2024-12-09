@@ -38,7 +38,10 @@ class MyWorld : World
 {
 	public override IEnumerable<Entity> OnLoad()
 	{
-		var a = new UIEntity()
+		using var res = Resource.Load<TextureResource>("MyFont.bmp");
+		var font = new Texture(res);
+
+		var uiEntity = new UIEntity()
 		{
 			new UILayout()
 			{
@@ -51,8 +54,11 @@ class MyWorld : World
 			[
 				new MyCamera(),
 				new MySprite(),
-				a,
-				new UIText(null)
+				uiEntity,
+				new MyText(font)
+				{
+					Position = new(-4.3f, 2.3f)
+				}
 			];
 	}
 }
@@ -60,7 +66,6 @@ class MyWorld : World
 class MySprite : Entity
 {
 	private readonly float _moveSpeed = 3f;
-	private Texture? _tex;
 
 	protected override void OnCreate()
 	{
@@ -71,7 +76,6 @@ class MySprite : Entity
 		var texture = new Texture(res);
 
 		GetComponent<SpriteRenderer>().Sprite = new Sprite(texture);
-		_tex = texture;
 	}
 
 	protected override void OnUpdate()
@@ -87,10 +91,20 @@ class MySprite : Entity
 
 		GetComponent<Transform>().Position += moveDir * _moveSpeed * Time.Delta;
 	}
+}
 
-	protected override void OnDestroy()
+class MyText(Texture font) : UIText(font)
+{
+	protected override void OnUpdate()
 	{
-		_tex?.Dispose();
+		//Text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, " +
+		//	"sed do eiusmod tempor incididunt ut labore et dolore magna aliqua." +
+		//	" Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris " +
+		//	"nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit" +
+		//	" in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint" +
+		//	" occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+
+		Text = $"{Time.Now:0.00}s";
 	}
 }
 

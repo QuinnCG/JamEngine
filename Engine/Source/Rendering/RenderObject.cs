@@ -5,6 +5,8 @@ namespace Engine.Rendering;
 public class RenderObject
 {
 	public Func<bool> IsInvisible { get; init; } = () => false;
+	public Func<bool> DiscardBlack { get; init; } = () => false;
+
 	public required Action OnBind { get; init; }
 	public Action OnDispose { get; init; } = () => { };
 

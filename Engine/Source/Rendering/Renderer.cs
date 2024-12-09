@@ -106,6 +106,7 @@ public static class Renderer
 			// Set shader tint.
 			_defaultShader.SetUniform("u_tint", renderObj.GetTint());
 			_defaultShader.SetUniform("u_isTextured", renderObj.GetTexture() != null);
+			_defaultShader.SetUniform("u_discardBlack", renderObj.DiscardBlack());
 
 			// Calculate model for MVP.
 			var model = Matrix4.Identity;
