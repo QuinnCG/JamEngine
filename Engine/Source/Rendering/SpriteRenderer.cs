@@ -10,6 +10,9 @@ namespace Engine.Rendering;
 [DependOn<Transform>]
 public class SpriteRenderer : Component
 {
+	// TODO: Implement pixels-per-meter.
+	// Value stored in Sprite.
+
 	internal static int SpriteQuadVertexArray { get; private set; }
 	private static int _vbo, _ibo;
 
@@ -58,7 +61,7 @@ public class SpriteRenderer : Component
 
 			GetPosition = () => _transform!.Position,
 			GetRotation = () => _transform!.Rotation,
-			GetScale = () => _transform!.Scale,
+			GetScale = GetScale,
 
 			GetTint = () => Tint,
 
@@ -72,6 +75,12 @@ public class SpriteRenderer : Component
 	{
 		GL.BindVertexArray(SpriteQuadVertexArray);
 		Sprite?.Texture.Bind();
+	}
+
+	private Vector2 GetScale()
+	{
+		float ppmFactor = Sprite.HasValue ? Sprite.Value.GetScalingFactor() : 1f;
+		return _transform!.Scale * ppmFactor;
 	}
 
 	protected override void OnCreate()

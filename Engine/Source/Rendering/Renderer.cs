@@ -15,6 +15,10 @@ public static class Renderer
 	/// <br>This is the clear color used by the <c>Renderer</c>.</br>
 	/// </summary>
 	public static Color4 BackgroundColor { get; set; } = Color4.Black;
+	/// <summary>
+	/// For any <see cref="Sprite"/> with its <see cref="SpriteScalingMode"/> set to <see cref="SpriteScalingMode.DefaultPPM"/>, this value will be used.
+	/// </summary>
+	public static int DefaultPPM { get; set; } = 16;
 
 	/// <summary>
 	/// Called right after the <c>Renderer</c> initializes.
@@ -78,6 +82,14 @@ public static class Renderer
 
 	// TODO: Support renderable sorting.
 	// Layers -> Index -> Order in Hierarchy
+
+	// TODO: Investigate OpenGL program recompilation error.
+	// "Program/shader state performance warning: Vertex shader in program 3 is being recompiled based on GL state."
+	// Triggers once at launch.
+	// Maybe, if statements in shader cause issue?
+
+	// TODO: Support auto render object rendering culling.
+	// Calculate some aprox of bounds and do not render if outside of it.
 
 	internal static void Render()
 	{

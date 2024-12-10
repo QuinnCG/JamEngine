@@ -21,6 +21,11 @@ public record TextureResource : IResource
 		Size = new(image.Width, image.Height);
 	}
 
+	public bool IsLoaded()
+	{
+		return Pixels.Length > 0;
+	}
+
 	public void Dispose()
 	{
 		Pixels = [];

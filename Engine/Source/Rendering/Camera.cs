@@ -6,6 +6,10 @@ namespace Engine.Rendering;
 [DependOn<Transform>]
 public class Camera : Entity
 {
+	/// <summary>
+	/// The currently active and rendering <see cref="Camera"/>.
+	/// <br>This should never be null other than before calling <see cref="Application.Launch"/>.</br>
+	/// </summary>
 	public static Camera Active
 	{
 		get
@@ -18,16 +22,13 @@ public class Camera : Entity
 
 	public float OrthgraphicScale { get; set; } = 5f;
 
-	protected Transform Transform { get; }
-
 	public Camera()
 	{
 		if (_active == null)
 		{
 			SetActive();
 		}
-
-		Transform = CreateComponent<Transform>();
+		CreateComponent<Transform>();
 	}
 
 	public void SetActive()
@@ -38,7 +39,7 @@ public class Camera : Entity
 	internal Matrix4 GetMatrix(bool ignoreView = false)
 	{
 		var proj = Matrix4.CreateOrthographic(Window.AspectRatio * OrthgraphicScale, OrthgraphicScale, 0f, 1f);
-		var view = Matrix4.CreateTranslation(-Transform.Position.ToVector3());
+		var view = Matrix4.CreateTranslation(-Transform!.Position.ToVector3());
 
 		if (ignoreView)
 		{

@@ -6,11 +6,11 @@ namespace Engine.UI;
 
 public class UIText : UIEntity
 {
-	// TODO: Implement UI text.
-	// Create own mesh data unique to each instance.
-	// Update mesh data when text changes.
-
 	// TODO: Support default font fallback.
+
+	// TODO: Support line wrapping and text justifcation.
+
+	// TODO: Support smallcaps.
 
 	public string Text
 	{
@@ -19,6 +19,8 @@ public class UIText : UIEntity
 		{
 			_text = value;
 			Regenerate();
+
+			// HACK: This should only recreate buffer if more space is needed.
 		}
 	}
 	public Texture Font

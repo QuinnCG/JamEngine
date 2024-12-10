@@ -40,7 +40,9 @@ public class Mesh : RenderElement
 	{
 		Log.Assert(!_isStatic, $"Cannot update Mesh because it is static!");
 
-		// TODO: Support mesh updating.
+		// TODO: Support updating mesh.
+		// Perhaps, have method to update existing buffer and one that updates but can also auto grow.
+		// For latter, maybe bool to control if its allowed to shrink if possible.
 		throw new NotImplementedException();
 	}
 
@@ -51,10 +53,10 @@ public class Mesh : RenderElement
 
 	protected override void OnDipose()
 	{
-		GL.BindVertexArray(0);
 		GL.DeleteVertexArray(VAO);
-
 		GL.DeleteBuffer(VBO);
 		GL.DeleteBuffer(IBO);
+
+		GL.BindVertexArray(0);
 	}
 }

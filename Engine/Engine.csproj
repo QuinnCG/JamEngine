@@ -9,8 +9,17 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+	  <DebugType>embedded</DebugType>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+	  <DebugType>embedded</DebugType>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<PackageReference Include="Aether.Physics2D" Version="2.1.0" />
+		<PackageReference Include="AStarLite" Version="1.1.0" />
 		<PackageReference Include="DotTiled" Version="0.3.0" />
 		<PackageReference Include="OpenTK.Graphics" Version="4.9.1" />
 		<PackageReference Include="OpenTK.Windowing.GraphicsLibraryFramework" Version="4.9.1" />

@@ -46,6 +46,16 @@ public abstract class Entity : IEnumerable<Entity>
 	public IEnumerable<Entity> Children => _children;
 	public int ChildCount => _children.Count;
 
+	/// <summary>
+	/// <see cref="Engine.Transform"/>s are meant to be publicly exposed.
+	/// <br>This returns a reference to this <see cref="Entity"/>'s <see cref="Engine.Transform"/>, if one exists.</br>
+	/// <br>If a <see cref="Engine.Transform"/> is not found, null will be returned.</br>
+	/// </summary>
+	public Transform? Transform
+	{
+		get => HasComponent<Transform>() ? GetComponent<Transform>() : null;
+	}
+
 	protected World World => _world!;
 	protected Wait Wait { get; } = new();
 

@@ -35,6 +35,8 @@ public static class Resource
 
 		_clientName = fileNoExt[(fileNoExt.LastIndexOf('\\') + 1)..];
 		_clientAssembly = Assembly.LoadFrom($"{fileNoExt}.dll");
+
+		// HACK: Referencing DLL directly by file means we can merge DLL into EXE, which means we have many more exposed DLLs.
 	}
 
 	/// <summary>

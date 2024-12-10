@@ -4,6 +4,8 @@ using System;
 
 namespace Engine;
 
+// TODO: Add smooth dampening.
+
 /// <summary>
 /// A math class that supports floats, integers, and vectors.
 /// </summary>
@@ -52,6 +54,16 @@ public static class MathX
 	public static float Range(float x, float y, float min, float max, float t)
 	{
 		return Lerp(min, max, InverseLerp(x, y, t));
+	}
+
+	public static float Max(float x, float y)
+	{
+		return y > x ? y : x;
+	}
+
+	public static float Min(float x, float y)
+	{
+		return y < x ? y : x;
 	}
 
 	/* EXTENSIONS */

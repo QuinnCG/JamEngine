@@ -1,16 +1,21 @@
 ﻿using Engine.Resources;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 
 namespace Engine.Rendering;
 
 public class Texture : RenderElement
 {
+	public Vector2i Size { get; }
+
 	private readonly int _handle;
 
 	public Texture(TextureResource res)
 	{
 		_handle = GL.GenTexture();
 		Bind();
+
+		Size = res.Size;
 
 		GL.TextureParameter(_handle, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
 		GL.TextureParameter(_handle, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);

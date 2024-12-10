@@ -11,7 +11,8 @@ public abstract class EntityPrefab : Entity
 		{
 			World.AddEntity(entity);
 
-			// TODO: How do child entities created in SpawnEntities() get their World reference?
+			// TODO: Test EntityPrefab.
+			// Make sure child entities get proper references to World.
 		}
 	}
 

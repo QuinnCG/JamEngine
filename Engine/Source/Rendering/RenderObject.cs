@@ -16,6 +16,9 @@ public class RenderObject
 
 	public Func<bool> IsScreenSpace { get; init; } = () => false;
 	public Func<Vector2> GetPosition { get; init; } = () => Vector2.Zero;
+	/// <summary>
+	/// Get the rotation of this <see cref="RenderObject"/> in degrees.
+	/// </summary>
 	public Func<float> GetRotation { get; init; } = () => 0f;
 	public Func<Vector2> GetScale { get; init; } = () => Vector2.One;
 

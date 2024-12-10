@@ -39,7 +39,7 @@ void main()
 		f_color = u_tint;
 	}
 
-	if (f_color.xyz == vec3(0.0, 0.0, 0.0))
+	if (u_discardBlack && f_color.xyz == vec3(0.0, 0.0, 0.0))
 	{
 		discard;
 	}
