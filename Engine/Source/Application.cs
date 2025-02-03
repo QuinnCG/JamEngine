@@ -2,35 +2,37 @@
 
 public static class Application
 {
-	private static readonly HashSet<GlobalEntity> _globalEntities = [];
+	private static readonly Dictionary<Type, GlobalEntity> _globalEntities = [];
 
-	public static void RegisterGlobal(GlobalEntity entity)
+	public static void RegisterGlobal<T>() where T : GlobalEntity, new()
 	{
-		_globalEntities.Add(entity);
+		_globalEntities.Add(typeof(T), new T());
 	}
 
-	public static void UnregisterGlobal(GlobalEntity entity)
+	public static void UnregisterGlobal<T>() where T : GlobalEntity
 	{
-		_globalEntities.Remove(entity);
+		_globalEntities.Remove(typeof(T));
 	}
 
 	public static void Run(World? world = null)
 	{
+		// Initialization
 		Window.Launch();
-
-		foreach (var entity in _globalEntities)
-		{
-			entity.Create_Internal();
-		}
 
 		if (world != null)
 		{
 			World.Load(world);
 		}
 
+		foreach (var entity in _globalEntities.Values)
+		{
+			entity.Create_Internal();
+		}
+
+		// Game Loop
 		while (!Window.IsClosing)
 		{
-			foreach (var entity in _globalEntities)
+			foreach (var entity in _globalEntities.Values)
 			{
 				entity.Update_Internal();
 			}
@@ -39,7 +41,8 @@ public static class Application
 			Window.Update();
 		}
 
-		foreach (var entity in _globalEntities)
+		// Cleanup
+		foreach (var entity in _globalEntities.Values)
 		{
 			entity.Destroy_Internal();
 		}

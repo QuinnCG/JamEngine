@@ -10,9 +10,35 @@ static class Sandbox
 		var world = new World();
 		world.CreateEntity<MyEntity>()
 			.AddChild(new SpatialEntity() { LocalPosition = new(1f, 1f)})
-			.AddChild(new MyEntity() { LocalPosition = new(1f, 0f) });
+			.AddChild(new MyEntity() { LocalPosition = new(1f, 0f) }
+				.AddChild(new MyEntity()));
 
+		world.CreateEntity<Player>();
+
+		Application.RegisterGlobal<TagSearcher>();
 		Application.Run(world);
+	}
+}
+
+class TagSearcher : GlobalEntity
+{
+	protected override void OnCreate()
+	{
+		var player = World.LoadedWorlds.First().GetEntitiesWithTag<PlayerTag>().First();
+		Log.Info(player);
+
+		var ent = World.LoadedWorlds.First().GetEntitiesOfType<MyEntity>().First();
+		ent.RemoveChild(ent.GetChild(0));
+	}
+}
+
+class PlayerTag : Tag { }
+
+class Player : SpatialEntity
+{
+	public Player()
+	{
+		AddTag<PlayerTag>();
 	}
 }
 

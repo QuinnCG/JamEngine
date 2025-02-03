@@ -34,12 +34,22 @@ public class Entity
 				{
 					_parent._children.Remove(this);
 				}
+
+				if (_world != null)
+				{
+					RemoveChild(this);
+					SetWorld_Internal(null);
+				}
 			}
 			// Nulling out parent.
 			else
 			{
 				// Remove this from old parent's child set.
-				_parent?._children.Remove(this);
+				if (_parent != null && _parent._children.Remove(this))
+				{
+					SetWorld_Internal(_parent._world);
+					World.AddEntity_Internal(this);
+				}
 			}
 
 			// Set new parent for this.
@@ -67,7 +77,7 @@ public class Entity
 	{
 		get
 		{
-			Log.Assert(_world != null, LogCategory, $"Failed to get world on entity '{Name}' as no world was set!");
+			Log.Assert(_world != null, LogCategory, $"Failed to get world on entity '{Name}' as no world was set on said entity!");
 			return _world!;
 		}
 	}
@@ -109,6 +119,8 @@ public class Entity
 	}
 	public bool IsDestroyed { get; private set; }
 
+	protected Wait Wait { get; } = new();
+
 	private World? _world;
 	private bool _isEnabled = true;
 
@@ -132,17 +144,23 @@ public class Entity
 	public void AddTag<T>() where T : Tag
 	{
 		var tag = typeof(T);
-
 		_tags.Add(tag);
-		World.AddEntityToTagSet_Internal(tag, this);
+		
+		if (_world != null)
+		{
+			World.AddEntityToTagSet_Internal(tag, this);
+		}
 	}
 
 	public void RemoveTag<T>() where T : Tag
 	{
 		var tag = typeof(T);
-
 		_tags.Remove(tag);
-		World.RemoveEntityFromTagSet_Internal(tag, this);
+		
+		if (_world != null)
+		{
+			World.RemoveEntityFromTagSet_Internal(tag, this);
+		}
 	}
 
 	public bool HasChild<T>(T child) where T : Entity
@@ -150,7 +168,14 @@ public class Entity
 		return _children.Contains(child);
 	}
 
-	public T AddChild<T>(T child) where T : Entity
+	/// <summary>
+	/// Adds the specified <see cref="Entity"/> as a child to this <see cref="Entity"/>.<br/>
+	/// If the specified child entity is already a child of another entity, it will be moved.
+	/// </summary>
+	/// <typeparam name="T">The entity type.</typeparam>
+	/// <param name="child">The entity to add as child.</param>
+	/// <returns>This entity. Not the specified child entity. Use this for chaining adding of child entities to a single entity.</returns>
+	public Entity AddChild<T>(T child) where T : Entity
 	{
 		// Add child if it isn't already a child of this entity.
 		if (_children.Add(child))
@@ -162,9 +187,12 @@ public class Entity
 			_children.Add(child);
 
 			child._parent = this;
+
+			child._world?.RemoveEntity_Internal(child);
+			child.SetWorld_Internal(null);
 		}
 
-		return child;
+		return this;
 	}
 
 	public void RemoveChild<T>(T child) where T : Entity
@@ -174,6 +202,8 @@ public class Entity
 		{
 			child._parent = null;
 			_children.Remove(child);
+
+			World.AddEntity_Internal(child);
 		}
 	}
 
@@ -192,6 +222,10 @@ public class Entity
 		Log.Error(LogCategory, $"Got child at index '{index}' but failed to convert to type '{typeof(T)}' on entity '{Name}'!");
 		return null;
 	}
+	public Entity GetChild(int index)
+	{
+		return GetChild<Entity>(index);
+	}
 
 	public bool HasComponent<T>() where T : Component
 	{
@@ -209,22 +243,23 @@ public class Entity
 		return null;
 	}
 
-	public void AddComponent<T>(T component) where T : Component
-	{
-		_components.Add(typeof(T), component);
-	}
-
-	public void RemoveComponent<T>() where T : Component
-	{
-		_components.Remove(typeof(T));
-	}
-
+	/// <returns>The created component.</returns>
 	public T CreateComponent<T>() where T : Component, new()
 	{
 		var instance = new T();
 		_components.Add(typeof(T), instance);
 
 		return instance;
+	}
+
+	public void DestroyComponent<T>() where T : Component
+	{
+		if (_components.TryGetValue(typeof(T), out var comp))
+		{
+			_components.Remove(typeof(T));
+			comp.SetEntity_Internal(null);
+			comp.Destroy_Internal();
+		}
 	}
 
 	public void Destroy()
@@ -235,7 +270,7 @@ public class Entity
 		_world = null;
 	}
 
-	internal void SetWorld_Internal(World world)
+	internal void SetWorld_Internal(World? world)
 	{
 		_world = world;
 	}
@@ -245,7 +280,7 @@ public class Entity
 		// Create components first.
 		foreach (var component in _components.Values)
 		{
-			component.Create();
+			component.Create_Internal();
 		}
 
 		// Then create self.
@@ -268,7 +303,7 @@ public class Entity
 		// Update components first.
 		foreach (var component in _components.Values)
 		{
-			component.Update();
+			component.Update_Internal();
 		}
 
 		// Then update self.
@@ -288,10 +323,12 @@ public class Entity
 	{
 		if (!IsDestroyed && IsCreated)
 		{
+			Wait.Cancel();
+
 			// Destroy components first.
 			foreach (var component in _components.Values)
 			{
-				component.Destroy();
+				component.Destroy_Internal();
 			}
 
 			// Then destroy self.

@@ -54,21 +54,29 @@ public static class Log
 	}
 
 	[DebuggerHidden]
-	public static void Assert([DoesNotReturnIf(true)] bool condition)
+	public static void Assert([DoesNotReturnIf(false)] bool condition)
 	{
 		Debug.Assert(condition);
 	}
 	[DebuggerHidden]
-	public static void Assert([DoesNotReturnIf(true)] bool condition, object message)
+	public static void Assert([DoesNotReturnIf(false)] bool condition, object message)
 	{
 		Debug.Assert(condition);
-		Error(message);
+		
+		if (!condition)
+		{
+			Error(message);
+		}
 	}
 	[DebuggerHidden]
-	public static void Assert([DoesNotReturnIf(true)] bool condition, string category, object message)
+	public static void Assert([DoesNotReturnIf(false)] bool condition, string category, object message)
 	{
 		Debug.Assert(condition);
-		Fatal(category, message);
+		
+		if (!condition)
+		{
+			Error(category, message);
+		}
 	}
 
 	private static void Write(TextWriter stream, object message, ConsoleColor color, string? category = null)

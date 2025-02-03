@@ -4,6 +4,7 @@ public class World
 {
 	// TODO: How/when do we load/unload worlds?
 
+	public static IEnumerable<World> LoadedWorlds => _loadedWorlds;
 	private static readonly HashSet<World> _loadedWorlds = [];
 
 	public bool IsLoaded { get; private set; }
@@ -11,7 +12,7 @@ public class World
 	private readonly HashSet<Entity> _allEntities = [];
 	private readonly HashSet<Entity> _enabledEntities = [];
 
-	private readonly Dictionary<Type, Entity> _typeToEntity = [];
+	private readonly Dictionary<Type, HashSet<Entity>> _typeToEntity = [];
 	private readonly Dictionary<Type, HashSet<Entity>> _tagToEntity = [];
 
 	private readonly HashSet<Entity> _toDestroy = [];
@@ -32,7 +33,7 @@ public class World
 			IsEnabled = isEnabled
 		};
 
-		AddEntity(instance);
+		AddEntity_Internal(instance);
 		return instance;
 	}
 
@@ -55,6 +56,15 @@ public class World
 
 		return [];
 	}
+	public IEnumerable<Entity> GetEntitiesOfType<T>() where T : Entity
+	{
+		if (_typeToEntity.TryGetValue(typeof(T), out var set))
+		{
+			return set;
+		}
+
+		return [];
+	}
 
 	/// <summary>
 	/// Move the specified <see cref="Entity"/> to this <see cref="World"/>.
@@ -63,10 +73,10 @@ public class World
 	public void ClaimEntity(Entity entity)
 	{
 		// Clean up old world.
-		entity.World.RemoveEntity(entity);
+		entity.World.RemoveEntity_Internal(entity);
 
 		// Update new world.
-		AddEntity(entity);
+		AddEntity_Internal(entity);
 
 		// TODO: If the new world is not properly loaded shouldn't we reset the entity to a disabled state?
 	}
@@ -79,7 +89,7 @@ public class World
 
 			foreach (var entity in GetInitialEntities())
 			{
-				AddEntity(entity);
+				AddEntity_Internal(entity);
 			}
 
 			foreach (var entity in _enabledEntities)
@@ -105,6 +115,37 @@ public class World
 		{
 			world.Destroy();
 		}
+	}
+
+	internal void AddEntity_Internal(Entity entity)
+	{
+		_allEntities.Add(entity);
+		if (entity.IsEnabled) _enabledEntities.Add(entity);
+
+		if (_typeToEntity.TryGetValue(entity.GetType(), out var set))
+		{
+			set.Add(entity);
+		}
+		else
+		{
+			_typeToEntity.Add(entity.GetType(), [entity]);
+		}
+
+		entity.SetWorld_Internal(this);
+		AssignToTagBatches(entity);
+	}
+
+	internal void RemoveEntity_Internal(Entity entity)
+	{
+		_allEntities.Remove(entity);
+		_enabledEntities.Remove(entity);
+
+		if (_typeToEntity.TryGetValue(entity.GetType(), out var set))
+		{
+			set.Remove(entity);
+		}
+
+		UnassignFromTagBatches(entity);
 	}
 
 	internal void EnableEntity_Internal(Entity entity)
@@ -173,7 +214,7 @@ public class World
 		// Remove all entities that were destroyed during the above updating.
 		foreach (var entity in _toDestroy)
 		{
-			RemoveEntity(entity);
+			RemoveEntity_Internal(entity);
 		}
 
 		_toDestroy.Clear();
@@ -191,25 +232,5 @@ public class World
 
 		_typeToEntity.Clear();
 		_tagToEntity.Clear();
-	}
-
-	private void AddEntity(Entity entity)
-	{
-		_allEntities.Add(entity);
-		if (entity.IsEnabled) _enabledEntities.Add(entity);
-
-		_typeToEntity.Add(entity.GetType(), entity);
-		AssignToTagBatches(entity);
-
-		entity.SetWorld_Internal(this);
-	}
-
-	private void RemoveEntity(Entity entity)
-	{
-		_allEntities.Remove(entity);
-		_enabledEntities.Remove(entity);
-
-		_typeToEntity.Remove(entity.GetType());
-		UnassignFromTagBatches(entity);
 	}
 }
