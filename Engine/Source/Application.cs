@@ -14,13 +14,18 @@ public static class Application
 		_globalEntities.Remove(entity);
 	}
 
-	public static void Run()
+	public static void Run(World? world = null)
 	{
 		Window.Launch();
 
 		foreach (var entity in _globalEntities)
 		{
 			entity.Create_Internal();
+		}
+
+		if (world != null)
+		{
+			World.Load(world);
 		}
 
 		while (!Window.IsClosing)
@@ -30,6 +35,7 @@ public static class Application
 				entity.Update_Internal();
 			}
 
+			World.UpdateWorlds_Internal();
 			Window.Update();
 		}
 
@@ -38,6 +44,7 @@ public static class Application
 			entity.Destroy_Internal();
 		}
 
+		World.DestroyWorlds_Internal();
 		Window.CleanUp();
 	}
 }

@@ -85,7 +85,6 @@ public class Entity
 	public bool IsEnabled
 	{
 		get => _isEnabled;
-
 		set
 		{
 			if (value != _isEnabled)
@@ -120,6 +119,11 @@ public class Entity
 
 	private readonly Dictionary<Type, Component> _components = [];
 
+	public override string ToString()
+	{
+		return Name;
+	}
+
 	public bool HasTag<T>() where T : Tag
 	{
 		return _tags.Contains(typeof(T));
@@ -146,7 +150,7 @@ public class Entity
 		return _children.Contains(child);
 	}
 
-	public void AddChild<T>(T child) where T : Entity
+	public T AddChild<T>(T child) where T : Entity
 	{
 		// Add child if it isn't already a child of this entity.
 		if (_children.Add(child))
@@ -156,7 +160,11 @@ public class Entity
 
 			// Add child to this entity's child set.
 			_children.Add(child);
+
+			child._parent = this;
 		}
+
+		return child;
 	}
 
 	public void RemoveChild<T>(T child) where T : Entity
@@ -221,13 +229,10 @@ public class Entity
 
 	public void Destroy()
 	{
-		if (!IsDestroyed)
-		{
-			Destroy_Internal();
+		Destroy_Internal();
 
-			World.DelayDestroyEntity_Internal(this);
-			_world = null;
-		}
+		World.DelayDestroyEntity_Internal(this);
+		_world = null;
 	}
 
 	internal void SetWorld_Internal(World world)
@@ -249,7 +254,10 @@ public class Entity
 		// Finally, create child entities.
 		foreach (var child in _children)
 		{
-			child.Create_Internal();
+			if (child.IsEnabled)
+			{
+				child.Create_Internal();
+			}
 		}
 
 		IsCreated = true;
@@ -269,29 +277,35 @@ public class Entity
 		// Finally, update child entities.
 		foreach (var child in _children)
 		{
-			child.Update_Internal();
+			if (child.IsEnabled)
+			{
+				child.Update_Internal();
+			}
 		}
 	}
 
 	internal void Destroy_Internal()
 	{
-		// Destroy components first.
-		foreach (var component in _components.Values)
+		if (!IsDestroyed && IsCreated)
 		{
-			component.Destroy();
+			// Destroy components first.
+			foreach (var component in _components.Values)
+			{
+				component.Destroy();
+			}
+
+			// Then destroy self.
+			OnDestroy();
+
+			// Finally, destroy child entities.
+			foreach (var child in _children)
+			{
+				child.Destroy_Internal();
+			}
+
+			_isEnabled = false;
+			IsDestroyed = true;
 		}
-
-		// Then destroy self.
-		OnDestroy();
-
-		// Finally, destroy child entities.
-		foreach (var child in _children)
-		{
-			child.Destroy_Internal();
-		}
-
-		IsEnabled = false;
-		IsDestroyed = true;
 	}
 
 	protected virtual void OnCreate() { }

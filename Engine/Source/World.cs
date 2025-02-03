@@ -1,10 +1,12 @@
 ﻿namespace Engine;
 
-public abstract class World
+public class World
 {
 	// TODO: How/when do we load/unload worlds?
 
 	private static readonly HashSet<World> _loadedWorlds = [];
+
+	public bool IsLoaded { get; private set; }
 
 	private readonly HashSet<Entity> _allEntities = [];
 	private readonly HashSet<Entity> _enabledEntities = [];
@@ -14,12 +16,13 @@ public abstract class World
 
 	private readonly HashSet<Entity> _toDestroy = [];
 
-	public static void UpdateWorlds()
+	public static void Load(World world)
 	{
-		foreach (var world in _loadedWorlds)
-		{
-			world.Update();
-		}
+		world.Load_Internal();
+	}
+	public static void Load(/*WorldSave res?*/)
+	{
+		throw new NotImplementedException("Loading a world from a resource isn't implemented yet!");
 	}
 
 	public T CreateEntity<T>(bool isEnabled = true) where T : Entity, new()
@@ -29,9 +32,7 @@ public abstract class World
 			IsEnabled = isEnabled
 		};
 
-		instance.SetWorld_Internal(this);
 		AddEntity(instance);
-
 		return instance;
 	}
 
@@ -68,6 +69,42 @@ public abstract class World
 		AddEntity(entity);
 
 		// TODO: If the new world is not properly loaded shouldn't we reset the entity to a disabled state?
+	}
+
+	internal void Load_Internal()
+	{
+		if (!IsLoaded)
+		{
+			IsLoaded = true;
+
+			foreach (var entity in GetInitialEntities())
+			{
+				AddEntity(entity);
+			}
+
+			foreach (var entity in _enabledEntities)
+			{
+				entity.Create_Internal();
+			}
+
+			_loadedWorlds.Add(this);
+		}
+	}
+
+	internal static void UpdateWorlds_Internal()
+	{
+		foreach (var world in _loadedWorlds)
+		{
+			world.Update();
+		}
+	}
+
+	internal static void DestroyWorlds_Internal()
+	{
+		foreach (var world in _loadedWorlds)
+		{
+			world.Destroy();
+		}
 	}
 
 	internal void EnableEntity_Internal(Entity entity)
@@ -124,7 +161,7 @@ public abstract class World
 		_toDestroy.Add(entity);
 	}
 
-	// TODO: private void Load()?
+	protected virtual IEnumerable<Entity> GetInitialEntities() => [];
 
 	private void Update()
 	{
@@ -163,6 +200,8 @@ public abstract class World
 
 		_typeToEntity.Add(entity.GetType(), entity);
 		AssignToTagBatches(entity);
+
+		entity.SetWorld_Internal(this);
 	}
 
 	private void RemoveEntity(Entity entity)
