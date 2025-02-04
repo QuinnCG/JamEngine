@@ -1,26 +1,12 @@
-﻿using OpenTK.Graphics.OpenGL4;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 
 namespace Engine.Rendering;
 
 public class SpriteRenderer : Component
 {
-	private static readonly float[] _vertices =
-	[
-		-0.5f, -0.5f,   0f, 0f,
-		-0.5f,  0.5f,   0f, 1f,
-		 0.5f,  0.5f,   1f, 1f,
-		 0.5f, -0.5f,   1f, 0f
-	];
-	private static readonly uint[] _indices =
-	[
-		0, 1, 2,
-		3, 0, 2
-	];
-
 	private static readonly string _shaderPath = "DefaultSprite.shader";
 
-	private static int _vao, _vbo, _ibo;
+	private static StaticMeshBatch? _quadMesh;
 	private static Shader? _shader;
 
 	public RenderLayer RenderLayer
@@ -50,33 +36,17 @@ public class SpriteRenderer : Component
 
 	internal static void Initialize()
 	{
-		_vao = GL.GenVertexArray();
-		GL.BindVertexArray(_vao);
+		MeshBatchBuilder.Create(generateUVs: true)
+			.Quad(Vector2.Zero, Vector2.One)
+			.Build(out float[] vertices, out uint[] indices);
 
-		_vbo = GL.GenBuffer();
-		GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
-		GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * _vertices.Length, _vertices, BufferUsageHint.StaticDraw);
-
-		_ibo = GL.GenBuffer();
-		GL.BindBuffer(BufferTarget.ElementArrayBuffer, _ibo);
-		GL.BufferData(BufferTarget.ElementArrayBuffer, sizeof(uint) * _indices.Length, _indices, BufferUsageHint.StaticDraw);
-
-		int stride = sizeof(float) * 4;
-
-		GL.EnableVertexAttribArray(0);
-		GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, stride, 0);
-
-		GL.EnableVertexAttribArray(1);
-		GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, stride, sizeof(float) * 2);
-
+		_quadMesh = new StaticMeshBatch().Create(vertices, indices);
 		_shader = Resource.LoadEngineResource<Shader>(_shaderPath);
 	}
 
 	internal static void CleanUp()
 	{
-		GL.DeleteVertexArray(_vao);
-		GL.DeleteBuffer(_vbo);
-		GL.DeleteBuffer(_ibo);
+		_quadMesh!.Destroy();
 
 		_shader!.Release();
 		_shader = null;
@@ -109,7 +79,7 @@ public class SpriteRenderer : Component
 			return 0;
 		}
 
-		GL.BindVertexArray(_vao);
+		_quadMesh!.Bind();
 
 		var mvp = Matrix4.Identity;
 		mvp *= Matrix4.CreateScale(new Vector3(_entity!.WorldScale));
@@ -125,7 +95,7 @@ public class SpriteRenderer : Component
 		_shader!.SetUniform("u_isTextured", Texture != null);
 		Texture?.Bind();
 
-		return (uint)_indices.Length;
+		return (uint)_quadMesh.IndexCount;
 	}
 
 	private RenderLayer GetRenderLayer()
