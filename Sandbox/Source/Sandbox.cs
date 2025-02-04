@@ -11,7 +11,7 @@ static class Sandbox
 	{
 		var world = new World();
 
-		world.CreateEntity<Player>();
+		world.CreateEntity<Player>().GetComponent<SpriteRenderer>().Tint = new(1f, 1f, 1f, 0.5f);
 
 		var player2 = world.CreateEntity<Player>();
 		player2.WorldPosition = new(0.4f, 0.4f);

@@ -33,6 +33,9 @@ public static class Renderer
 
 	internal static void Initialize()
 	{
+		GL.Enable(EnableCap.Blend);
+		GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
 		GL.DebugMessageCallback(GLDebugCallback, 0);
 		SpriteRenderer.Initialize();
 	}

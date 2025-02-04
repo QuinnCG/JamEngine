@@ -35,9 +35,6 @@ public class SpriteRenderer : Component
 			}
 		}
 	}
-	/// <summary>
-	/// The alpha channel currently does nothing for tint.
-	/// </summary>
 	public Color4 Tint { get; set; } = Color4.White;
 
 	private RenderLayer _renderLayer = RenderLayer.Default;
