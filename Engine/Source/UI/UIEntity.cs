@@ -1,4 +1,4 @@
-﻿namespace Engine;
+﻿namespace Engine.UI;
 
 public class UIEntity : Entity
 {

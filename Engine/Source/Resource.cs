@@ -37,21 +37,28 @@ public abstract class Resource
 		}
 		else
 		{
-			// TODO: Load resources from file. Create handle.
-
 			var newRes = new T()
 			{
 				_path = path
 			};
 			_pathToRes.Add(path, newRes);
 
-			string resPath = Assembly.GetEntryAssembly()!.Location + "/Resources";
-			byte[] data = File.ReadAllBytes(resPath + $"/{path}");
-			newRes.OnLoad(data);
-		}
+			string resourcesPath = Assembly.GetEntryAssembly()!.Location;
+			resourcesPath = resourcesPath[..resourcesPath.LastIndexOf('\\')];
 
-		Log.Error($"Failed to find resource with path '{path}'!");
-		return null;
+			string resPath = resourcesPath + "/Resources" + $"/{path}";
+
+			if (!File.Exists(resPath))
+			{
+				Log.Error($"Failed to find resource with path '{path}'!");
+				return null;
+			}
+
+			byte[] data = File.ReadAllBytes(resPath);
+			newRes.OnLoad(data);
+
+			return newRes;
+		}
 	}
 
 	public static void Release(string path)

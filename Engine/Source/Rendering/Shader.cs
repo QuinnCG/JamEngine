@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Engine.Rendering;
 
-public class Shader : Resource
+public class Shader : Resource, IBindable
 {
 	public const string LogCategory = "Shader";
 

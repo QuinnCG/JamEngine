@@ -36,6 +36,7 @@ public class SpriteRenderer : Component
 		}
 	}
 	public Color4 Tint { get; set; } = Color4.White;
+	public Texture? Texture { get; set; }
 
 	private RenderLayer _renderLayer = RenderLayer.Default;
 	private readonly RenderHook _hook;
@@ -120,6 +121,9 @@ public class SpriteRenderer : Component
 		_shader!.Bind();
 		_shader!.SetUniform("u_color", Tint);
 		_shader!.SetUniform("u_mvp", mvp);
+
+		_shader!.SetUniform("u_isTextured", Texture != null);
+		Texture?.Bind();
 
 		return (uint)_indices.Length;
 	}

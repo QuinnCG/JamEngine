@@ -52,6 +52,8 @@ class Player : SpatialEntity
 				WorldScale *= 1.2f;
 			}
 		};
+
+		GetComponent<SpriteRenderer>().Texture = Resource.Load<Texture>("Logo.png");
 	}
 
 	protected override void OnUpdate()
