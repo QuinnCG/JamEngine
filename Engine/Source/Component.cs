@@ -3,12 +3,22 @@
 public abstract class Component
 {
 	public Entity Entity => _entity!;
-	public bool DoesUpdate { get; set; } = true;
+	public bool DoesUpdate
+	{
+		get => _doesUpdate && Entity.IsEnabled;
+		set => _doesUpdate = value;
+	}
 	public bool IsDestroyed { get; private set; }
 
 	protected Wait Wait { get; } = new();
 
 	private Entity? _entity;
+	private bool _doesUpdate = true;
+
+	public T GetComponent<T>() where T : Component
+	{
+		return Entity.GetComponent<T>();
+	}
 
 	internal void SetEntity_Internal(Entity? entity)
 	{
@@ -36,11 +46,6 @@ public abstract class Component
 			OnDestroy();
 			IsDestroyed = true;
 		}
-	}
-
-	public T GetComponent<T>() where T : Component
-	{
-		return Entity.GetComponent<T>();
 	}
 
 	protected virtual void OnCreate() { }

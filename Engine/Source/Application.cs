@@ -23,6 +23,7 @@ public static class Application
 	{
 		// Initialization
 		Window.Launch();
+		Renderer.Initialize();
 
 		if (world != null)
 		{
@@ -69,6 +70,7 @@ public static class Application
 		}
 
 		World.DestroyWorlds_Internal();
+		Renderer.CleanUp();
 		Window.CleanUp();
 	}
 }
