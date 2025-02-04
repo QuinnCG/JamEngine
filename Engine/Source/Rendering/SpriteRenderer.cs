@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 
 namespace Engine.Rendering;
 
@@ -34,9 +35,15 @@ public class SpriteRenderer : Component
 			}
 		}
 	}
+	/// <summary>
+	/// The alpha channel currently does nothing for tint.
+	/// </summary>
+	public Color4 Tint { get; set; } = Color4.White;
 
 	private RenderLayer _renderLayer = RenderLayer.Default;
 	private readonly RenderHook _hook;
+
+	private SpatialEntity? _entity;
 
 	public SpriteRenderer()
 	{
@@ -79,6 +86,16 @@ public class SpriteRenderer : Component
 
 	protected override void OnCreate()
 	{
+		if (Entity is SpatialEntity ent)
+		{
+			_entity = ent;
+		}
+		else
+		{
+			Log.Error($"SpriteRenderer on entity '{Entity.Name}' must have a SpatialEntity!");
+			return;
+		}
+
 		Renderer.RegisterHook(_hook);
 	}
 
@@ -95,7 +112,13 @@ public class SpriteRenderer : Component
 		}
 
 		GL.BindVertexArray(_vao);
+
+		var mvp = Matrix4.Identity;
+		mvp *= Matrix4.CreateTranslation(new Vector3(_entity!.WorldPosition));
+
 		_shader!.Bind();
+		_shader!.SetUniform("u_color", Tint);
+		_shader!.SetUniform("u_mvp", mvp);
 
 		return (uint)_indices.Length;
 	}

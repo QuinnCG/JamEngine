@@ -6,10 +6,12 @@ layout (location = 1) in vec2 a_uv;
 
 out vec2 v_uv;
 
+uniform mat4 u_mvp;
+
 void main()
 {
 	v_uv = a_uv;
-	gl_Position = vec4(a_pos, 0.0, 1.0);
+	gl_Position = vec4(a_pos, 0.0, 1.0) * u_mvp;
 }
 
 // Fragment
@@ -18,7 +20,9 @@ void main()
 in vec2 v_uv;
 out vec4 f_color;
 
+uniform vec4 u_color;
+
 void main()
 {
-	f_color = vec4(1.0, 0.0, 0.0, 1.0);
+	f_color = u_color;
 }

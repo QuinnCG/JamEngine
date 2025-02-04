@@ -29,6 +29,14 @@ public class RenderLayer
 
 		return layer;
 	}
+	public static RenderLayer CreateBehind(RenderLayer layer)
+	{
+		return Create().PlaceBehind(layer);
+	}
+	public static RenderLayer CreateInFront(RenderLayer layer)
+	{
+		return Create().PlaceInFront(layer);
+	}
 
 	public static int IndexOf(RenderLayer layer)
 	{

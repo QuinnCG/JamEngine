@@ -79,6 +79,6 @@ public static class Renderer
 
 	private static void SortHooks()
 	{
-		_hooks = [.. _hooks.OrderBy(h => h.Layer())];
+		_hooks = [.. _hooks.OrderBy(x => x.Layer().Order)];
 	}
 }
