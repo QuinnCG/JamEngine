@@ -71,6 +71,11 @@ public static unsafe class Window
 		}
 	}
 
+	/// <summary>
+	/// Window X / Y.
+	/// </summary>
+	public static float Ratio => (float)Size.X / Size.Y;
+
 	internal static bool IsClosing
 	{
 		get => GLFW.WindowShouldClose(_handle);

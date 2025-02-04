@@ -7,10 +7,10 @@ public class SpriteRenderer : Component
 {
 	private static readonly float[] _vertices =
 	[
-		-0.5f, -0.5f,	0f, 0f,
-		-0.5f,  0.5f,	0f, 1f,
-		 0.5f,  0.5f,	1f, 1f,
-		 0.5f, -0.5f,	1f, 0f
+		-0.5f, -0.5f,   0f, 0f,
+		-0.5f,  0.5f,   0f, 1f,
+		 0.5f,  0.5f,   1f, 1f,
+		 0.5f, -0.5f,   1f, 0f
 	];
 	private static readonly uint[] _indices =
 	[
@@ -111,7 +111,11 @@ public class SpriteRenderer : Component
 		GL.BindVertexArray(_vao);
 
 		var mvp = Matrix4.Identity;
+		mvp *= Matrix4.CreateScale(new Vector3(_entity!.WorldScale));
+		mvp *= Matrix4.CreateRotationZ(-_entity!.WorldRotation * (MathF.PI / 180f));
 		mvp *= Matrix4.CreateTranslation(new Vector3(_entity!.WorldPosition));
+
+		mvp *= Camera.Active.GetMatrix();
 
 		_shader!.Bind();
 		_shader!.SetUniform("u_color", Tint);

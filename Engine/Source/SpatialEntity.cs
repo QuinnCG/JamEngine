@@ -4,15 +4,15 @@ namespace Engine;
 
 public class SpatialEntity : Entity
 {
-	public Vector2 LocalPosition { get; set; }
-	public float LocalRotation { get; set; }
-	public Vector2 LocalScale { get; set; } = Vector2.One;
+	public bool ForceWorldPosition { get; set; }
+	public bool ForceWorldRotation { get; set; }
+	public bool ForceWorldScale { get; set; }
 
 	public Vector2 WorldPosition
 	{
 		get
 		{
-			if (Parent is SpatialEntity ent)
+			if (!ForceWorldPosition && Parent is SpatialEntity ent)
 			{
 				return ent.WorldPosition + LocalPosition;
 			}
@@ -33,7 +33,7 @@ public class SpatialEntity : Entity
 	{
 		get
 		{
-			if (Parent is SpatialEntity ent)
+			if (!ForceWorldRotation && Parent is SpatialEntity ent)
 			{
 				return ent.WorldRotation + LocalRotation;
 			}
@@ -54,7 +54,7 @@ public class SpatialEntity : Entity
 	{
 		get
 		{
-			if (Parent is SpatialEntity ent)
+			if (!ForceWorldScale && Parent is SpatialEntity ent)
 			{
 				return ent.WorldScale + LocalScale;
 			}
@@ -71,4 +71,8 @@ public class SpatialEntity : Entity
 			LocalScale = value;
 		}
 	}
+
+	public Vector2 LocalPosition { get; set; }
+	public float LocalRotation { get; set; }
+	public Vector2 LocalScale { get; set; } = Vector2.One;
 }
