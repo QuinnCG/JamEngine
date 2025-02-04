@@ -23,6 +23,7 @@ public static class Application
 	{
 		// Initialization
 		Window.Launch();
+		Input.Initialize();
 		Renderer.Initialize();
 
 		if (world != null)
@@ -41,6 +42,7 @@ public static class Application
 			IsEndOfFrame = false;
 
 			// Update input.
+			Input.Clear();
 			Window.PollEvents();
 
 			// Update global entities.

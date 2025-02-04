@@ -11,18 +11,28 @@ static class Sandbox
 	{
 		var world = new World();
 
-		world.CreateEntity<Player>().GetComponent<SpriteRenderer>().Tint = new(1f, 1f, 1f, 0.5f);
+		var player = world.CreateEntity<Player>();
+		player.WorldPosition = new(0f, 0.5f);
+		player.GetComponent<SpriteRenderer>().Tint = Color4.Red;
+		player.GetComponent<SpriteRenderer>().RenderLayer = RenderLayer.CreateBehind(RenderLayer.Default);
+		player.WorldScale = Vector2.One * 0.5f;
 
-		var player2 = world.CreateEntity<Player>();
-		player2.WorldPosition = new(0f, 0.5f);
-		player2.GetComponent<SpriteRenderer>().Tint = Color4.Red;
-		player2.GetComponent<SpriteRenderer>().RenderLayer = RenderLayer.CreateBehind(RenderLayer.Default);
-		player2.WorldScale = Vector2.One * 0.5f;
+		world.CreateEntity<Camera>();
 
-		var cam = world.CreateEntity<Camera>();
-		cam.WorldRotation = -45f;
-
+		Window.Title = "Jam Engine - Sandbox";
+		Application.RegisterGlobal<GameManager>();
 		Application.Run(world);
+	}
+}
+
+class GameManager : GlobalEntity
+{
+	protected override void OnUpdate()
+	{
+		if (Input.IsKeyPressed(Key.Escape))
+		{
+			Window.Close();
+		}
 	}
 }
 
@@ -31,6 +41,28 @@ class Player : SpatialEntity
 	public Player()
 	{
 		CreateComponent<SpriteRenderer>();
+	}
+
+	protected override void OnCreate()
+	{
+		Input.OnKeyPressed += key =>
+		{
+			if (key is Key.Space)
+			{
+				WorldScale *= 1.2f;
+			}
+		};
+	}
+
+	protected override void OnUpdate()
+	{
+		var inputDir = new Vector2()
+		{
+			X = Input.GetAxis(Key.A, Key.D),
+			Y = Input.GetAxis(Key.S, Key.W)
+		}.NormalizedOrZero();
+
+		WorldPosition += 2f * Time.Delta * inputDir;
 	}
 }
 

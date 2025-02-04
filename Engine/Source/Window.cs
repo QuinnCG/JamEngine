@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using Engine.Rendering;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using GLFWWindow = OpenTK.Windowing.GraphicsLibraryFramework.Window;
@@ -19,7 +20,7 @@ public static unsafe class Window
 
 			if (IsLaunched)
 			{
-				GLFW.SetWindowTitle(_handle, _title);
+				GLFW.SetWindowTitle(Handle, _title);
 			}
 		}
 	}
@@ -32,7 +33,7 @@ public static unsafe class Window
 
 			if (IsLaunched)
 			{
-				GLFW.SetWindowSize(_handle, value.X, value.Y);
+				GLFW.SetWindowSize(Handle, value.X, value.Y);
 			}
 		}
 	}
@@ -78,7 +79,7 @@ public static unsafe class Window
 
 	internal static bool IsClosing
 	{
-		get => GLFW.WindowShouldClose(_handle);
+		get => GLFW.WindowShouldClose(Handle);
 	}
 
 	private static string _title = "Jam Engine";
@@ -86,7 +87,7 @@ public static unsafe class Window
 	private static bool _isResizable = true;
 	private static int _msaa = 2;
 
-	private static GLFWWindow* _handle;
+	internal static GLFWWindow* Handle { get; private set; }
 
 	public static bool IsLaunched { get; private set; }
 
@@ -96,7 +97,11 @@ public static unsafe class Window
 		{
 			IsLaunched = true;
 
-			GLFW.Init();
+			if (!GLFW.Init())
+			{
+				Log.Fatal(Renderer.LogCategory, "Failed to initialize GLFW! Shutting down...");
+				return;
+			}
 
 			GLFW.WindowHint(WindowHintOpenGlProfile.OpenGlProfile, OpenGlProfile.Core);
 			GLFW.WindowHint(WindowHintBool.Resizable, _isResizable);
@@ -104,11 +109,11 @@ public static unsafe class Window
 			GLFW.WindowHint(WindowHintInt.ContextVersionMajor, 4);
 			GLFW.WindowHint(WindowHintInt.ContextVersionMinor, 3);
 
-			_handle = GLFW.CreateWindow(_size.X, _size.Y, _title, null, null);
-			GLFW.MakeContextCurrent(_handle);
+			Handle = GLFW.CreateWindow(_size.X, _size.Y, _title, null, null);
+			GLFW.MakeContextCurrent(Handle);
 
 			GL.LoadBindings(new GLFWBindingsContext());
-			GLFW.SetWindowSizeCallback(_handle, OnWindowResize);
+			GLFW.SetWindowSizeCallback(Handle, OnWindowResize);
 		}
 	}
 
@@ -119,14 +124,14 @@ public static unsafe class Window
 
 	internal static void SwapBuffers()
 	{
-		GLFW.SwapBuffers(_handle);
+		GLFW.SwapBuffers(Handle);
 	}
 
 	public static void Close()
 	{
 		if (IsLaunched)
 		{
-			GLFW.SetWindowShouldClose(_handle, true);
+			GLFW.SetWindowShouldClose(Handle, true);
 		}
 
 		IsLaunched = false;
@@ -134,7 +139,7 @@ public static unsafe class Window
 
 	internal static void CleanUp()
 	{
-		GLFW.DestroyWindow(_handle);
+		GLFW.DestroyWindow(Handle);
 		GLFW.Terminate();
 	}
 
