@@ -12,9 +12,7 @@ static class Sandbox
 		var world = new World();
 
 		var player = world.CreateEntity<Player>();
-		player.WorldPosition = new(0f, 0.5f);
 		player.GetComponent<SpriteRenderer>().Tint = Color4.Red;
-		player.GetComponent<SpriteRenderer>().RenderLayer = RenderLayer.CreateBehind(RenderLayer.Default);
 		player.WorldScale = Vector2.One * 0.5f;
 
 		world.CreateEntity<Camera>();
@@ -49,7 +47,8 @@ class Player : SpatialEntity
 		{
 			if (key is Key.Space)
 			{
-				WorldScale *= 1.2f;
+				var res = Resource.Load<Texture>("Logo.png");
+				res.IsFiltered = !res.IsFiltered;
 			}
 		};
 
@@ -64,10 +63,14 @@ class Player : SpatialEntity
 			Y = Input.GetAxis(Key.S, Key.W)
 		}.NormalizedOrZero();
 
-		WorldPosition += 2f * Time.Delta * inputDir;
+		WorldPosition += 2f * Time.Delta * -inputDir;
+
+		Camera.Active.OrthgraphicSize += -Input.ScrollDelta * 0.5f;
+		Camera.Active.OrthgraphicSize = MathX.Clamp(Camera.Active.OrthgraphicSize, 0.2f, 30f);
 	}
 }
 
 // TODO: Wait system needs some work. Time seems to continue when unfocused windows (maybe glfw.gettime issue?) and cancellation doesn't seem to work (at least not for duration).
 // TODO: Seprate render from update.
 // TODO: Call entities async?
+// TODO: We have texture repeating but no way to scale UVs. Also, need UV scaling for use with spritesheets.

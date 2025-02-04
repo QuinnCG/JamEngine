@@ -23,6 +23,7 @@ public static class Input
 			}
 		}
 	}
+	public static float ScrollDelta { get; private set; }
 
 	public static event Action<Key>? OnKeyPressed, OnKeyReleased;
 	public static event Action<Button>? OnButtonPressed, OnButtonReleased;
@@ -183,6 +184,7 @@ public static class Input
 	{
 		GLFW.SetKeyCallback(Window.Handle, OnKeyInput);
 		GLFW.SetMouseButtonCallback(Window.Handle, OnButtonInput);
+		GLFW.SetScrollCallback(Window.Handle, OnScroll);
 	}
 
 	/// <summary>
@@ -195,6 +197,8 @@ public static class Input
 
 		_justPressedButtons.Clear();
 		_justReleasedButtons.Clear();
+
+		ScrollDelta = 0f;
 	}
 
 	private static unsafe void OnKeyInput(OpenTK.Windowing.GraphicsLibraryFramework.Window* window, Keys key, int scanCode, InputAction action, KeyModifiers mods)
@@ -246,5 +250,10 @@ public static class Input
 
 			}
 		}
+	}
+
+	private static unsafe void OnScroll(OpenTK.Windowing.GraphicsLibraryFramework.Window* window, double offsetX, double offsetY)
+	{
+		ScrollDelta = (float)offsetY;
 	}
 }

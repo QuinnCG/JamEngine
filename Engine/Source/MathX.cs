@@ -16,4 +16,9 @@ public static class MathX
 
 		return v.Normalized();
 	}
+
+	public static float Clamp(float value, float min, float max)
+	{
+		return Math.Clamp(value, min, max);
+	}
 }
