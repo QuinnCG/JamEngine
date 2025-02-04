@@ -72,6 +72,7 @@ public class Entity
 			return entity;
 		}
 	}
+	public bool IsRoot => Root == this;
 
 	public World World
 	{
@@ -225,7 +226,7 @@ public class Entity
 			throw new ArgumentOutOfRangeException($"Failed to get child on entity '{Name}' as the index ({index}) was out of range!");
 		}
 
-		if (_children.ElementAt(index) as T is T comp)
+		if (_children.ElementAt(index) is T comp)
 		{
 			return comp;
 		}
@@ -283,7 +284,25 @@ public class Entity
 
 	internal void SetWorld_Internal(World? world)
 	{
-		_world = world;
+		if (world != _world)
+		{
+			if (world != null)
+			{
+				foreach (var child in _children)
+				{
+					world.AddEntity_Internal(child);
+				}
+			}
+			else if (_world != null)
+			{
+				foreach (var child in _children)
+				{
+					_world.RemoveEntity_Internal(child);
+				}
+			}
+
+			_world = world;
+		}
 	}
 
 	internal void Create_Internal()

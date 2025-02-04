@@ -2,12 +2,12 @@
 
 public class World
 {
-	// TODO: How/when do we load/unload worlds?
-
 	public static IEnumerable<World> LoadedWorlds => _loadedWorlds;
 	private static readonly HashSet<World> _loadedWorlds = [];
 
 	public bool IsLoaded { get; private set; }
+
+	private readonly HashSet<Entity> _rootEntities = [];
 
 	private readonly HashSet<Entity> _allEntities = [];
 	private readonly HashSet<Entity> _enabledEntities = [];
@@ -15,6 +15,7 @@ public class World
 	private readonly Dictionary<Type, HashSet<Entity>> _typeToEntity = [];
 	private readonly Dictionary<Type, HashSet<Entity>> _tagToEntity = [];
 
+	// Entities to be destroyed after updating all entities.
 	private readonly HashSet<Entity> _toDestroy = [];
 
 	public static void Load(World world)
@@ -37,28 +38,31 @@ public class World
 		return instance;
 	}
 
-	public IEnumerable<Entity> GetAllEntities<T>() where T : Tag
+	public IEnumerable<Entity> GetAllEntities()
 	{
 		return _allEntities;
 	}
-
-	public IEnumerable<Entity> GetEnabledEntities<T>() where T : Tag
+	public IEnumerable<Entity> GetRootEntities()
+	{
+		return _rootEntities;
+	}
+	public IEnumerable<Entity> GetEnabledEntities()
 	{
 		return _enabledEntities;
 	}
 
-	public IEnumerable<Entity> GetEntitiesWithTag<T>() where T : Tag
+	public IEnumerable<Entity> GetEntitiesOfType<T>() where T : Entity
 	{
-		if (_tagToEntity.TryGetValue(typeof(T), out var set))
+		if (_typeToEntity.TryGetValue(typeof(T), out var set))
 		{
 			return set;
 		}
 
 		return [];
 	}
-	public IEnumerable<Entity> GetEntitiesOfType<T>() where T : Entity
+	public IEnumerable<Entity> GetEntitiesWithTag<T>() where T : Tag
 	{
-		if (_typeToEntity.TryGetValue(typeof(T), out var set))
+		if (_tagToEntity.TryGetValue(typeof(T), out var set))
 		{
 			return set;
 		}
@@ -78,7 +82,7 @@ public class World
 		// Update new world.
 		AddEntity_Internal(entity);
 
-		// TODO: If the new world is not properly loaded shouldn't we reset the entity to a disabled state?
+		// TODO: If the new world is not properly loaded (e.g. yet to be loaded) shouldn't we reset the entity to a disabled state?
 	}
 
 	internal void Load_Internal()
@@ -93,9 +97,12 @@ public class World
 				AddEntity_Internal(entity);
 			}
 
-			foreach (var entity in _enabledEntities)
+			foreach (var entity in _rootEntities)
 			{
-				entity.Create_Internal();
+				if (entity.IsEnabled)
+				{
+					entity.Create_Internal();
+				}
 			}
 		}
 	}
@@ -119,7 +126,16 @@ public class World
 	internal void AddEntity_Internal(Entity entity)
 	{
 		_allEntities.Add(entity);
-		if (entity.IsEnabled) _enabledEntities.Add(entity);
+
+		if (entity.IsRoot)
+		{
+			_rootEntities.Add(entity);
+		}
+
+		if (entity.IsEnabled)
+		{
+			_enabledEntities.Add(entity);
+		}
 
 		if (_typeToEntity.TryGetValue(entity.GetType(), out var set))
 		{
@@ -138,6 +154,7 @@ public class World
 	{
 		_allEntities.Remove(entity);
 		_enabledEntities.Remove(entity);
+		_rootEntities.Remove(entity);
 
 		if (_typeToEntity.TryGetValue(entity.GetType(), out var set))
 		{
@@ -205,9 +222,12 @@ public class World
 
 	private void Update()
 	{
-		foreach (var entity in _enabledEntities)
+		foreach (var entity in _rootEntities)
 		{
-			entity.Update_Internal();
+			if (entity.IsEnabled)
+			{
+				entity.Update_Internal();
+			}
 		}
 
 		// Remove all entities that were destroyed during the above updating.

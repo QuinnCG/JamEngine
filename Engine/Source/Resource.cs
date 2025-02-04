@@ -1,13 +1,9 @@
 ﻿namespace Engine;
 
-// TODO: Remake this?
-
 public abstract class Resource
 {
-	private static readonly Dictionary<string, object> _resPathToData = [];
+	private static readonly Dictionary<string, Resource> _resPathToData = [];
 	private static readonly Dictionary<string, int> _resPathToRefCount = [];
-
-	// Ref count loaded resources and only delete the data when last ref is unreferenced.
 
 	public static int GetReferenceCount(string path)
 	{
@@ -23,20 +19,25 @@ public abstract class Resource
 	{
 		IncrementRefCount(path);
 
-		if (_resPathToData.TryGetValue(path, out var data))
+		if (_resPathToData.TryGetValue(path, out Resource? resource))
 		{
-			var resource = new T();
-			resource.OnLoad(data);
-
-			return resource;
+			if (resource is T t)
+			{
+				return t;
+			}
+			else
+			{
+				Log.Error($"Failed to convert resource at path '{path}' into a resource of type '{typeof(T)}'!");
+				return null;
+			}
 		}
 		else
 		{
-			// TODO: Load data from file, increment ref count, return resource instance.
-			throw new NotImplementedException();
-
-			//_resPathToData.Add(path, null);
+			// TODO: Load resources from file. Create handle.
 		}
+
+		Log.Error($"Failed to find resource with path '{path}'!");
+		return null;
 	}
 
 	public static void Release(string path)
@@ -45,12 +46,14 @@ public abstract class Resource
 		
 		if (freeData)
 		{
+			_resPathToData[path].OnFree();
 			_resPathToData.Remove(path);
 		}
 	}
 
-	protected abstract void OnLoad(object data);
+	protected abstract void OnLoad();
 	protected abstract void OnRelease();
+	protected abstract void OnFree();
 
 	private static void IncrementRefCount(string path)
 	{

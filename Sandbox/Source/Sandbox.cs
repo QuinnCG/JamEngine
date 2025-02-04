@@ -84,6 +84,5 @@ class MyEntity : SpatialEntity
 	}
 }
 
-// TODO: Even child entities should exist in world's entity cache. World should have unqiue cache for entities it must directly update.
 // TODO: Resource system.
 // TODO: Wait system needs some work. Time seems to continue when unfocused windows (maybe glfw.gettime issue?) and cancellation doesn't seem to work (at least not for duration).
