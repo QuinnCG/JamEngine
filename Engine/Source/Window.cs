@@ -107,12 +107,13 @@ public static unsafe class Window
 		}
 	}
 
-	/// <summary>
-	/// Swap buffers and poll events.
-	/// </summary>
-	internal static void Update()
+	internal static void PollEvents()
 	{
 		GLFW.PollEvents();
+	}
+
+	internal static void SwapBuffers()
+	{
 		GLFW.SwapBuffers(_handle);
 	}
 

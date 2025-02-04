@@ -5,16 +5,11 @@
 /// </summary>
 public class Wait
 {
-	private CancellationTokenSource _tokenSource = new();
+	private readonly CancellationTokenSource _tokenSource = new();
 
 	internal void Cancel()
 	{
 		_tokenSource.Cancel();
-	}
-
-	public async Task Duration(float seconds)
-	{
-		await Task.Delay((int)(seconds * 1000), _tokenSource.Token);
 	}
 
 	public async Task While(Func<bool> predicate)
@@ -29,22 +24,24 @@ public class Wait
 	{
 		while (!predicate() && !_tokenSource.Token.IsCancellationRequested)
 		{
-			await NextFrame();
+			await Task.Yield();
 		}
+	}
+
+	public async Task Duration(float seconds)
+	{
+		float endTime = Time.Now + seconds;
+		await Until(() => Time.Now >= endTime);
 	}
 
 	public async Task EndOfFrame()
 	{
-		throw new NotImplementedException();
+		await Until(() => Application.IsEndOfFrame);
 	}
 
 	public async Task NextFrame()
 	{
-		throw new NotImplementedException();
+		int frame = Time.FrameCount;
+		await Until(() => Time.FrameCount > frame);
 	}
-
-	// TODO: Entity and component create an internal protected instance of this.
 }
-
-// TODO: Handle issue of loading worlds.
-// TODO: Test current architecture. Test everything!

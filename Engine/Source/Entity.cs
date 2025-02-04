@@ -77,7 +77,15 @@ public class Entity
 	{
 		get
 		{
-			Log.Assert(_world != null, LogCategory, $"Failed to get world on entity '{Name}' as no world was set on said entity!");
+			if (_world == null && _parent != null)
+			{
+				return _parent.World;
+			}
+			else if (_world == null)
+			{
+				Log.Error(LogCategory, $"Failed to get world on entity '{Name}' as no world was set on said entity!");
+			}
+
 			return _world!;
 		}
 	}
@@ -141,7 +149,8 @@ public class Entity
 		return _tags.Contains(typeof(T));
 	}
 
-	public void AddTag<T>() where T : Tag
+	/// <returns>Returns this <see cref="Entity"/>. This is for use in method chaining.</returns>
+	public Entity AddTag<T>() where T : Tag
 	{
 		var tag = typeof(T);
 		_tags.Add(tag);
@@ -150,6 +159,8 @@ public class Entity
 		{
 			World.AddEntityToTagSet_Internal(tag, this);
 		}
+
+		return this;
 	}
 
 	public void RemoveTag<T>() where T : Tag

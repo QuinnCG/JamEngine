@@ -86,6 +86,7 @@ public class World
 		if (!IsLoaded)
 		{
 			IsLoaded = true;
+			_loadedWorlds.Add(this);
 
 			foreach (var entity in GetInitialEntities())
 			{
@@ -96,8 +97,6 @@ public class World
 			{
 				entity.Create_Internal();
 			}
-
-			_loadedWorlds.Add(this);
 		}
 	}
 

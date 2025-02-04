@@ -1,4 +1,7 @@
-﻿namespace Engine;
+﻿using Engine.Rendering;
+using OpenTK.Windowing.GraphicsLibraryFramework;
+
+namespace Engine;
 
 public static class Application
 {
@@ -13,6 +16,8 @@ public static class Application
 	{
 		_globalEntities.Remove(typeof(T));
 	}
+
+	internal static bool IsEndOfFrame { get; private set; }
 
 	public static void Run(World? world = null)
 	{
@@ -32,13 +37,29 @@ public static class Application
 		// Game Loop
 		while (!Window.IsClosing)
 		{
+			IsEndOfFrame = false;
+
+			// Update input.
+			Window.PollEvents();
+
+			// Update global entities.
 			foreach (var entity in _globalEntities.Values)
 			{
 				entity.Update_Internal();
 			}
 
+			// Update game worlds.
 			World.UpdateWorlds_Internal();
-			Window.Update();
+
+			// End of frame/late update.
+			IsEndOfFrame = true;
+
+			// Draw frame.
+			Renderer.Render();
+			Window.SwapBuffers();
+
+			// Update late. Otherwise, not user code will ever run with time equalling 0.
+			Time.Update((float)GLFW.GetTime());
 		}
 
 		// Cleanup
