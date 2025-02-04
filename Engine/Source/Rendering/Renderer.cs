@@ -1,15 +1,19 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
+using System.Text;
 
 namespace Engine.Rendering;
 
 public static class Renderer
 {
+	public const string LogCategory = "Renderer";
+
 	// TODO: Implement framerate. Literal framerate but also an averaged one that uses velocity to slowly update to actual framework to avoid rapid jitter.
 	public static int Framerate { get; private set; }
 	public static Color4 ClearColor { get; set; } = Color4.Black;
 
 	private static HashSet<RenderHook> _hooks = [];
+	private static int _glDebugCallbackID = -1;
 
 	public static void RegisterHook(RenderHook hook)
 	{
@@ -29,7 +33,26 @@ public static class Renderer
 
 	internal static void Initialize()
 	{
+		GL.DebugMessageCallback(GLDebugCallback, 0);
 		SpriteRenderer.Initialize();
+	}
+
+	private static unsafe void GLDebugCallback(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, nint message, nint userParam)
+	{
+		if (id != _glDebugCallbackID && severity is not DebugSeverity.DontCare or DebugSeverity.DebugSeverityLow or DebugSeverity.DebugSeverityNotification)
+		{
+			string msg = Encoding.Default.GetString((byte*)message, length);
+			_glDebugCallbackID = id;
+			
+			if (severity is DebugSeverity.DebugSeverityMedium)
+			{
+				Log.Warning(LogCategory, msg);
+			}
+			else if (severity is DebugSeverity.DebugSeverityHigh)
+			{
+				Log.Error(LogCategory, msg);
+			}
+		}
 	}
 
 	internal static void Render()

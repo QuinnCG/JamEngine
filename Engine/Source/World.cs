@@ -27,11 +27,11 @@ public class World
 		throw new NotImplementedException("Loading a world from a resource isn't implemented yet!");
 	}
 
-	public T CreateEntity<T>(bool isEnabled = true) where T : Entity, new()
+	public T CreateEntity<T>(bool startEnabled = true) where T : Entity, new()
 	{
 		var instance = new T
 		{
-			IsEnabled = isEnabled
+			IsEnabled = startEnabled
 		};
 
 		AddEntity_Internal(instance);

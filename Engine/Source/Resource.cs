@@ -1,15 +1,19 @@
-﻿namespace Engine;
+﻿using System.Reflection;
+
+namespace Engine;
 
 public abstract class Resource
 {
-	private static readonly Dictionary<string, Resource> _resPathToData = [];
-	private static readonly Dictionary<string, int> _resPathToRefCount = [];
+	private static readonly Dictionary<string, Resource> _pathToRes = [];
+	private static readonly Dictionary<string, int> _pathToRefCount = [];
+
+	private string _path = string.Empty;
 
 	public static int GetReferenceCount(string path)
 	{
-		if (_resPathToRefCount.TryGetValue(path, out int count))
+		if (_pathToRefCount.TryGetValue(path, out int count))
 		{
-			return count;
+			return Math.Max(0, count);
 		}
 
 		return 0;
@@ -19,7 +23,7 @@ public abstract class Resource
 	{
 		IncrementRefCount(path);
 
-		if (_resPathToData.TryGetValue(path, out Resource? resource))
+		if (_pathToRes.TryGetValue(path, out Resource? resource))
 		{
 			if (resource is T t)
 			{
@@ -34,6 +38,16 @@ public abstract class Resource
 		else
 		{
 			// TODO: Load resources from file. Create handle.
+
+			var newRes = new T()
+			{
+				_path = path
+			};
+			_pathToRes.Add(path, newRes);
+
+			string resPath = Assembly.GetEntryAssembly()!.Location + "/Resources";
+			byte[] data = File.ReadAllBytes(resPath + $"/{path}");
+			newRes.OnLoad(data);
 		}
 
 		Log.Error($"Failed to find resource with path '{path}'!");
@@ -46,32 +60,70 @@ public abstract class Resource
 		
 		if (freeData)
 		{
-			_resPathToData[path].OnFree();
-			_resPathToData.Remove(path);
+			_pathToRes[path].OnFree();
+			_pathToRes.Remove(path);
 		}
 	}
 
-	protected abstract void OnLoad();
-	protected abstract void OnRelease();
+	/// <summary>
+	/// You must still call Release.
+	/// </summary>
+	internal static T LoadEngineResource<T>(string path) where T : Resource, new()
+	{
+		path = path.Replace('/', '\\');
+		path = path.Replace('\\', '.');
+
+		path = $"Engine.Resources.{path}";
+
+		Assembly asm = Assembly.GetAssembly(typeof(Resource))!;
+		Stream resStream = asm.GetManifestResourceStream(path)!;
+
+		var memStream = new MemoryStream();
+		resStream.CopyTo(memStream);
+
+		var res = new T()
+		{
+			_path = path
+		};
+		res.OnLoad(memStream.ToArray());
+
+		IncrementRefCount(path);
+		return res;
+	}
+
+	public void Release()
+	{
+		Release(_path);
+	}
+
+	/// <summary>
+	/// Called only if the resource at the specified path isn't already loaded.<br/>
+	/// Otherwise, it will use the existing resource instance associated with the specified path.
+	/// </summary>
+	/// <param name="data">The raw data in bytes of the underlying resource.</param>
+	protected abstract void OnLoad(byte[] data);
+	/// <summary>
+	/// Called when the final reference count is released for a given path.
+	/// </summary>
 	protected abstract void OnFree();
 
 	private static void IncrementRefCount(string path)
 	{
-		if (!_resPathToRefCount.TryAdd(path, 1))
+		if (!_pathToRefCount.TryAdd(path, 1))
 		{
-			_resPathToRefCount[path] += 1;
+			_pathToRefCount[path] += 1;
 		}
 	}
 
 	private static bool DecrementRefCount(string path)
 	{
-		if (_resPathToRefCount.ContainsKey(path))
+		if (_pathToRefCount.ContainsKey(path))
 		{
-			_resPathToRefCount[path] -= 1;
+			_pathToRefCount[path] -= 1;
 
-			if (_resPathToRefCount.Count <= 0)
+			if (_pathToRefCount.Count <= 0)
 			{
-				_resPathToRefCount.Remove(path);
+				_pathToRefCount.Remove(path);
 				return true;
 			}
 		}

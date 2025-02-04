@@ -2,17 +2,23 @@
 
 public class RenderLayer
 {
-	public static RenderLayer Default { get; } = Create();
+	public static RenderLayer Default { get; }
 
 	public static IEnumerable<RenderLayer> Layers => _layers;
 	public static int LayerCount => _layers.Count;
 
-	private static readonly List<RenderLayer> _layers = [];
+	private static readonly List<RenderLayer> _layers;
 
 	/// <summary>
 	/// 0 is the furthest back with greater values being placed closer to the camera in front of the lower Order layers.
 	/// </summary>
 	public int Order => IndexOf(this);
+
+	static RenderLayer()
+	{
+		_layers = [];
+		Default = Create();
+	}
 
 	private RenderLayer() { }
 

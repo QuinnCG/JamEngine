@@ -259,6 +259,7 @@ public class Entity
 	public T CreateComponent<T>() where T : Component, new()
 	{
 		var instance = new T();
+		instance.SetEntity_Internal(this);
 		_components.Add(typeof(T), instance);
 
 		return instance;

@@ -6,10 +6,10 @@ public class SpriteRenderer : Component
 {
 	private static readonly float[] _vertices =
 	[
-		-0.5f, -0.5f,
-		-0.5f,  0.5f,
-		 0.5f,  0.5f,
-		 0.5f, -0.5f
+		-0.5f, -0.5f,	0f, 0f,
+		-0.5f,  0.5f,	0f, 1f,
+		 0.5f,  0.5f,	1f, 1f,
+		 0.5f, -0.5f,	1f, 0f
 	];
 	private static readonly uint[] _indices =
 	[
@@ -17,7 +17,10 @@ public class SpriteRenderer : Component
 		3, 0, 2
 	];
 
+	private static readonly string _shaderPath = "DefaultSprite.shader";
+
 	private static int _vao, _vbo, _ibo;
+	private static Shader? _shader;
 
 	public RenderLayer RenderLayer
 	{
@@ -52,6 +55,16 @@ public class SpriteRenderer : Component
 		_ibo = GL.GenBuffer();
 		GL.BindBuffer(BufferTarget.ElementArrayBuffer, _ibo);
 		GL.BufferData(BufferTarget.ElementArrayBuffer, sizeof(uint) * _indices.Length, _indices, BufferUsageHint.StaticDraw);
+
+		int stride = sizeof(float) * 4;
+
+		GL.EnableVertexAttribArray(0);
+		GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, stride, 0);
+
+		GL.EnableVertexAttribArray(1);
+		GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, stride, sizeof(float) * 2);
+
+		_shader = Resource.LoadEngineResource<Shader>(_shaderPath);
 	}
 
 	internal static void CleanUp()
@@ -59,6 +72,9 @@ public class SpriteRenderer : Component
 		GL.DeleteVertexArray(_vao);
 		GL.DeleteBuffer(_vbo);
 		GL.DeleteBuffer(_ibo);
+
+		_shader!.Release();
+		_shader = null;
 	}
 
 	protected override void OnCreate()
@@ -79,6 +95,8 @@ public class SpriteRenderer : Component
 		}
 
 		GL.BindVertexArray(_vao);
+		_shader!.Bind();
+
 		return (uint)_indices.Length;
 	}
 
