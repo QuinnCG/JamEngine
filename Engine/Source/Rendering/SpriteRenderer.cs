@@ -36,7 +36,7 @@ public class SpriteRenderer : Component
 
 	internal static void Initialize()
 	{
-		MeshBatchBuilder.Create(generateUVs: true)
+		MeshBatchBuilder.Create()
 			.Quad(Vector2.Zero, Vector2.One)
 			.Build(out float[] vertices, out uint[] indices);
 

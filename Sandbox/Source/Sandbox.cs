@@ -1,5 +1,6 @@
 ﻿using Engine;
 using Engine.Rendering;
+using Engine.UI;
 using OpenTK.Mathematics;
 using System.Text;
 
@@ -16,6 +17,7 @@ static class Sandbox
 		player.WorldScale = Vector2.One * 0.5f;
 
 		world.CreateEntity<Camera>();
+		world.CreateEntity<TextBlock>().Text = "Hello World";
 
 		Window.Title = "Jam Engine - Sandbox";
 		Application.RegisterGlobal<GameManager>();
@@ -63,7 +65,7 @@ class Player : SpatialEntity
 			Y = Input.GetAxis(Key.S, Key.W)
 		}.NormalizedOrZero();
 
-		WorldPosition += 2f * Time.Delta * -inputDir;
+		WorldPosition += 2f * Time.Delta * inputDir;
 
 		Camera.Active.OrthgraphicSize += -Input.ScrollDelta * 0.5f;
 		Camera.Active.OrthgraphicSize = MathX.Clamp(Camera.Active.OrthgraphicSize, 0.2f, 30f);

@@ -7,31 +7,23 @@ public class MeshBatchBuilder
 	private readonly List<float> _vertices = [];
 	private readonly List<uint> _indices = [];
 
-	private bool _generateUVs;
 	private int _greatestIndex = -1;
 
 	private MeshBatchBuilder() { }
 
-	public static MeshBatchBuilder Create(bool generateUVs = true)
+	public static MeshBatchBuilder Create()
 	{
-		return new MeshBatchBuilder()
-		{
-			_generateUVs = generateUVs
-		};
+		return new MeshBatchBuilder();
 	}
 
-	public MeshBatchBuilder Quad(Vector2 pos, Vector2 size, params float[] customData)
+	public MeshBatchBuilder Quad(Vector2 pos, Vector2 size, Vector2 uvOffset, Vector2 uvScale, params float[] customData)
 	{
 		float[] GenerateVertex(Vector2 pos, Vector2 uv)
 		{
-			if (_generateUVs)
-			{
-				return [pos.X, pos.Y, uv.X, uv.Y, .. customData];
-			}
-			else
-			{
-				return [pos.X, pos.Y, .. customData];
-			}
+			uv *= uvScale;
+			uv += uvOffset;
+
+			return [pos.X, pos.Y, uv.X, uv.Y, .. customData];
 		}
 
 		// Vertices.
@@ -60,6 +52,10 @@ public class MeshBatchBuilder
 			]);
 
 		return this;
+	}
+	public MeshBatchBuilder Quad(Vector2 pos, Vector2 size, params float[] customData)
+	{
+		return Quad(pos, size, Vector2.Zero, Vector2.One, customData);
 	}
 
 	public void Build(out float[] vertices, out uint[] indices)
