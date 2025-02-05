@@ -5,6 +5,7 @@ namespace Engine;
 public abstract class Resource
 {
 	private static readonly Dictionary<string, Resource> _pathToRes = [];
+	// This should not be modified directly, but controlled via the IncrementRefCount() and DecrementRefCount() methods.
 	private static readonly Dictionary<string, int> _pathToRefCount = [];
 
 	private string _path = string.Empty;
@@ -37,10 +38,7 @@ public abstract class Resource
 		}
 		else
 		{
-			var newRes = new T()
-			{
-				_path = path
-			};
+			var newRes = new T() { _path = path };
 			_pathToRes.Add(path, newRes);
 
 			string resourcesPath = Assembly.GetEntryAssembly()!.Location;
@@ -57,10 +55,17 @@ public abstract class Resource
 			byte[] data = File.ReadAllBytes(resPath);
 			newRes.OnLoad(data);
 
+			Log.Info($"Loaded resource '{path}'.");
+
 			return newRes;
 		}
 	}
 
+	/// <summary>
+	/// Releasing a resource doesn't mean freeing the data. It simply means releasing a claim to the data.<br/>
+	/// If no claims exist because <see cref="Release(string)"/> has been called once on a given resource for every time <see cref="Load{T}(string)"/> was called, then the data will be freed.<br/>
+	/// Even then, certain CPU-side data may still persist until its collected by the garbage collector.
+	/// </summary>
 	public static void Release(string path)
 	{
 		bool freeData = DecrementRefCount(path);
@@ -69,6 +74,8 @@ public abstract class Resource
 		{
 			_pathToRes[path].OnFree();
 			_pathToRes.Remove(path);
+
+			Log.Info($"Freeing resource '{path}'.");
 		}
 	}
 
@@ -82,22 +89,30 @@ public abstract class Resource
 
 		path = $"Engine.Resources.{path}";
 
+		if (GetReferenceCount(path) > 0)
+		{
+			IncrementRefCount(path);
+			return (T)_pathToRes[path];
+		}
+
 		Assembly asm = Assembly.GetAssembly(typeof(Resource))!;
 		Stream resStream = asm.GetManifestResourceStream(path)!;
 
 		var memStream = new MemoryStream();
 		resStream.CopyTo(memStream);
 
-		var res = new T()
-		{
-			_path = path
-		};
-		res.OnLoad(memStream.ToArray());
+		var newRes = new T() { _path = path };
+		newRes.OnLoad(memStream.ToArray());
+
+		Log.Info($"Loaded resource '{path}'.");
 
 		IncrementRefCount(path);
-		return res;
+		_pathToRes.Add(path, newRes);
+
+		return newRes;
 	}
 
+	/// <inheritdoc cref="Release(string)"/>
 	public void Release()
 	{
 		Release(_path);

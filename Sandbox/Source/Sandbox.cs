@@ -19,6 +19,7 @@ static class Sandbox
 		world.CreateEntity<Camera>();
 		world.CreateEntity<TextBlock>().Text = "Hello World";
 
+		Renderer.ClearColor = Color4.Gray;
 		Window.Title = "Jam Engine - Sandbox";
 		Application.RegisterGlobal<GameManager>();
 		Application.Run(world);

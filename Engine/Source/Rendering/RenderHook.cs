@@ -1,11 +1,15 @@
 ﻿namespace Engine.Rendering;
-public class RenderHook(Func<uint> bind, Func<RenderLayer> layer) : IComparable
+
+/// <summary>
+/// A handle for a renderable object.
+/// </summary>
+public class RenderHook(Func<int> bind, Func<RenderLayer> layer) : IComparable
 {
 	/// <summary>
 	/// When this is called, bind anything you wish to be rendered.<br/>
 	/// The return value should either be the number of indices to draw or 0 to denote nothing should be rendered; this can be used for disabled entities.
 	/// </summary>
-	internal Func<uint> Bind = bind;
+	internal Func<int> Bind = bind;
 	/// <summary>
 	/// The render layer for this <see cref="RenderHook"/>.
 	/// </summary>

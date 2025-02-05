@@ -20,18 +20,14 @@ in vec2 v_uv;
 out vec4 f_color;
 
 uniform vec4 u_color;
-uniform bool u_isTextured;
-
 uniform sampler2D u_texture;
 
 void main()
 {
-	if (u_isTextured)
+	f_color = u_color * texture(u_texture, v_uv);
+
+	if (length(f_color) < 0.1)
 	{
-		f_color = u_color * texture(u_texture, v_uv);
-	}
-	else
-	{
-		f_color = u_color;
+		discard;
 	}
 }

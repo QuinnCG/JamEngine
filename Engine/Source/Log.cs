@@ -82,7 +82,7 @@ public static class Log
 	private static void Write(TextWriter stream, object message, ConsoleColor color, string? category = null)
 	{
 		var time = DateTime.Now.TimeOfDay;
-		string timestamp = $"[{time.Hours}:{time.Minutes}:{time.Seconds}]";
+		string timestamp = $"[{time.Hours:00}:{time.Minutes:00}:{time.Seconds:00}]";
 
 		string cat = category == null ? string.Empty : $" [{category}]";
 

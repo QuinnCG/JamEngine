@@ -65,12 +65,12 @@ public static class Renderer
 
 		foreach (var hook in _hooks)
 		{
-			uint indices = hook.Bind();
+			int indices = hook.Bind();
 			
 			// Skip indicies if value is <= 0.
 			if (indices > 0)
 			{
-				GL.DrawElements(PrimitiveType.Triangles, (int)indices, DrawElementsType.UnsignedInt, 0);
+				GL.DrawElements(PrimitiveType.Triangles, indices, DrawElementsType.UnsignedInt, 0);
 			}
 		}
 	}

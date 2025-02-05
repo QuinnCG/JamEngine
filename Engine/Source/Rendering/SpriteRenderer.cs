@@ -72,7 +72,7 @@ public class SpriteRenderer : Component
 		Renderer.UnregisterHook(_hook);
 	}
 
-	private uint OnBind()
+	private int OnBind()
 	{
 		if (!DoesUpdate)
 		{
@@ -95,7 +95,7 @@ public class SpriteRenderer : Component
 		_shader!.SetUniform("u_isTextured", Texture != null);
 		Texture?.Bind();
 
-		return (uint)_quadMesh.IndexCount;
+		return _quadMesh.IndexCount;
 	}
 
 	private RenderLayer GetRenderLayer()
