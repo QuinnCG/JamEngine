@@ -70,6 +70,8 @@ class Player : SpatialEntity
 
 		Camera.Active.OrthgraphicSize += -Input.ScrollDelta * 0.5f;
 		Camera.Active.OrthgraphicSize = MathX.Clamp(Camera.Active.OrthgraphicSize, 0.2f, 30f);
+
+		Camera.Active.LocalPositionY = MathX.Sin(Time.Now);
 	}
 }
 

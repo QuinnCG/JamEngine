@@ -27,13 +27,24 @@ public class Camera : SpatialEntity
 		_active = this;
 	}
 
-	internal Matrix4 GetMatrix()
+	public Matrix4 GetMatrix()
+	{
+		return
+			GetViewMatrix() *
+			GetProjectionMatrix();
+	}
+
+	public Matrix4 GetViewMatrix()
 	{
 		return
 			Matrix4.CreateScale(new Vector3(WorldScale)) *
 			Matrix4.CreateRotationZ(WorldRotation * (MathF.PI / 180f)) *
-			Matrix4.CreateTranslation(-new Vector3(WorldPosition)) *
-			Matrix4.CreateOrthographic(Window.Ratio * OrthgraphicSize, OrthgraphicSize, 0f, 1f);
+			Matrix4.CreateTranslation(-new Vector3(WorldPosition));
+	}
+
+	public Matrix4 GetProjectionMatrix()
+	{
+		return Matrix4.CreateOrthographic(Window.Ratio * OrthgraphicSize, OrthgraphicSize, 0f, 1f);
 	}
 
 	protected override void OnCreate()

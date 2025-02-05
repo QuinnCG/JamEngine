@@ -7,7 +7,7 @@ public class MeshBatchBuilder
 	private readonly List<float> _vertices = [];
 	private readonly List<uint> _indices = [];
 
-	private int _greatestIndex = -1;
+	private uint _greatestIndex;
 
 	private MeshBatchBuilder() { }
 
@@ -39,17 +39,16 @@ public class MeshBatchBuilder
 		_vertices.AddRange(GenerateVertex(botRight, new(1f, 0f)));
 
 		// Indices.
-		_greatestIndex++;
-		uint index = (uint)_greatestIndex;
-
 		_indices.AddRange([
-			index + 0,
-			index + 1,
-			index + 2,
-			index + 3,
-			index + 0,
-			index + 2,
+			_greatestIndex + 0,
+			_greatestIndex + 1,
+			_greatestIndex + 2,
+			_greatestIndex + 3,
+			_greatestIndex + 0,
+			_greatestIndex + 2,
 			]);
+
+		_greatestIndex += 4;
 
 		return this;
 	}

@@ -26,7 +26,7 @@ void main()
 {
 	f_color = u_color * texture(u_texture, v_uv);
 
-	if (length(f_color) < 0.1)
+	if (f_color.x < 0.1)
 	{
 		discard;
 	}

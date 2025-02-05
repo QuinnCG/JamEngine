@@ -1,4 +1,6 @@
-﻿namespace Engine.UI;
+﻿using Engine.Rendering;
+
+namespace Engine.UI;
 
 public class UIEntity : Entity
 {
@@ -12,4 +14,6 @@ public class UIEntity : Entity
 	// Maybe mesh builder is separate class where you call methods (such as Quad()) then by the end call build to get get the mesh returned which contains vertices and indices.
 	// But then what data does a vertex contain? Maybe forgo the mesh object idea and have the mesh builder allow settings for tacking on additional data per vertex:
 	//		by default it generates positional data, with an option enabled UV data too, and you can then also in the quad method input params float[] customData.
+
+	public RenderLayer Layer { get; set; } = RenderLayer.Default;
 }

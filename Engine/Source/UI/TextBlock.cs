@@ -1,5 +1,6 @@
 ﻿using Engine.Rendering;
 using OpenTK.Mathematics;
+using System.Text;
 
 namespace Engine.UI;
 
@@ -33,15 +34,6 @@ public class TextBlock : UIEntity
 		Regenerate();
 	}
 
-	protected override void OnUpdate()
-	{
-		if (_shouldRegenerate)
-		{
-			_shouldRegenerate = false;
-			Regenerate();
-		}
-	}
-
 	protected override void OnDestroy()
 	{
 		Renderer.UnregisterHook(_hook!);
@@ -53,13 +45,28 @@ public class TextBlock : UIEntity
 
 	private void Regenerate()
 	{
+		_text = _text.ToUpper();
 		var builder = MeshBatchBuilder.Create();
 
 		for (int i = 0; i < _text.Length; i++)
 		{
 			char c = _text[i];
+			//int index; // Value of 0 equals first character in font texture.
 
-			Vector2 offset = Vector2.Zero;
+			var bytes = Encoding.ASCII.GetBytes([c]);
+			byte bCode = bytes[0];
+			Log.Assert(bCode is >= 32 and <= 137, $"Text block text character '{c}' is out of the allowed ASCII range!");
+
+			// Turn 32-137 -> 0-105.
+			int code = bCode - 32;
+
+			float cellSize = 1f / 8f;
+
+			int x = code % 8;
+			int y = code / 8;
+
+			Vector2 offset = new Vector2(x, 1f - y) * cellSize;
+			offset.Y -= (cellSize * 2f) - 0.01f;
 			Vector2 scale = Vector2.One / 8f;
 
 			// TODO: Calculate offset and scale of uv.
@@ -73,13 +80,19 @@ public class TextBlock : UIEntity
 
 	private int OnRender()
 	{
+		if (_shouldRegenerate)
+		{
+			_shouldRegenerate = false;
+			Regenerate();
+		}
+
 		_fontTexture!.Bind();
 
 		_shader!.Bind();
 		_shader!.SetUniform("u_color", Color4.White);
+		_shader!.SetUniform("u_mvp", Camera.Active.GetProjectionMatrix());
 
 		_mesh!.Bind();
-
 		return _mesh.IndexCount;
 	}
 

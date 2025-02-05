@@ -75,4 +75,15 @@ public class SpatialEntity : Entity
 	public Vector2 LocalPosition { get; set; }
 	public float LocalRotation { get; set; }
 	public Vector2 LocalScale { get; set; } = Vector2.One;
+
+	public float LocalPositionX
+	{
+		get => LocalPosition.X;
+		set => LocalPosition = new(value, LocalPosition.Y);
+	}
+	public float LocalPositionY
+	{
+		get => LocalPosition.Y;
+		set => LocalPosition = new(LocalPosition.X, value);
+	}
 }
