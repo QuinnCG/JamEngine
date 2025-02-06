@@ -22,28 +22,24 @@ public class TextBlock : UIEntity
 	private Shader? _shader;
 	private Texture? _fontTexture;
 	private readonly DynamicMeshBatch _mesh = new();
-	private RenderHook? _hook;
+
+	public TextBlock() { }
+	public TextBlock(string text)
+	{
+		Text = text;
+	}
 
 	protected override void OnCreate()
 	{
+		base.OnCreate();
+
 		_shader = Resource.LoadEngineResource<Shader>("DefaultFont.shader");
 		_fontTexture = Resource.LoadEngineResource<Texture>("DefaultFont.bmp");
-		_hook = new RenderHook(OnRender, GetRenderLayer);
 
-		Renderer.RegisterHook(_hook);
-		Regenerate();
+		RegenerateTextMesh();
 	}
 
-	protected override void OnDestroy()
-	{
-		Renderer.UnregisterHook(_hook!);
-
-		_mesh.Destroy();
-		_shader!.Release();
-		_fontTexture!.Release();
-	}
-
-	private void Regenerate()
+	private void RegenerateTextMesh()
 	{
 		_text = _text.ToUpper();
 		var builder = MeshBatchBuilder.Create();
@@ -78,12 +74,12 @@ public class TextBlock : UIEntity
 		_mesh.Update(vertices, indices);
 	}
 
-	private int OnRender()
+	protected override int OnRender()
 	{
 		if (_shouldRegenerate)
 		{
 			_shouldRegenerate = false;
-			Regenerate();
+			RegenerateTextMesh();
 		}
 
 		_fontTexture!.Bind();
@@ -96,8 +92,12 @@ public class TextBlock : UIEntity
 		return _mesh.IndexCount;
 	}
 
-	private RenderLayer GetRenderLayer()
+	protected override void OnDestroy()
 	{
-		return RenderLayer.Default;
+		base.OnDestroy();
+
+		_mesh.Destroy();
+		_shader!.Release();
+		_fontTexture!.Release();
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using Engine.Rendering;
+using OpenTK.Mathematics;
 
 namespace Engine.UI;
 
@@ -16,27 +17,67 @@ public class UIEntity : Entity
 	// Rendering is handled as an override but handled by each entity.
 	// Basic UI entity has no visuals, instead there's an image entity for that.
 
-	public UIRect Rect
+	public UICanvas Canvas => _canvas!;
+	public RenderLayer Layer { get; set; } = RenderLayer.Default;
+	public UIRect Rect => _rect;
+
+	public Vector2 RenderPosition
 	{
 		get
 		{
-			if (Parent is UIEntity parent)
+			if (Parent is UIEntity ui)
 			{
-				return parent.CalculateRect(this);
-			}
-			else if (Parent is UICanvas canvas)
-			{
-				return canvas.CalculateRect(this);
+				return ui.RenderPosition + _renderPos;
 			}
 
-			Log.Error($"UI entity '{Name}' isn't the child of another UI entity or a UI canvas. It must be of one!");
-			return default;
+			return _renderPos;
 		}
+		set => _renderPos = value;
 	}
-	public UICanvas Canvas => _canvas!;
-	public RenderLayer Layer { get; set; } = RenderLayer.Default;
+	public float RenderRotation
+	{
+		get
+		{
+			if (Parent is UIEntity ui)
+			{
+				return ui.RenderRotation + _renderRot;
+			}
+
+			return _renderRot;
+		}
+		set => _renderRot = value;
+	}
+	public Vector2 RenderScale
+	{
+		get
+		{
+			if (Parent is UIEntity ui)
+			{
+				return ui.RenderScale + _renderScale;
+			}
+
+			return _renderScale;
+		}
+		set => _renderScale = value;
+	}
+
+	private RenderHook? _renderHook;
 
 	private UICanvas? _canvas;
+	private UIRect _rect;
+
+	private Vector2 _renderPos;
+	private float _renderRot;
+	private Vector2 _renderScale = Vector2.One;
+
+	// Cache rect and update on global canvas update. Maybe any ui can tell canvas to update its entities then it calls an update event that they all subbed to.
+	// Also, ad render transform (pos, rot, scale) that is applied on top of UI rect and inherits from parent render transform.
+
+	protected override void OnCreate()
+	{
+		_renderHook = new RenderHook(OnRender, GetRenderLayer);
+		Renderer.RegisterHook(_renderHook);
+	}
 
 	public void SetCanvas(UICanvas canvas)
 	{
@@ -49,10 +90,43 @@ public class UIEntity : Entity
 				ui.SetCanvas(canvas);
 			}
 		}
+
+		_canvas.OnRegenerateLayout += OnRegenerateLayout;
 	}
 
 	protected virtual UIRect CalculateRect(UIEntity child)
 	{
 		throw new NotImplementedException();
+	}
+
+	protected virtual int OnRender() => 0;
+
+	private RenderLayer GetRenderLayer()
+	{
+		return Layer;
+	}
+
+	private void OnRegenerateLayout()
+	{
+		if (Parent is UIEntity parent)
+		{
+			_rect = parent.CalculateRect(this);
+		}
+		else if (Parent is UICanvas canvas)
+		{
+			_rect = canvas.CalculateRect(this);
+		}
+		else
+		{
+			Log.Error($"UI entity '{Name}' isn't the child of another UI entity or a UI canvas. It must be of one!");
+		}
+	}
+
+	protected override void OnDestroy()
+	{
+		Log.Assert(_canvas != null, $"UI entity '{Name}' doesn't have a set canvas! Are they a direct/indirect child of a canvas entity?");
+
+		Renderer.UnregisterHook(_renderHook!);
+		_canvas.OnRegenerateLayout -= OnRegenerateLayout;
 	}
 }

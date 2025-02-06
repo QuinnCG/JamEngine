@@ -17,7 +17,9 @@ static class Sandbox
 		player.WorldScale = Vector2.One * 0.5f;
 
 		world.CreateEntity<Camera>();
-		world.CreateEntity<TextBlock>().Text = "Hello World";
+
+		var text = new TextBlock("Hello World");
+		world.CreateEntity<UICanvas>().AddChild(text);
 
 		Renderer.ClearColor = Color4.Gray;
 		Window.Title = "Jam Engine - Sandbox";
