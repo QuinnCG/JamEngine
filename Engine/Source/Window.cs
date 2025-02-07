@@ -73,7 +73,8 @@ public static unsafe class Window
 	}
 
 	/// <summary>
-	/// Window X / Y.
+	/// The screen ratio.<br/>
+	/// <c>X / Y</c>
 	/// </summary>
 	public static float Ratio => (float)Size.X / Size.Y;
 

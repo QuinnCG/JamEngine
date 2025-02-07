@@ -15,6 +15,7 @@ public class TextBlock : UIEntity
 			_shouldRegenerate = true;
 		}
 	}
+	public Color4 Color { get; set; } = Color4.White;
 
 	private bool _shouldRegenerate;
 	private string _text = string.Empty;
@@ -32,11 +33,17 @@ public class TextBlock : UIEntity
 	protected override void OnCreate()
 	{
 		base.OnCreate();
+		Renderer.RegisterHook(RenderHook);
 
 		_shader = Resource.LoadEngineResource<Shader>("DefaultFont.shader");
 		_fontTexture = Resource.LoadEngineResource<Texture>("DefaultFont.bmp");
 
 		RegenerateTextMesh();
+	}
+
+	protected override UIRect CalculateRect(UIEntity child)
+	{
+		return base.CalculateRect(child);
 	}
 
 	private void RegenerateTextMesh()
@@ -85,7 +92,7 @@ public class TextBlock : UIEntity
 		_fontTexture!.Bind();
 
 		_shader!.Bind();
-		_shader!.SetUniform("u_color", Color4.White);
+		_shader!.SetUniform("u_color", Color);
 		_shader!.SetUniform("u_mvp", Camera.Active.GetProjectionMatrix());
 
 		_mesh!.Bind();

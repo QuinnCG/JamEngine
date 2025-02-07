@@ -18,8 +18,10 @@ static class Sandbox
 
 		world.CreateEntity<Camera>();
 
-		var text = new TextBlock("Hello World");
-		world.CreateEntity<UICanvas>().AddChild(text);
+		var canvas = world.CreateEntity<UICanvas>();
+		var text = new TextBlock("Hello World") { Color = Color4.Blue };
+		canvas.AddChild(text);
+		canvas.AddChild(new Image(new(1f, 1f, 1f, 0.5f)));
 
 		Renderer.ClearColor = Color4.Gray;
 		Window.Title = "Jam Engine - Sandbox";
@@ -80,4 +82,4 @@ class Player : SpatialEntity
 // TODO: Wait system needs some work. Time seems to continue when unfocused windows (maybe glfw.gettime issue?) and cancellation doesn't seem to work (at least not for duration).
 // TODO: Seprate render from update.
 // TODO: Call entities async?
-// TODO: We have texture repeating but no way to scale UVs. Also, need UV scaling for use with spritesheets.
+// TODO: In the sprite renderrer, there's texture repeating but no way to scale UVs. Also, need UV scaling for use with spritesheets.

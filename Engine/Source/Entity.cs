@@ -33,6 +33,7 @@ public class Entity
 				if (added && _parent != null)
 				{
 					_parent._children.Remove(this);
+					_parent.OnChildRemoved(this);
 				}
 
 				if (_world != null)
@@ -54,6 +55,7 @@ public class Entity
 
 			// Set new parent for this.
 			_parent = value;
+			_parent?.OnChildAdded(this);
 		}
 	}
 	public Entity Root
@@ -202,6 +204,8 @@ public class Entity
 
 			child._world?.RemoveEntity_Internal(child);
 			child.SetWorld_Internal(null);
+
+			OnChildAdded(child);
 		}
 
 		return this;
@@ -216,6 +220,8 @@ public class Entity
 			_children.Remove(child);
 
 			World.AddEntity_Internal(child);
+
+			OnChildAdded(child);
 		}
 	}
 
@@ -379,4 +385,10 @@ public class Entity
 	protected virtual void OnCreate() { }
 	protected virtual void OnUpdate() { }
 	protected virtual void OnDestroy() { }
+
+	// TODO: Test if OnChildAdded/Removed are being called properly for all scenerios.
+	// Maybe refactor/consodilate code for parenting. It's currently split between the add/remove child methods and the Parent property.
+
+	protected virtual void OnChildAdded(Entity child) { }
+	protected virtual void OnChildRemoved(Entity child) { }
 }

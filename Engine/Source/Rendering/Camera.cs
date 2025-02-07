@@ -27,6 +27,7 @@ public class Camera : SpatialEntity
 		_active = this;
 	}
 
+	/// <returns><c><see cref="GetViewMatrix()"/> * <see cref="GetModelMatrix()"/></c></returns>
 	public Matrix4 GetMatrix()
 	{
 		return

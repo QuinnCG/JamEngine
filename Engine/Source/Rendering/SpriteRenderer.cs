@@ -1,4 +1,5 @@
-﻿using OpenTK.Mathematics;
+﻿using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 
 namespace Engine.Rendering;
 
@@ -93,7 +94,15 @@ public class SpriteRenderer : Component
 		_shader!.SetUniform("u_mvp", mvp);
 
 		_shader!.SetUniform("u_isTextured", Texture != null);
-		Texture?.Bind();
+		
+		if (Texture != null)
+		{
+			Texture.Bind();
+		}
+		else
+		{
+			GL.BindTexture(TextureTarget.Texture2D, 0);
+		}
 
 		return _quadMesh.IndexCount;
 	}
