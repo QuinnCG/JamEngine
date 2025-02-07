@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using Engine.UI;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using System.Text;
 
@@ -25,10 +26,11 @@ public static class Renderer
 
 	public static void UnregisterHook(RenderHook hook)
 	{
-		_hooks.Remove(hook);
-		SortHooks();
-
-		hook.OnLayerChange -= SortHooks;
+		if (_hooks.Remove(hook))
+		{
+			SortHooks();
+			hook.OnLayerChange -= SortHooks;
+		}
 	}
 
 	internal static void Initialize()
@@ -38,6 +40,7 @@ public static class Renderer
 
 		GL.DebugMessageCallback(GLDebugCallback, 0);
 		SpriteRenderer.Initialize();
+		Image.Initialize();
 	}
 
 	private static unsafe void GLDebugCallback(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, nint message, nint userParam)
@@ -78,8 +81,10 @@ public static class Renderer
 	internal static void CleanUp()
 	{
 		SpriteRenderer.CleanUp();
+		Image.CleanUp();
 	}
 
+	// Sort registered render hooks by their render layers.
 	private static void SortHooks()
 	{
 		_hooks = [.. _hooks.OrderBy(x => x.Layer().Order)];

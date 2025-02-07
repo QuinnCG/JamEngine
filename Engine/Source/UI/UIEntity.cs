@@ -61,6 +61,12 @@ public class UIEntity : Entity
 		set => _renderScale = value;
 	}
 
+	/// <summary>
+	/// The <see cref="Rendering.RenderHook"/> for this UI entity.<br/>
+	/// By default, it is not registered. If you wish for this entity's <see cref="OnRender"/> method to be called, you first call <see cref="Renderer.RegisterHook(RenderHook)"/>.<br/>
+	/// <see cref="Renderer.UnregisterHook(RenderHook)"/> will be called for you automatically, upon this entity's destruction.
+	/// </summary>
+	protected RenderHook RenderHook => _renderHook!;
 	private RenderHook? _renderHook;
 
 	private UICanvas? _canvas;
@@ -76,7 +82,6 @@ public class UIEntity : Entity
 	protected override void OnCreate()
 	{
 		_renderHook = new RenderHook(OnRender, GetRenderLayer);
-		Renderer.RegisterHook(_renderHook);
 	}
 
 	public void SetCanvas(UICanvas canvas)

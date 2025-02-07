@@ -1,4 +1,6 @@
-﻿namespace Engine.UI;
+﻿using OpenTK.Mathematics;
+
+namespace Engine.UI;
 
 public class UICanvas : SpatialEntity
 {
@@ -21,6 +23,15 @@ public class UICanvas : SpatialEntity
 		// if mode == WorldSpace
 
 		throw new NotImplementedException();
+	}
+
+	/// <summary>
+	/// Calculates the model-view-projection matrix, used for rendering, for a given <see cref="UIEntity"/> that's a child of this <see cref="UICanvas"/>.<br/>
+	/// Accounts for the <see cref="CanvasMode"/> too.
+	/// </summary>
+	public Matrix4 CalculateMatrix(UIEntity entity)
+	{
+		return Matrix4.Identity;
 	}
 
 	/// <summary>

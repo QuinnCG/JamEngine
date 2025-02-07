@@ -31,7 +31,7 @@ public class SpriteRenderer : Component
 
 	public SpriteRenderer()
 	{
-		_hook = new RenderHook(OnBind, GetRenderLayer);
+		_hook = new RenderHook(OnRender, GetRenderLayer);
 	}
 
 	internal static void Initialize()
@@ -72,7 +72,7 @@ public class SpriteRenderer : Component
 		Renderer.UnregisterHook(_hook);
 	}
 
-	private int OnBind()
+	private int OnRender()
 	{
 		if (!DoesUpdate)
 		{
