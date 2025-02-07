@@ -19,7 +19,12 @@ public class UIEntity : Entity
 
 	public UICanvas Canvas => _canvas!;
 	public RenderLayer Layer { get; set; } = RenderLayer.Default;
-	public UIRect Rect => _rect;
+	public UIRect Rect { get; set; } = new(Vector2.Zero, Vector2.One);
+	/// <summary>
+	/// If true, this <see cref="UIEntity"/>'s rect will be made to fit it's content tightly.<br/>
+	/// It's important to note that the child UI entities must rects will be left as is, if this setting is enabled.
+	/// </summary>
+	public bool DoesWrapContent { get; set; }
 
 	public Vector2 RenderPosition
 	{
@@ -70,7 +75,6 @@ public class UIEntity : Entity
 	private RenderHook? _renderHook;
 
 	private UICanvas? _canvas;
-	private UIRect _rect;
 
 	private Vector2 _renderPos;
 	private float _renderRot;
@@ -101,7 +105,7 @@ public class UIEntity : Entity
 
 	protected virtual UIRect CalculateRect(UIEntity child)
 	{
-		throw new NotImplementedException();
+		return DoesWrapContent ? child.Rect : Rect;
 	}
 
 	protected virtual int OnRender() => 0;
@@ -115,11 +119,11 @@ public class UIEntity : Entity
 	{
 		if (Parent is UIEntity parent)
 		{
-			_rect = parent.CalculateRect(this);
+			Rect = parent.CalculateRect(this);
 		}
 		else if (Parent is UICanvas canvas)
 		{
-			_rect = canvas.CalculateRect(this);
+			Rect = canvas.CalculateRect(this);
 		}
 		else
 		{

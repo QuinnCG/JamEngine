@@ -31,6 +31,23 @@ public static class MathX
 		return new Vector2(v.X, y);
 	}
 
+	public static Vector2 BoundsLeft(this Vector2 v)
+	{
+		return v.X / 2f * -Vector2.UnitX;
+	}
+	public static Vector2 BoundsRight(this Vector2 v)
+	{
+		return v.X / 2f * Vector2.UnitX;
+	}
+	public static Vector2 BoundsTop(this Vector2 v)
+	{
+		return v.Y / 2f * Vector2.UnitY;
+	}
+	public static Vector2 BoundsBottom(this Vector2 v)
+	{
+		return v.Y / 2f * -Vector2.UnitY;
+	}
+
 	/// <summary>
 	/// Converts radians to degrees.
 	/// </summary>

@@ -40,11 +40,6 @@ public class Image : UIEntity
 		Renderer.RegisterHook(RenderHook);
 	}
 
-	protected override UIRect CalculateRect(UIEntity child)
-	{
-		return Rect;
-	}
-
 	protected override int OnRender()
 	{
 		_mesh!.Bind();

@@ -2,8 +2,8 @@
 
 namespace Engine.UI;
 
-public struct UIRect
+public struct UIRect(Vector2 center, Vector2 size)
 {
-	public Vector2 Center;
-	public Vector2 Size;
+	public Vector2 Center = center;
+	public Vector2 Size = size;
 }
