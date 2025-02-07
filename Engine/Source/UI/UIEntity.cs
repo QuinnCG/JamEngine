@@ -18,13 +18,28 @@ public class UIEntity : Entity
 	// Basic UI entity has no visuals, instead there's an image entity for that.
 
 	public UICanvas Canvas => _canvas!;
-	public RenderLayer Layer { get; set; } = RenderLayer.Default;
-	public UIRect Rect { get; set; } = new(Vector2.Zero, Vector2.One);
+	public UIRect Rect
+	{
+		get => _rect;
+		set
+		{
+			_rect = value;
+			
+			if (IsCreated)
+			{
+				Canvas.RegenerateLayout();
+			}
+		}
+	}
 	/// <summary>
 	/// If true, this <see cref="UIEntity"/>'s rect will be made to fit it's content tightly.<br/>
 	/// It's important to note that the child UI entities must rects will be left as is, if this setting is enabled.
 	/// </summary>
 	public bool DoesWrapContent { get; set; }
+	/// <summary>
+	/// Whether to use <see cref="Rect"/> as an absolute position or to ignore it and leave this entity's layout up to its parent.
+	/// </summary>
+	public bool DoesFlex { get; set; } = true;
 
 	public Vector2 RenderPosition
 	{
@@ -66,6 +81,9 @@ public class UIEntity : Entity
 		set => _renderScale = value;
 	}
 
+	public IEnumerable<UIEntity> UIChildren => _uiChildren;
+	public int UIChildrenCount => _uiChildren.Count;
+
 	/// <summary>
 	/// The <see cref="Rendering.RenderHook"/> for this UI entity.<br/>
 	/// By default, it is not registered. If you wish for this entity's <see cref="OnRender"/> method to be called, you first call <see cref="Renderer.RegisterHook(RenderHook)"/>.<br/>
@@ -74,7 +92,10 @@ public class UIEntity : Entity
 	protected RenderHook RenderHook => _renderHook!;
 	private RenderHook? _renderHook;
 
+	private readonly HashSet<UIEntity> _uiChildren = [];
+
 	private UICanvas? _canvas;
+	private UIRect _rect = new(Vector2.Zero, Vector2.One);
 
 	private Vector2 _renderPos;
 	private float _renderRot;
@@ -85,7 +106,7 @@ public class UIEntity : Entity
 
 	protected override void OnCreate()
 	{
-		_renderHook = new RenderHook(OnRender, GetRenderLayer);
+		_renderHook = new RenderHook(OnRender, () => Canvas.Layer);
 	}
 
 	public void SetCanvas(UICanvas canvas)
@@ -99,43 +120,56 @@ public class UIEntity : Entity
 				ui.SetCanvas(canvas);
 			}
 		}
-
-		_canvas.OnRegenerateLayout += OnRegenerateLayout;
 	}
 
-	protected virtual UIRect CalculateRect(UIEntity child)
+	public void RegenerateLayout()
 	{
-		return DoesWrapContent ? child.Rect : Rect;
+		OnRegenerateLayout();
+
+		foreach (var child in UIChildren)
+		{
+			child.RegenerateLayout();
+		}
+	}
+
+	/// <summary>
+	/// Primarily for use by <see cref="UICanvas"/>.<br/>
+	/// This avoids triggering a canvas level regeneration, which will just ripple down and retrigger the UI entities, making an infinite loop.
+	/// </summary>
+	internal void SetRect_Internal(UIRect rect)
+	{
+		_rect = rect;
+	}
+
+	protected virtual void OnRegenerateLayout()
+	{
+		foreach (var child in UIChildren)
+		{
+			child.SetRect_Internal(Rect);
+		}
 	}
 
 	protected virtual int OnRender() => 0;
 
-	private RenderLayer GetRenderLayer()
-	{
-		return Layer;
-	}
-
-	private void OnRegenerateLayout()
-	{
-		if (Parent is UIEntity parent)
-		{
-			Rect = parent.CalculateRect(this);
-		}
-		else if (Parent is UICanvas canvas)
-		{
-			Rect = canvas.CalculateRect(this);
-		}
-		else
-		{
-			Log.Error($"UI entity '{Name}' isn't the child of another UI entity or a UI canvas. It must be of one!");
-		}
-	}
-
 	protected override void OnDestroy()
 	{
 		Log.Assert(_canvas != null, $"UI entity '{Name}' doesn't have a set canvas! Are they a direct/indirect child of a canvas entity?");
-
 		Renderer.UnregisterHook(_renderHook!);
-		_canvas.OnRegenerateLayout -= OnRegenerateLayout;
+	}
+
+	protected override void OnChildAdded(Entity child)
+	{
+		if (child is UIEntity ui)
+		{
+			_uiChildren.Add(ui);
+		}
+	}
+
+	protected override void OnChildRemoved(Entity child)
+	{
+		if (child is UIEntity ui)
+		{
+			_uiChildren.Remove(ui);
+		}
 	}
 }

@@ -41,11 +41,6 @@ public class TextBlock : UIEntity
 		RegenerateTextMesh();
 	}
 
-	protected override UIRect CalculateRect(UIEntity child)
-	{
-		return base.CalculateRect(child);
-	}
-
 	private void RegenerateTextMesh()
 	{
 		_text = _text.ToUpper();

@@ -91,15 +91,10 @@ public class FlowLayout : UIEntity
 	private float _spacing;
 	private FlowLayoutSpacingMode _spacingMode;
 
-	protected override UIRect CalculateRect(UIEntity child)
+	protected override void OnRegenerateLayout()
 	{
-		// Just implement horizontal for now.
-
-		// TODO: UI entity should cache UI children.
-		// TODO: Ideally, shouldn't have to recalculate this for every child that asks.
-		var uiChildren = Children.Where(x => x is UIEntity).Cast<UIEntity>();
-		int childSum = uiChildren.Count();
-		float sumLength = uiChildren.Sum(x => x.Rect.Size.X);
+		float sumLength = UIChildren.Sum(ui => Direction is FlowLayoutDirection.Horizontal ? ui.Rect.Size.X : ui.Rect.Size.Y);
+		int childSum = UIChildrenCount;
 
 		switch (SpacingMode)
 		{
@@ -123,12 +118,58 @@ public class FlowLayout : UIEntity
 			_ => throw new Exception()
 		};
 
-		int childIndex = uiChildren.Index().First(x => x.Item == child).Index;
-		//Vector2 pos = origin + (childIndex * );
+		float cumulativeOffset = UIChildren.First().Rect.Size.X / 2f;
 
-		// TODO: Major UI refactor: especially now that rects can be set manually per UI element, we should probably have a top down approach where upon layout regeneration, parents update children.
-		// Without this, it becomes difficult for things like flow layout to calculate the offset per child.
+		foreach (var child in UIChildren)
+		{
+			cumulativeOffset += child.Rect.Size.X;
 
-		return new UIRect(default, child.Rect.Size);
+			var pos = origin + (Vector2.UnitX * cumulativeOffset);
+			var rect = new UIRect(pos, child.Rect.Size);
+
+			child.SetRect_Internal(rect);
+			cumulativeOffset += child.Rect.Size.X;
+		}
 	}
+
+	//protected override UIRect CalculateRect(UIEntity child)
+	//{
+	//	// Just implement horizontal for now.
+
+	//	// TODO: UI entity should cache UI children.
+	//	// TODO: Ideally, shouldn't have to recalculate this for every child that asks.
+	//	var uiChildren = Children.Where(x => x is UIEntity).Cast<UIEntity>();
+	//	int childSum = uiChildren.Count();
+	//	float sumLength = uiChildren.Sum(x => x.Rect.Size.X);
+
+	//	switch (SpacingMode)
+	//	{
+	//		case FlowLayoutSpacingMode.BetweenOnly:
+	//			sumLength += Spacing * (childSum - 1);
+	//			break;
+	//		case FlowLayoutSpacingMode.AllEqual:
+	//			sumLength += Spacing * (childSum + 1);
+	//			break;
+	//		case FlowLayoutSpacingMode.SidesHalf:
+	//			// The last spacing is meant to be the sum of the two halves placed on either end.
+	//			sumLength += (Spacing * (childSum - 1)) + Spacing;
+	//			break;
+	//	}
+
+	//	Vector2 origin = Rect.Center + Alignment switch
+	//	{
+	//		FlowLayoutAlignment.Left => Rect.Size.BoundsLeft(),
+	//		FlowLayoutAlignment.Center => Vector2.Zero,
+	//		FlowLayoutAlignment.Right => Rect.Size.BoundsRight(),
+	//		_ => throw new Exception()
+	//	};
+
+	//	int childIndex = uiChildren.Index().First(x => x.Item == child).Index;
+	//	//Vector2 pos = origin + (childIndex * );
+
+	//	// TODO: Major UI refactor: especially now that rects can be set manually per UI element, we should probably have a top down approach where upon layout regeneration, parents update children.
+	//	// Without this, it becomes difficult for things like flow layout to calculate the offset per child.
+
+	//	return new UIRect(default, child.Rect.Size);
+	//}
 }

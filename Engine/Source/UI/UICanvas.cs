@@ -6,10 +6,16 @@ namespace Engine.UI;
 public class UICanvas : SpatialEntity
 {
 	public CanvasMode Mode { get; set; } = CanvasMode.ScreenSpace;
-	public event Action? OnRegenerateLayout;
+	public RenderLayer Layer { get; set; } = RenderLayer.UI;
+
+	private Matrix4 _camMat;
+	private RenderHook? _renderHook;
 
 	protected override void OnCreate()
 	{
+		_renderHook = new RenderHook(OnRender, () => Layer);
+		Renderer.RegisterHook(_renderHook!);
+
 		foreach (var child in Children)
 		{
 			if (child is UIEntity ui)
@@ -17,28 +23,24 @@ public class UICanvas : SpatialEntity
 				ui.SetCanvas(this);
 			}
 		}
-
-		RegenerateLayout();
 	}
 
-	public UIRect CalculateRect(UIEntity child)
+	private int OnRender()
 	{
-		if (Mode is CanvasMode.ScreenSpace)
-		{
-			float orthoScale = Camera.Active.OrthgraphicSize;
+		var mat = Camera.Active.GetMatrix();
 
-			return new UIRect()
-			{
-				Center = Vector2.Zero,
-				Size = new(Window.Ratio * orthoScale, orthoScale)
-			};
-		}
-		else
+		if (_camMat != mat)
 		{
-			// TODO: Implement world space.
-			// Make us of child param?
-			throw new NotImplementedException();
+			RegenerateLayout();
+			_camMat = mat;
 		}
+
+		return 0;
+	}
+
+	protected override void OnDestroy()
+	{
+		Renderer.UnregisterHook(_renderHook!);
 	}
 
 	/// <summary>
@@ -47,12 +49,7 @@ public class UICanvas : SpatialEntity
 	/// </summary>
 	public Matrix4 CalculateMatrix(UIEntity entity)
 	{
-		var rect = entity.Rect;
-		var model = Matrix4.Identity;
-
-		model *= Matrix4.CreateScale(new Vector3(rect.Size * entity.RenderScale));
-		model *= Matrix4.CreateRotationZ(MathF.PI / 180f * -entity.RenderRotation);
-		model *= Matrix4.CreateTranslation(new Vector3(rect.Center + entity.RenderPosition));
+		var model = CalculateModelMatrix(entity);
 		
 		if (Mode is CanvasMode.ScreenSpace)
 		{
@@ -70,15 +67,32 @@ public class UICanvas : SpatialEntity
 		}
 	}
 
+	private static Matrix4 CalculateModelMatrix(UIEntity entity)
+	{
+		var rect = entity.Rect;
+		var model = Matrix4.Identity;
+
+		model *= Matrix4.CreateScale(new Vector3(rect.Size * entity.RenderScale));
+		model *= Matrix4.CreateRotationZ(MathF.PI / 180f * -entity.RenderRotation);
+		model *= Matrix4.CreateTranslation(new Vector3(rect.Center + entity.RenderPosition));
+
+		return model;
+	}
+
 	/// <summary>
 	/// Calls <see cref="OnRegenerateLayout"/> which will trigger each <see cref="UIEntity"/> to recalculate its layout.
 	/// </summary>
 	public void RegenerateLayout()
 	{
-		OnRegenerateLayout?.Invoke();
+		foreach (var child in Children)
+		{
+			if (child is UIEntity ui)
+			{
+				ui.RegenerateLayout();
+				ui.SetRect_Internal(CalculateChildRect());
+			}
+		}
 	}
-
-	// TODO: Child ui entities need to unsubscribe from canvas regen event if they are reparented.
 
 	protected override void OnChildAdded(Entity child)
 	{
@@ -94,6 +108,25 @@ public class UICanvas : SpatialEntity
 		if (IsCreated && child is UIEntity)
 		{
 			RegenerateLayout();
+		}
+	}
+
+	private UIRect CalculateChildRect()
+	{
+		if (Mode is CanvasMode.ScreenSpace)
+		{
+			float orthoScale = Camera.Active.OrthgraphicSize;
+
+			return new UIRect()
+			{
+				Center = Vector2.Zero,
+				Size = new(Window.Ratio * orthoScale, orthoScale)
+			};
+		}
+		else
+		{
+			// TODO: Implement world space.
+			throw new NotImplementedException();
 		}
 	}
 }

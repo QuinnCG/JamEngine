@@ -3,6 +3,7 @@
 public class RenderLayer
 {
 	public static RenderLayer Default { get; }
+	public static RenderLayer UI { get; }
 
 	public static IEnumerable<RenderLayer> Layers => _layers;
 	public static int LayerCount => _layers.Count;
@@ -17,7 +18,9 @@ public class RenderLayer
 	static RenderLayer()
 	{
 		_layers = [];
+
 		Default = Create();
+		UI = Create();
 	}
 
 	private RenderLayer() { }
