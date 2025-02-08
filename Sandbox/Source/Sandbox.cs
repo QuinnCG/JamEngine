@@ -24,10 +24,6 @@ static class Sandbox
 
 		var bg = new Image(new(1f, 1f, 1f, 0.5f));
 		canvas.AddChild(bg);
-		var flow = new FlowLayout() { Rect = new(default, Vector2.One * 2f) };
-		bg.AddChild(flow);
-		flow.AddChild(new Image(Color4.Green));
-		flow.AddChild(new Image(Color4.Yellow));
 
 		Renderer.ClearColor = Color4.Gray;
 		Window.Title = "Jam Engine - Sandbox";

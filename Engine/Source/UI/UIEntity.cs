@@ -31,15 +31,6 @@ public class UIEntity : Entity
 			}
 		}
 	}
-	/// <summary>
-	/// If true, this <see cref="UIEntity"/>'s rect will be made to fit it's content tightly.<br/>
-	/// It's important to note that the child UI entities must rects will be left as is, if this setting is enabled.
-	/// </summary>
-	public bool DoesWrapContent { get; set; }
-	/// <summary>
-	/// Whether to use <see cref="Rect"/> as an absolute position or to ignore it and leave this entity's layout up to its parent.
-	/// </summary>
-	public bool DoesFlex { get; set; } = true;
 
 	public Vector2 RenderPosition
 	{
