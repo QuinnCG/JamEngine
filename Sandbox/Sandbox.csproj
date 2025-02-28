@@ -6,13 +6,8 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<RootNamespace>Sandbox</RootNamespace>
+		<Configurations>Release;Editor;Development</Configurations>
 	</PropertyGroup>
-
-	<ItemGroup>
-	  <Compile Remove="Resources\**" />
-	  <EmbeddedResource Remove="Resources\**" />
-	  <None Remove="Resources\**" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Engine\Engine.csproj" />

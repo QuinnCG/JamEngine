@@ -9,20 +9,28 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sandbox", "Sandbox\Sandbox.
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
+		Development|Any CPU = Development|Any CPU
+		Editor|Any CPU = Editor|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F9F58E47-6592-494D-895B-AA0B05894727}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F9F58E47-6592-494D-895B-AA0B05894727}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9F58E47-6592-494D-895B-AA0B05894727}.Development|Any CPU.ActiveCfg = Development|Any CPU
+		{F9F58E47-6592-494D-895B-AA0B05894727}.Development|Any CPU.Build.0 = Development|Any CPU
+		{F9F58E47-6592-494D-895B-AA0B05894727}.Editor|Any CPU.ActiveCfg = Editor|Any CPU
+		{F9F58E47-6592-494D-895B-AA0B05894727}.Editor|Any CPU.Build.0 = Editor|Any CPU
 		{F9F58E47-6592-494D-895B-AA0B05894727}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F9F58E47-6592-494D-895B-AA0B05894727}.Release|Any CPU.Build.0 = Release|Any CPU
-		{296EF1DA-BC28-4A7E-8C33-EA1E68924D7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{296EF1DA-BC28-4A7E-8C33-EA1E68924D7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{296EF1DA-BC28-4A7E-8C33-EA1E68924D7B}.Development|Any CPU.ActiveCfg = Development|Any CPU
+		{296EF1DA-BC28-4A7E-8C33-EA1E68924D7B}.Development|Any CPU.Build.0 = Development|Any CPU
+		{296EF1DA-BC28-4A7E-8C33-EA1E68924D7B}.Editor|Any CPU.ActiveCfg = Editor|Any CPU
+		{296EF1DA-BC28-4A7E-8C33-EA1E68924D7B}.Editor|Any CPU.Build.0 = Editor|Any CPU
 		{296EF1DA-BC28-4A7E-8C33-EA1E68924D7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{296EF1DA-BC28-4A7E-8C33-EA1E68924D7B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1A896C22-5D7F-4916-AFBB-43490D1D5EC7}
 	EndGlobalSection
 EndGlobal

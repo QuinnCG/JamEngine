@@ -8,9 +8,14 @@
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<RootNamespace>Engine</RootNamespace>
+		<Configurations>Release;Editor;Development</Configurations>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|AnyCPU'">
+	  <DebugType>embedded</DebugType>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Editor|AnyCPU'">
 	  <DebugType>embedded</DebugType>
 	</PropertyGroup>
 
@@ -23,12 +28,6 @@
 		<PackageReference Include="OpenTK.Graphics" Version="4.9.3" />
 		<PackageReference Include="OpenTK.Windowing.GraphicsLibraryFramework" Version="4.9.3" />
 		<PackageReference Include="StbiSharp" Version="1.2.1" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Compile Remove="Resources\**" />
-	  <EmbeddedResource Remove="Resources\**" />
-	  <None Remove="Resources\**" />
 	</ItemGroup>
 
 </Project>

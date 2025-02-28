@@ -8,6 +8,7 @@ namespace Engine;
 public static unsafe class Window
 {
 	public const string LogCategory = "Window";
+	public const string EditorModeSuffix = " - Editor Mode";
 
 	public static string Title
 	{
@@ -18,7 +19,14 @@ public static unsafe class Window
 
 			if (IsLaunched)
 			{
-				GLFW.SetWindowTitle(Handle, _title);
+				string newTitle = value;
+
+				if (Application.InEditMode)
+				{
+					newTitle += EditorModeSuffix;
+				}
+
+				GLFW.SetWindowTitle(Handle, newTitle);
 			}
 		}
 	}
@@ -92,6 +100,9 @@ public static unsafe class Window
 
 	internal static GLFWWindow* Handle { get; private set; }
 
+	/// <summary>
+	/// Has the window been launched yet and has it not been told to close.
+	/// </summary>
 	public static bool IsLaunched { get; private set; }
 
 	internal static void Launch()
@@ -102,7 +113,7 @@ public static unsafe class Window
 
 			if (!GLFW.Init())
 			{
-				Log.Fatal("Window", "Failed to initialize GLFW! Shutting down...");
+				Log.Fatal(LogCategory, "Failed to initialize GLFW! Shutting down...");
 				return;
 			}
 
@@ -128,6 +139,14 @@ public static unsafe class Window
 	internal static void SwapBuffers()
 	{
 		GLFW.SwapBuffers(Handle);
+	}
+
+	/// <summary>
+	/// Adds or removes the editor mode suffix from the window title without changing the underlying <c>_title</c> value.
+	/// </summary>
+	internal static void UpdateTitleEditorMode()
+	{
+		Title = _title;
 	}
 
 	public static void Close()
