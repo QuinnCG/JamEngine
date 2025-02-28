@@ -5,20 +5,17 @@
 		<TargetFramework>net9.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<RootNamespace>Sandbox</RootNamespace>
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Resources\**" />
+	  <EmbeddedResource Remove="Resources\**" />
+	  <None Remove="Resources\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\Engine\Engine.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Update="Resources\**">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Resources\" />
 	</ItemGroup>
 
 </Project>

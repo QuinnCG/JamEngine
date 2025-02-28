@@ -1,0 +1,65 @@
+﻿using OpenTK.Mathematics;
+
+namespace Engine.Rendering;
+
+public class MeshBatchBuilder
+{
+	private readonly List<float> _vertices = [];
+	private readonly List<uint> _indices = [];
+
+	private uint _greatestIndex;
+
+	private MeshBatchBuilder() { }
+
+	public static MeshBatchBuilder Create()
+	{
+		return new MeshBatchBuilder();
+	}
+
+	public MeshBatchBuilder Quad(Vector2 pos, Vector2 size, Vector2 uvOffset, Vector2 uvScale, params float[] customData)
+	{
+		float[] GenerateVertex(Vector2 pos, Vector2 uv)
+		{
+			uv *= uvScale;
+			uv += uvOffset;
+
+			return [pos.X, pos.Y, uv.X, uv.Y, .. customData];
+		}
+
+		// Vertices.
+		Vector2 half = size / 2f;
+		Vector2 lower = pos - half;
+		Vector2 upper = pos + half;
+		Vector2 topLeft = new(lower.X, upper.Y);
+		Vector2 botRight = new(upper.X, lower.Y);
+
+		_vertices.AddRange(GenerateVertex(lower, new(0f, 0f)));
+		_vertices.AddRange(GenerateVertex(topLeft, new(0f, 1f)));
+		_vertices.AddRange(GenerateVertex(upper, new(1f, 1f)));
+		_vertices.AddRange(GenerateVertex(botRight, new(1f, 0f)));
+
+		// Indices.
+		_indices.AddRange([
+			_greatestIndex + 0,
+			_greatestIndex + 1,
+			_greatestIndex + 2,
+			_greatestIndex + 3,
+			_greatestIndex + 0,
+			_greatestIndex + 2,
+			]);
+
+		_greatestIndex += 4;
+
+		return this;
+	}
+	public MeshBatchBuilder Quad(Vector2 pos, Vector2 size, params float[] customData)
+	{
+		return Quad(pos, size, Vector2.Zero, Vector2.One, customData);
+	}
+
+	public void Build(out float[] vertices, out uint[] indices)
+	{
+		vertices = [.. _vertices];
+		indices = [.. _indices];
+	}
+}
