@@ -28,4 +28,9 @@
 		<EmbeddedResource Include="Resources\**" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Resources\" />
+	  <Folder Include="Source\" />
+	</ItemGroup>
+
 </Project>
