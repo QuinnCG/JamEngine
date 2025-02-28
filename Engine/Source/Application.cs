@@ -65,7 +65,7 @@ public static class Application
 	/// <summary>
 	/// Calls <see cref="SwitchToEditMode"/> or <see cref="SwitchToPlayMode"/> depending on the current mode.
 	/// </summary>
-	public static void TogglePlayMode()
+	public static void ToggleEditMode()
 	{
 		if (InEditMode)
 			SwitchToPlayMode();
@@ -75,9 +75,18 @@ public static class Application
 
 	private static void Update()
 	{
+#if EDITOR
+		// Toggle edit-mode.
 		if (Input.IsKeyPressed(Key.F5))
 		{
-			TogglePlayMode();
+			ToggleEditMode();
 		}
+
+		// Close window.
+		if (Input.IsKeyPressed(Key.Escape))
+		{
+			Window.Close();
+		}
+#endif
 	}
 }
