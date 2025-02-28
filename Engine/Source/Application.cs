@@ -88,7 +88,7 @@ public static class Application
 			IsEndOfFrame = true;
 
 			// Draw frame.
-			Renderer.Render();
+			Renderer.Flush();
 			Window.SwapBuffers();
 
 			// Update late. Otherwise, not user code will ever run with time equalling 0.

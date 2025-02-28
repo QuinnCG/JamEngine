@@ -2,7 +2,6 @@
 using Engine.Rendering;
 using Engine.UI;
 using OpenTK.Mathematics;
-using System.Text;
 
 namespace Sandbox;
 

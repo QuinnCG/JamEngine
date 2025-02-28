@@ -4,9 +4,6 @@ public class Entity
 {
 	public const string LogCategory = "Entity";
 
-	// Can be created itself for dynamic entities or inherited from.
-	// Supports parenting.
-
 	public string Name
 	{
 		get
@@ -261,6 +258,9 @@ public class Entity
 		return null;
 	}
 
+	/// <summary>
+	/// Creates a component and attaches it to this entity.
+	/// </summary>
 	/// <returns>The created component.</returns>
 	public T CreateComponent<T>() where T : Component, new()
 	{
@@ -280,6 +280,9 @@ public class Entity
 			comp.Destroy_Internal();
 		}
 	}
+
+	// TODO: Destroying an entity should destroy all its children.
+	// Support a flag to avoid destroying children; this actually just removes children before destroying self.
 
 	public void Destroy()
 	{

@@ -61,7 +61,7 @@ public static class Renderer
 		}
 	}
 
-	internal static void Render()
+	internal static void Flush()
 	{
 		GL.ClearColor(ClearColor);
 		GL.Clear(ClearBufferMask.ColorBufferBit);
