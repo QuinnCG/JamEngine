@@ -14,7 +14,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Jam.Engine" Version="0.1.0" />
+		<PackageReference Include="Jam.Engine" Version="*" />
 	</ItemGroup>
 
 </Project>
