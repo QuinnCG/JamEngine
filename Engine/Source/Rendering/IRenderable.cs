@@ -3,6 +3,8 @@
 namespace Engine.Rendering;
 
 // TODO: [IRenderable.cs] Implement system that uses this.
+// When an entity is added to a world, that world should get all interfaces from the entity of IRenderable.
+// Create an API for getting all interfaces on an entity of a type; e.g. from itself, components, and children.
 
 public interface IRenderable
 {
