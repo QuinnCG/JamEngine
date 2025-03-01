@@ -9,6 +9,12 @@
 		<Configurations>Release;Editor;Development</Configurations>
 	</PropertyGroup>
 
+	<ItemGroup Condition="'$(Configuration)' != 'Editor'">
+		<EmbeddedResource Include="Resources\**">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
+	</ItemGroup>
+
 	<ItemGroup>
 		<ProjectReference Include="..\Engine\Engine.csproj" />
 	</ItemGroup>
