@@ -1,5 +1,4 @@
 ﻿using Engine;
-using Engine.Rendering;
 
 namespace Sandbox;
 
@@ -7,7 +6,10 @@ static class Sandbox
 {
 	static void Main()
 	{
-		Resource.LoadResourceRaw("");
+		var res = Resource.Load<BinaryResource>("README.md");
+
+		Console.WriteLine(System.Text.Encoding.Default.GetString(res.Data));
+
 		Application.Run();
 	}
 }

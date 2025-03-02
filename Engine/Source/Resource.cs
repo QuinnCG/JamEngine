@@ -1,18 +1,18 @@
 ﻿namespace Engine;
 
-// TODO: [Resource.cs] Implement resource system.
-// It should support thing like: text files, bin files, GPU textures, GPU shaders, World (which is just a bunch of serialized entities).
-
-// https://github.com/QuinnCG/JamEngine/issues/5
-// Issue Summary:
-
-// How are resources to be handled?
-// When editing a world, you want to be able to save it, but if that world is stored in a Resources folder next to the Source code folder, then the built version won't have access to this?
-// One possibility would be to copy resources across in development or release builds, but not editor builds.Then in editor builds, you reference the source code resources folder.
-// If this approach is decided upon, there should be an abstraction on getting the raw file data for a resource, so that development and release builds (mainly release builds) can pack the resource data however they like.
-
 public abstract class Resource
 {
+	/// <summary>
+	/// The path used for the resource.<br/>
+	/// This is not the full OS path, but one that starts just below the <c>Resources</c> folder.
+	/// </summary>
+	public string RelativePath { get; private set; } = string.Empty;
+	/// <summary>
+	/// The full OS path.
+	/// </summary>
+	public string FullPath { get; private set; } = string.Empty;
+	public bool IsEngineResource { get; private set; }
+
 	/// <summary>
 	/// Load a resource from disk.
 	/// </summary>
@@ -25,18 +25,45 @@ public abstract class Resource
 	/// <typeparam name="T"></typeparam>
 	/// <param name="path">This doesn't have to be the file path, just the path to the resource, which may or may not relate.</param>
 	/// <returns>A new instance of the resource or an existing reference if the path was already loaded.</returns>
-	public static T Load<T>(string path) where T : Resource
+	public static T Load<T>(string path) where T : Resource, new()
 	{
-		throw new NotImplementedException();
+		byte[] data = LoadResourceRaw(path);
+
+		var res = new T()
+		{
+			IsEngineResource = false,
+			RelativePath = path,
+			FullPath = GetResourcesDirectory().FullName + "\\" + path
+		};
+		res.OnLoad(data);
+
+		return res;
 	}
 
 	/// <summary>
 	/// Load a resource that is embedded in the engine's DLL.
 	/// </summary>
 	/// <returns>A new instance of the resource or an existing reference if the path was already loaded.</returns>
-	public static T LoadEngineResource<T>(string path) where T : Resource
+	public static T LoadEngineResource<T>(string path) where T : Resource, new()
 	{
-		throw new NotImplementedException();
+		path = path.Remove('/', '\\').Remove('\\', '.');
+
+		var stream = typeof(Resource).Assembly.GetManifestResourceStream(path)
+			?? throw new NullReferenceException($"Failed to get engine resource '{path}'!");
+
+		var data = new byte[stream.Length];
+		stream.ReadExactly(data, 0, data.Length);
+
+		var res = new T()
+		{
+			IsEngineResource = true,
+			RelativePath = path,
+			FullPath = path
+		};
+
+		res.OnLoad(data);
+
+		return res;
 	}
 
 	/// <summary>
@@ -51,18 +78,23 @@ public abstract class Resource
 
 	// No reference counting. Just plain load the reference.
 	// Do account for whether we are in an Editor build or not.
-	public static byte[] LoadResourceRaw(string path)
+	private static byte[] LoadResourceRaw(string path)
 	{
-		foreach (var file in GetResourcesDirectory().GetFiles())
+		var files = GetResourcesDirectory().GetFiles(path, SearchOption.AllDirectories);
+
+		if (files.Length == 0)
 		{
-			Log.Info(file.FullName);
+			return [];
 		}
 
-		throw new NotImplementedException();
+		return File.ReadAllBytes(files[0].FullName);
 	}
+
+	// TODO: [Resource.cs] GetResourcesDirectory should be cached.
 
 	private static DirectoryInfo GetResourcesDirectory()
 	{
+#if EDITOR
 		var directory = new DirectoryInfo(Directory.GetCurrentDirectory());
 
 		while (directory != null && directory.GetFiles("*.sln").Length == 0)
@@ -94,8 +126,29 @@ public abstract class Resource
 		}
 
 		return directory;
+#else
+		string path = Directory.GetCurrentDirectory() + "\\Resources";
+		return new DirectoryInfo(path);
+#endif
 	}
 
-	protected abstract void OnLoad();
+	protected abstract void OnLoad(byte[] data);
 	protected abstract void OnFree();
+
+	/// <summary>
+	/// Use the resource's custom save implementation to serialize the resource to disk.
+	/// </summary>
+	public void Save()
+	{
+		if (IsEngineResource)
+		{
+			throw new Exception($"Cannot save engine resource '{GetType().Name}'!");
+		}
+
+		// Save only if it's not an engine resource.
+		byte[] data = OnSave();
+		File.WriteAllBytes(FullPath, data);
+	}
+
+	protected virtual byte[] OnSave() => [];
 }
