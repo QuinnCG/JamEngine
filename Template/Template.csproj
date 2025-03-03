@@ -5,6 +5,7 @@
 		<TargetFramework>net9.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<Configurations>Editor;Release;Development</Configurations>
 	</PropertyGroup>
 
 	<ItemGroup>
