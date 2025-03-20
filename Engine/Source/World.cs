@@ -1,4 +1,6 @@
-﻿namespace Engine;
+﻿using Engine.Rendering;
+
+namespace Engine;
 
 // TODO: [World.cs] World updates root entities, which update sub entities.
 // TODO: [World.cs] Editor world is loaded like a normal world and updated like one too. It is unloaded when switching to playmode.
@@ -27,6 +29,8 @@ public class World
 	// The entities without a parent entity.
 	// These are updated and in turn update their children.
 	private readonly HashSet<Entity> _rootEntities = [];
+	// All the IRenderables found.
+	private readonly HashSet<IRenderable> _renderables = [];
 
 	/// <summary>
 	/// Construct the world from a world asset resource.<br/>
@@ -39,6 +43,7 @@ public class World
 	/// </remarks>
 	public void Load(string path)
 	{
+		// TODO: Use resource instead of string path.
 		throw new NotImplementedException();
 	}
 
@@ -61,9 +66,45 @@ public class World
 		{
 			IsStarted = true;
 			_runningWorlds.Add(this);
+
+			// Update any entities that exist so far.
+			foreach (var entity in _rootEntities)
+			{
+				entity.Create_Internal();
+			}
+		}
+	}
+
+	/// <summary>
+	/// Checks if this world's root entities or any of their child entities are the specified entity.
+	/// </summary>
+	/// <param name="entity">The specified entity you are looking for.</param>
+	/// <returns>True, if the world contains the specified entity.</returns>
+	public bool ContainsEntity(Entity entity)
+	{
+		if (_rootEntities.Contains(entity))
+		{
+			return true;
 		}
 
-		throw new NotImplementedException();
+		return entity.HasChild(entity);
+	}
+
+	/// <summary>
+	/// Update the world.<br/>
+	/// This will update all root enitites, which in turn update their hierarchies.<br/>
+	/// This will also update all renderables.
+	/// </summary>
+	internal void Update_Internal()
+	{
+		foreach (var entity in _rootEntities)
+		{
+			entity.Update_Internal();
+		}
+
+		// TODO: Render.
+		// Consider render time.
+		// Consider renderer class that handles rendering stuff.
 	}
 
 	/// <summary>
@@ -78,6 +119,11 @@ public class World
 
 			IsDestroyed = true;
 			_runningWorlds.Remove(this);
+
+			foreach (var entity in _rootEntities)
+			{
+				entity.Destroy_Internal();
+			}
 		}
 
 		throw new NotImplementedException();
@@ -88,16 +134,44 @@ public class World
 	/// </summary>
 	internal void AddEntity_Internal<T>(T entity) where T : Entity
 	{
-		// Add to root set.
-		// Look for IRenderables and add to render set.
-		// Cache tags, etc.
+		// TODO: Cache tags and types for fast lookup.
 
-		throw new NotImplementedException();
+		// Only refuse if trying to add root entity.
+		// If entity is not root entity but still apart of world, we can just move them to root and so this method is still valid to call.
+		if (!_rootEntities.Contains(entity))
+		{
+			_rootEntities.Add(entity);
+			entity.SetWorld_Internal(this);
+
+			var renderables = entity.GetInterfacesOfType<IRenderable>();
+			foreach (var renderable in renderables)
+			{
+				_renderables.Add(renderable);
+			}
+
+			// If world is started, then call create.
+			if (IsStarted)
+			{
+				entity.Create_Internal();
+			}
+		}
 	}
 
 	internal void RemoveEntity_Internal<T>(T entity) where T : Entity
 	{
-		throw new NotImplementedException();
+		if (_rootEntities.Remove(entity))
+		{
+			var renderables = entity.GetInterfacesOfType<IRenderable>();
+			foreach (var renderable in renderables)
+			{
+				_renderables.Remove(renderable);
+			}
+
+			if (IsStarted)
+			{
+				entity.Destroy_Internal();
+			}
+		}
 	}
 
 	/// <summary>
@@ -108,7 +182,11 @@ public class World
 	/// <exception cref="NotImplementedException"></exception>
 	public void TakeEntity<T>(T entity) where T : Entity
 	{
-		throw new NotImplementedException();
+		if (!ContainsEntity(entity))
+		{
+			entity.World_Internal?.RemoveEntity_Internal(entity);
+			AddEntity_Internal(entity);
+		}
 	}
 
 	/// <summary>
