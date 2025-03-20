@@ -1,6 +1,7 @@
 ﻿namespace Engine;
 
 // TODO: [World.cs] World updates root entities, which update sub entities.
+// TODO: [World.cs] Editor world is loaded like a normal world and updated like one too. It is unloaded when switching to playmode.
 
 public class World
 {

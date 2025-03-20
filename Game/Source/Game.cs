@@ -2,7 +2,7 @@
 
 namespace Sandbox;
 
-static class Sandbox
+static class Game
 {
 	static void Main()
 	{
