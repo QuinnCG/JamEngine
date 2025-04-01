@@ -2,39 +2,31 @@
 
 public class World
 {
-	private static readonly HashSet<World> _worlds = [];
+	private static readonly HashSet<World> Worlds = [];
 
 	public LifecycleState State { get; private set; } = LifecycleState.None;
 
 	private readonly HashSet<Entity> _entities = [];
 
-	internal static void LoadWorld(World world)
+	public static void Load(World world)
 	{
-		if (_worlds.Add(world))
+		if (Worlds.Add(world))
 		{
 			world.Create();
 		}
 	}
 
-	internal static void UpdateWorlds()
+	internal static void UpdateAll()
 	{
-		foreach (var world in _worlds)
+		foreach (var world in Worlds)
 		{
 			world.Update();
 		}
 	}
 
-	internal static void RenderWorlds()
+	public static void Unload(World world)
 	{
-		foreach (var world in _worlds)
-		{
-			world.Render();
-		}
-	}
-
-	internal static void UnloadWorld(World world)
-	{
-		if (_worlds.Remove(world))
+		if (Worlds.Remove(world))
 		{
 			world.Destroy();
 		}
@@ -60,17 +52,6 @@ public class World
 			foreach (var entity in _entities)
 			{
 				entity.Update();
-			}
-		}
-	}
-
-	internal void Render()
-	{
-		if (State is LifecycleState.Created)
-		{
-			foreach (var entity in _entities)
-			{
-				entity.Render();
 			}
 		}
 	}

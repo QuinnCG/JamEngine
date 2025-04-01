@@ -33,4 +33,9 @@ public static unsafe class Window
 	{
 		GLFW.SetWindowShouldClose(Handle, true);
 	}
+
+	public static void CleanUp()
+	{
+		GLFW.Terminate();
+	}
 }

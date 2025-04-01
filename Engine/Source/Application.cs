@@ -1,4 +1,6 @@
-﻿namespace Engine;
+﻿using Engine.Rendering;
+
+namespace Engine;
 
 public static class Application
 {
@@ -9,9 +11,11 @@ public static class Application
 		while (!Window.IsClosing)
 		{
 			Window.PollEvents();
-			World.UpdateWorlds();
+			World.UpdateAll();
 			Renderer.Render();
 			Window.SwapBuffers();
 		}
+
+		Window.CleanUp();
 	}
 }

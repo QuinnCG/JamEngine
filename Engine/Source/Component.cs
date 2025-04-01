@@ -12,11 +12,6 @@ public abstract class Component
 		OnUpdate();
 	}
 
-	internal void Render()
-	{
-		OnRender();
-	}
-
 	internal void Destroy()
 	{
 		OnDestory();
@@ -24,6 +19,5 @@ public abstract class Component
 
 	protected virtual void OnCreate() { }
 	protected virtual void OnUpdate() { }
-	protected virtual void OnRender() { }
 	protected virtual void OnDestory() { }
 }

@@ -34,19 +34,6 @@ public class Entity
 		}
 	}
 
-	internal void Render()
-	{
-		if (State is LifecycleState.Created)
-		{
-			foreach (var comp in _components.Values)
-			{
-				comp.Render();
-			}
-
-			OnRender();
-		}
-	}
-
 	internal void Destroy()
 	{
 		if (State is LifecycleState.Created)
@@ -64,7 +51,6 @@ public class Entity
 
 	protected virtual void OnCreate() { }
 	protected virtual void OnUpdate() { }
-	protected virtual void OnRender() { }
 	protected virtual void OnDestory() { }
 
 	public bool HasComponent<T>() where T : Component
