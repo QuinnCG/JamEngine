@@ -3,6 +3,8 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace Engine;
 
+// TODO: Suppor gamepads.
+
 public static class Input
 {
 	public static Vector2 MousePosition

@@ -84,7 +84,7 @@ public static class Log
 		var time = DateTime.Now.TimeOfDay;
 		string timestamp = $"[{time.Hours:00}:{time.Minutes:00}:{time.Seconds:00}]";
 
-		string cat = category == null ? string.Empty : $" [{category}]";
+		string cat = category == null ? string.Empty : $"[{category}]";
 
 		Console.ForegroundColor = color;
 		stream.WriteLine($"{timestamp}{cat}: {message}");

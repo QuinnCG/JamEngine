@@ -46,10 +46,11 @@ public abstract class Resource
 	/// <returns>A new instance of the resource or an existing reference if the path was already loaded.</returns>
 	public static T LoadEngineResource<T>(string path) where T : Resource, new()
 	{
-		path = path.Remove('/', '\\').Remove('\\', '.');
+		path = path.Replace('/', '\\').Replace('\\', '.');
+		path = $"Engine.Resources.{path}";
 
 		var stream = typeof(Resource).Assembly.GetManifestResourceStream(path)
-			?? throw new NullReferenceException($"Failed to get engine resource '{path}'!");
+			?? throw new Exception($"Failed to get engine resource '{path}'!");
 
 		var data = new byte[stream.Length];
 		stream.ReadExactly(data, 0, data.Length);
@@ -62,7 +63,6 @@ public abstract class Resource
 		};
 
 		res.OnLoad(data);
-
 		return res;
 	}
 
@@ -71,9 +71,10 @@ public abstract class Resource
 	/// Releasing means to decrement the reference count and only if there are no more references will <see cref="OnFree"/> be called.
 	/// </summary>
 	/// <param name="path">The path used to load the specified resource.</param>
-	public static void ReleaseResource(string path)
+	public static void Release(string path)
 	{
 		throw new NotImplementedException();
+		//TODO: Res
 	}
 
 	// No reference counting. Just plain load the reference.
@@ -91,6 +92,12 @@ public abstract class Resource
 	}
 
 	// TODO: [Resource.cs] GetResourcesDirectory should be cached.
+
+	/// <inheritdoc cref="Release(string)"/>
+	public void Release()
+	{
+		Release(FullPath);
+	}
 
 	private static DirectoryInfo GetResourcesDirectory()
 	{

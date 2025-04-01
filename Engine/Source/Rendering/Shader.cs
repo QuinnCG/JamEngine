@@ -1,14 +1,25 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using System.Text;
+using OpenTK.Graphics.OpenGL4;
 
 namespace Engine.Rendering;
 
-// TODO: Make this a type of Resource and use the resource's lifecycle methods.
-public class Shader
+public class Shader : Resource
 {
-	public int Handle { get; }
+	public int Handle { get; private set; }
 
-	public Shader(string vSrc, string fSrc)
+	public void Bind()
 	{
+		GL.UseProgram(Handle);
+	}
+
+	protected override void OnLoad(byte[] data)
+	{
+		string source = Encoding.Default.GetString(data);
+		string[] split = source.Split("// Fragment");
+
+		string vSrc = split[0];
+		string fSrc = split[1];
+
 		Handle = GL.CreateProgram();
 		Bind();
 
@@ -23,14 +34,15 @@ public class Shader
 
 		GL.DeleteShader(vs);
 		GL.DeleteShader(fs);
+
+		string info = GL.GetProgramInfoLog(Handle);
+		if (!string.IsNullOrWhiteSpace(info))
+		{
+			Log.Error("OpenGL", info);
+		}
 	}
 
-	public void Bind()
-	{
-		GL.UseProgram(Handle);
-	}
-
-	public void Destroy()
+	protected override void OnFree()
 	{
 		GL.DeleteProgram(Handle);
 	}
@@ -40,6 +52,12 @@ public class Shader
 		var shader = GL.CreateShader(type);
 		GL.ShaderSource(shader, source);
 		GL.CompileShader(shader);
+
+		string info = GL.GetShaderInfoLog(shader);
+		if (!string.IsNullOrWhiteSpace(info))
+		{
+			Log.Error("OpenGL", info);
+		}
 
 		return shader;
 	}

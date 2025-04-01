@@ -16,6 +16,11 @@ public abstract class GlobalManager
 
 	public static T Get<T>() where T : GlobalManager
 	{
+		if (!Managers.ContainsKey(typeof(T)))
+		{
+			throw new Exception($"There exists no registered instance of '{typeof(T).Name}'!");
+		}
+
 		return (T)Managers[typeof(T)];
 	}
 
