@@ -2,19 +2,23 @@
 
 public class Entity
 {
+	public World World => _world!;
 	public LifecycleState State { get; private set; } = LifecycleState.None;
 
+	private World? _world;
 	private readonly Dictionary<Type, Component> _components = [];
 
-	internal void Create()
+	internal void Create(World world)
 	{
+		_world = world;
+
 		if (State is LifecycleState.None)
 		{
 			State = LifecycleState.Created;
 
 			foreach (var comp in _components.Values)
 			{
-				comp.Create();
+				comp.Create(this);
 			}
 
 			OnCreate();
@@ -66,7 +70,7 @@ public class Entity
 		{
 			if (State is LifecycleState.Created)
 			{
-				comp.Create();
+				comp.Create(this);
 			}
 
 			return comp;

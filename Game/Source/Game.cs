@@ -1,4 +1,5 @@
 ﻿using Engine;
+using Engine.Rendering;
 
 namespace Sandbox;
 
@@ -9,7 +10,8 @@ static class Game
 		var world = new World();
 		World.Load(world);
 
-		world.CreateEntity<SpatialEntity>();
+		var ent = world.CreateEntity<SpatialEntity>();
+		ent.CreateComponent<SpriteRenderer>();
 
 		Application.Run();
 	}

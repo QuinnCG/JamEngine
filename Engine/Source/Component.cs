@@ -2,8 +2,12 @@
 
 public abstract class Component
 {
-	internal void Create()
+	public Entity Entity => _entity!;
+	private Entity? _entity;
+
+	internal void Create(Entity entity)
 	{
+		_entity = entity;
 		OnCreate();
 	}
 

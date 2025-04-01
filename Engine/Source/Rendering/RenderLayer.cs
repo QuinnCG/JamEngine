@@ -2,7 +2,8 @@
 
 public class RenderLayer : IComparable<RenderLayer>
 {
-	private static readonly List<RenderLayer> Layers = [];
+	public static readonly RenderLayer Default = new();
+	private static readonly List<RenderLayer> Layers = [ Default ];
 
 	public int CompareTo(RenderLayer? other)
 	{

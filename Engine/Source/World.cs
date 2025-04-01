@@ -40,7 +40,7 @@ public class World
 
 			foreach (var entity in _entities)
 			{
-				entity.Create();
+				entity.Create(this);
 			}
 		}
 	}
@@ -76,7 +76,7 @@ public class World
 
 		if (State is LifecycleState.Created)
 		{
-			ent.Create();
+			ent.Create(this);
 		}
 
 		return ent;

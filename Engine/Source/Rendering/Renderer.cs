@@ -14,7 +14,7 @@ public static class Renderer
 		_renderables.Add(renderable);
 	}
 
-	public static void Unreegister(IRenderable renderable)
+	public static void Unregister(IRenderable renderable)
 	{
 		_renderables.Remove(renderable);
 	}
@@ -29,7 +29,11 @@ public static class Renderer
 		foreach (var renderable in _renderables)
 		{
 			int indexCount = renderable.Render();
-			GL.DrawElements(PrimitiveType.Triangles, indexCount, DrawElementsType.UnsignedInt, 0);
+			
+			if (indexCount > 0)
+			{
+				GL.DrawElements(PrimitiveType.Triangles, indexCount, DrawElementsType.UnsignedInt, 0);
+			}
 		}
 	}
 
