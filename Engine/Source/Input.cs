@@ -3,7 +3,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace Engine;
 
-// TODO: Suppor gamepads.
+// TODO: Support gamepads.
 
 public static class Input
 {
