@@ -8,7 +8,7 @@ public static class Application
 	/// <summary>
 	/// Called after initializing, but before entering the main loop.
 	/// </summary>
-	public static event Action? OnLoad;
+	public static event Action OnLoad;
 
 	public static void Run()
 	{
@@ -27,7 +27,7 @@ public static class Application
 			Window.PollEvents();
 
 			GlobalManager.Update();
-			World.Update();
+			World.Current?.Update();
 
 			Renderer.Render();
 			Window.SwapBuffers();

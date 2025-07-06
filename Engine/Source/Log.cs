@@ -79,7 +79,7 @@ public static class Log
 		}
 	}
 
-	private static void Write(TextWriter stream, object message, ConsoleColor color, string? category = null)
+	private static void Write(TextWriter stream, object message, ConsoleColor color, string category = null)
 	{
 		var time = DateTime.Now.TimeOfDay;
 		string timestamp = $"[{time.Hours:00}:{time.Minutes:00}:{time.Seconds:00}]";

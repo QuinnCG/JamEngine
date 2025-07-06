@@ -28,8 +28,8 @@ public static class Input
 	}
 	public static float ScrollDelta { get; private set; }
 
-	public static event Action<Key>? OnKeyPressed, OnKeyReleased;
-	public static event Action<Button>? OnButtonPressed, OnButtonReleased;
+	public static event Action<Key> OnKeyPressed, OnKeyReleased;
+	public static event Action<Button> OnButtonPressed, OnButtonReleased;
 
 	private static readonly HashSet<Key> _justPressedKeys = [], _heldKeys = [], _justReleasedKeys = [];
 	private static readonly HashSet<Button> _justPressedButtons = [], _heldButtons = [], _justReleasedButtons = [];
