@@ -1,4 +1,5 @@
 ﻿using Engine.Rendering;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace Engine;
 
@@ -19,17 +20,24 @@ public static class Application
 
 		OnLoad?.Invoke();
 
-		// TODO: Implement Input and Time class calls.
+		Input.Initialize();
 
 		while (!Window.IsClosing)
 		{
 			Window.PollEvents();
 
 			GlobalManager.Update();
-			World.UpdateAll();
+			World.Update();
 
 			Renderer.Render();
 			Window.SwapBuffers();
+
+			// Reset input state for next frame.
+			Input.Clear();
+
+			// Update the time class with the current GLFW window time. Updating occurs after the main loop so that game logic starts with a time of 0s.
+			double glfwTime = GLFW.GetTime();
+			Time.Update((float)glfwTime);
 		}
 
 		GlobalManager.End();

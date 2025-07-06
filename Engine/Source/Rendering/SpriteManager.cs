@@ -2,6 +2,10 @@
 
 namespace Engine.Rendering;
 
+/// <summary>
+/// Creates and maanges the lifecycle of a static sprite mesh.<br/>
+/// Used for non-batched sprite rendering.
+/// </summary>
 public class SpriteManager : GlobalManager
 {
 	public float[] Vertices =

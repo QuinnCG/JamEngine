@@ -1,5 +1,8 @@
 ﻿namespace Engine;
 
+/// <summary>
+/// Register a singleton manager class that receives engine updates and isn't tied to a <see cref="World"/>.
+/// </summary>
 public abstract class GlobalManager
 {
 	private static readonly Dictionary<Type, GlobalManager> Managers = [];

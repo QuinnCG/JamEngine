@@ -1,5 +1,6 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using GLFWWindow = OpenTK.Windowing.GraphicsLibraryFramework.Window;
 
 namespace Engine;
 
@@ -182,6 +183,9 @@ public static class Input
 		return 0f;
 	}
 
+	/// <summary>
+	/// Initialize callbacks used by the input system.
+	/// </summary>
 	internal static unsafe void Initialize()
 	{
 		GLFW.SetKeyCallback(Window.Handle, OnKeyInput);
@@ -190,7 +194,8 @@ public static class Input
 	}
 
 	/// <summary>
-	/// Clears the input state of inputs just being pressed or released this frame.
+	/// Clears the input state of inputs just being pressed or released this frame.<br/>
+	/// This should be called at the end of each frame, after updating all game logic.
 	/// </summary>
 	internal static void Clear()
 	{
@@ -203,7 +208,7 @@ public static class Input
 		ScrollDelta = 0f;
 	}
 
-	private static unsafe void OnKeyInput(OpenTK.Windowing.GraphicsLibraryFramework.Window* window, Keys key, int scanCode, InputAction action, KeyModifiers mods)
+	private static unsafe void OnKeyInput(GLFWWindow* window, Keys key, int scanCode, InputAction action, KeyModifiers mods)
 	{
 		var k = (Key)key;
 
@@ -228,7 +233,7 @@ public static class Input
 		}
 	}
 
-	private static unsafe void OnButtonInput(OpenTK.Windowing.GraphicsLibraryFramework.Window* window, MouseButton button, InputAction action, KeyModifiers mods)
+	private static unsafe void OnButtonInput(GLFWWindow* window, MouseButton button, InputAction action, KeyModifiers mods)
 	{
 		var b = (Button)button;
 
@@ -254,7 +259,7 @@ public static class Input
 		}
 	}
 
-	private static unsafe void OnScroll(OpenTK.Windowing.GraphicsLibraryFramework.Window* window, double offsetX, double offsetY)
+	private static unsafe void OnScroll(GLFWWindow* window, double offsetX, double offsetY)
 	{
 		ScrollDelta = (float)offsetY;
 	}
