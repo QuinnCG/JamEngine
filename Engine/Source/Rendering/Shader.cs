@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 
 namespace Engine.Rendering;
 
@@ -21,10 +22,9 @@ public class Shader : Resource
 		string fSrc = split[1];
 
 		Handle = GL.CreateProgram();
-		Bind();
 
-		var vs = CreateSubShader(ShaderType.VertexShader, vSrc);
-		var fs = CreateSubShader(ShaderType.FragmentShader, fSrc);
+		var vs = CreateModule(ShaderType.VertexShader, vSrc);
+		var fs = CreateModule(ShaderType.FragmentShader, fSrc);
 
 		GL.AttachShader(Handle, vs);
 		GL.AttachShader(Handle, fs);
@@ -40,6 +40,10 @@ public class Shader : Resource
 		{
 			Log.Error("OpenGL", info);
 		}
+		else
+		{
+			Bind();
+		}
 	}
 
 	protected override void OnFree()
@@ -47,7 +51,7 @@ public class Shader : Resource
 		GL.DeleteProgram(Handle);
 	}
 
-	private static int CreateSubShader(ShaderType type, string source)
+	private static int CreateModule(ShaderType type, string source)
 	{
 		var shader = GL.CreateShader(type);
 		GL.ShaderSource(shader, source);
@@ -60,5 +64,79 @@ public class Shader : Resource
 		}
 
 		return shader;
+	}
+
+	public void SetUniform(string name, int value)
+	{
+		GL.Uniform1(GetUniformLoc(name), value);
+	}
+	public void SetUniform(string name, uint value)
+	{
+		GL.Uniform1(GetUniformLoc(name), value);
+	}
+	public void SetUniform(string name, float value)
+	{
+		GL.Uniform1(GetUniformLoc(name), value);
+	}
+	public void SetUniform(string name, double value)
+	{
+		GL.Uniform1(GetUniformLoc(name), value);
+	}
+	public void SetUniform(string name, bool value)
+	{
+		GL.Uniform1(GetUniformLoc(name), value ? 1 : 0);
+	}
+	public void SetUniform(string name, int[] value)
+	{
+		GL.Uniform1(GetUniformLoc(name), value.Length, value);
+	}
+	public void SetUniform(string name, uint[] value)
+	{
+		GL.Uniform1(GetUniformLoc(name), value.Length, value);
+	}
+	public void SetUniform(string name, float[] value)
+	{
+		GL.Uniform1(GetUniformLoc(name), value.Length, value);
+	}
+	public void SetUniform(string name, double[] value)
+	{
+		GL.Uniform1(GetUniformLoc(name), value.Length, value);
+	}
+	public void SetUniform(string name, Vector2 value)
+	{
+		GL.Uniform2(GetUniformLoc(name), value);
+	}
+	public void SetUniform(string name, Vector3 value)
+	{
+		GL.Uniform3(GetUniformLoc(name), value);
+	}
+	public void SetUniform(string name, Vector4 value)
+	{
+		GL.Uniform4(GetUniformLoc(name), value);
+	}
+	public void SetUniform(string name, Vector2i value)
+	{
+		GL.Uniform2(GetUniformLoc(name), value);
+	}
+	public void SetUniform(string name, Vector3i value)
+	{
+		GL.Uniform3(GetUniformLoc(name), value);
+	}
+	public void SetUniform(string name, Vector4i value)
+	{
+		GL.Uniform4(GetUniformLoc(name), value);
+	}
+	public void SetUniform(string name, Matrix4 value)
+	{
+		GL.UniformMatrix4(GetUniformLoc(name), true, ref value);
+	}
+	public void SetUniform(string name, Color4 value)
+	{
+		GL.Uniform4(GetUniformLoc(name), value);
+	}
+
+	private int GetUniformLoc(string name)
+	{
+		return GL.GetUniformLocation(Handle, name);
 	}
 }

@@ -8,6 +8,8 @@ namespace Engine.Rendering;
 /// </summary>
 public class SpriteManager : GlobalManager
 {
+	public static SpriteManager Instance { get; private set; }
+
 	public float[] Vertices =
 	[
 		-0.5f, -0.5f,   0f, 0f,
@@ -25,13 +27,20 @@ public class SpriteManager : GlobalManager
 	private int _spriteMeshVAO;
 	private int _vbo, _ibo;
 
-	public void BindSpriteMesh()
+	/// <summary>
+	/// Binds the static sprite mesh's GL state for rendering.
+	/// </summary>
+	/// <returns>The number of indices for the sprite. This will always be 6.</returns>
+	public int BindSpriteMesh()
 	{
 		GL.BindVertexArray(_spriteMeshVAO);
+		return Indices.Length;
 	}
 
 	protected override void OnBegin()
 	{
+		Instance = this;
+
 		_spriteMeshVAO = GL.GenVertexArray();
 		GL.BindVertexArray(_spriteMeshVAO);
 
@@ -59,5 +68,7 @@ public class SpriteManager : GlobalManager
 		GL.DeleteVertexArray(_spriteMeshVAO);
 		GL.DeleteBuffer(_vbo);
 		GL.DeleteBuffer(_ibo);
+
+		Instance = null;
 	}
 }

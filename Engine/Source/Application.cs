@@ -9,6 +9,8 @@ public static class Application
 	/// Called after initializing, but before entering the main loop.
 	/// </summary>
 	public static event Action OnLoad;
+	public static event Action OnUpdate;
+	public static event Action OnQuit;
 
 	public static void Run()
 	{
@@ -24,23 +26,36 @@ public static class Application
 
 		while (!Window.IsClosing)
 		{
-			Window.PollEvents();
-
-			GlobalManager.Update();
-			World.Current?.Update();
-
-			Renderer.Render();
-			Window.SwapBuffers();
-
-			// Reset input state for next frame.
-			Input.Clear();
-
-			// Update the time class with the current GLFW window time. Updating occurs after the main loop so that game logic starts with a time of 0s.
-			double glfwTime = GLFW.GetTime();
-			Time.Update((float)glfwTime);
+			Update();
 		}
+
+		OnQuit?.Invoke();
 
 		GlobalManager.End();
 		Window.CleanUp();
+	}
+
+	private static void Update()
+	{
+		Window.PollEvents();
+
+		OnUpdate?.Invoke();
+		GlobalManager.Update();
+		World.Current?.Update();
+
+		Renderer.Render();
+		Window.SwapBuffers();
+
+		// Reset input state for next frame.
+		Input.Clear();
+
+		// Update the time class with the current GLFW window time. Updating occurs after the main loop so that game logic starts with a time of 0s.
+		double glfwTime = GLFW.GetTime();
+		Time.Update((float)glfwTime);
+	}
+
+	public static void Quit()
+	{
+		Window.Close();
 	}
 }

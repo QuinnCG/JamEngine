@@ -4,8 +4,6 @@ using GLFWWindow = OpenTK.Windowing.GraphicsLibraryFramework.Window;
 
 namespace Engine;
 
-// TODO: Support gamepads.
-
 public static class Input
 {
 	public static Vector2 MousePosition

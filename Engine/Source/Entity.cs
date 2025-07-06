@@ -12,6 +12,36 @@ public class Entity
 
 	private readonly Dictionary<Type, Component> _components = [];
 
+	/// <summary>
+	/// Sets only the x component of <see cref="Position"/>.
+	/// </summary>
+	public void SetX(float x)
+	{
+		Position = new Vector2(x, Position.Y);
+	}
+	/// <summary>
+	/// Sets only the y component of <see cref="Position"/>.
+	/// </summary>
+	public void SetY(float y)
+	{
+		Position = new Vector2(Position.X, y);
+	}
+
+	/// <summary>
+	/// Sets only the x component of <see cref="Scale"/>.
+	/// </summary>
+	public void SetWidth(float xScale)
+	{
+		Scale = new Vector2(xScale, Position.Y);
+	}
+	/// <summary>
+	/// Sets only the y component of <see cref="Scale"/>.
+	/// </summary>
+	public void SetHeight(float yScale)
+	{
+		Scale = new Vector2(Position.X, yScale);
+	}
+
 	public T CreateComponent<T>() where T : Component, new()
 	{
 		if (_components.ContainsKey(typeof(T)))
@@ -22,7 +52,7 @@ public class Entity
 		var comp = new T();
 		_components.Add(typeof(T), comp);
 
-		if (World.IsLoaded)
+		if (World == null || !World.IsLoaded)
 		{
 			comp.Create(this);
 		}
@@ -34,7 +64,7 @@ public class Entity
 	{
 		if (_components.TryGetValue(typeof(T), out var component))
 		{
-			if (World.IsLoaded)
+			if (World == null || !World.IsLoaded)
 			{
 				component.Destroy();
 			}
@@ -53,7 +83,7 @@ public class Entity
 
 		OnCreate();
 
-		foreach (var component in _components)
+		foreach (var component in _components.Values)
 		{
 			component.Create(this);
 		}
@@ -63,7 +93,7 @@ public class Entity
 	{
 		OnUpdate();
 
-		foreach (var component in _components)
+		foreach (var component in _components.Values)
 		{
 			component.Update();
 		}
@@ -76,7 +106,7 @@ public class Entity
 	{
 		OnDestroy();
 
-		foreach (var component in _components)
+		foreach (var component in _components.Values)
 		{
 			component.Destroy();
 		}

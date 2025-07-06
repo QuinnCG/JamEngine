@@ -8,17 +8,17 @@ public static class Renderer
 {
 	public static Color4 ClearColor { get; set; } = Color4.Black;
 
-	private static readonly List<IRenderable> Renderables = [];
-	private static int LastGLMsgCode = -1;
+	private static HashSet<IRenderable> _renderables = [];
+	private static int _lastGLMsgCode = -1;
 
 	public static void Register(IRenderable renderable)
 	{
-		Renderables.Add(renderable);
+		_renderables.Add(renderable);
 	}
 
 	public static void Unregister(IRenderable renderable)
 	{
-		Renderables.Remove(renderable);
+		_renderables.Remove(renderable);
 	}
 
 	internal static void Initialize()
@@ -32,10 +32,10 @@ public static class Renderer
 		if (severity is not (DebugSeverity.DebugSeverityHigh or DebugSeverity.DebugSeverityMedium))
 			return;
 
-		if (id == LastGLMsgCode)
+		if (id == _lastGLMsgCode)
 			return;
 
-		LastGLMsgCode = id;
+		_lastGLMsgCode = id;
 
 		Log.Error("OpenGL", Encoding.Default.GetString((byte*)message, length));
 	}
@@ -47,7 +47,7 @@ public static class Renderer
 
 		Sort();
 
-		foreach (var renderable in Renderables)
+		foreach (var renderable in _renderables)
 		{
 			int indexCount = renderable.Render();
 
@@ -60,8 +60,6 @@ public static class Renderer
 
 	private static void Sort()
 	{
-		var ordered = Renderables.OrderBy(layer => layer.GetRenderLayer());
-		Renderables.Clear();
-		Renderables.AddRange(ordered);
+		_renderables = [.. _renderables.OrderBy(layer => layer.GetRenderLayer())];
 	}
 }

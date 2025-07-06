@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<Version>0.3.0</Version>
+		<Version>0.4.0</Version>
 		<OutputType>Library</OutputType>
 		<TargetFramework>net9.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>disable</Nullable>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<RootNamespace>Engine</RootNamespace>
-		<Configurations>Release;Editor;Development</Configurations>
+		<Configurations>Release;Debug</Configurations>
 		<Description>The framework for the Jam Engine.</Description>
 		<PackageId>Jam.Engine</PackageId>
 		<Title>Jam Engine</Title>

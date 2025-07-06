@@ -10,9 +10,13 @@ public class World
 	private readonly HashSet<Entity> _toCreate = [];
 	private readonly HashSet<Entity> _toDestroy = [];
 
+	private World() { }
+
+	public static World Create() => new();
+
 	public void Load()
 	{
-		if (Current != null)
+		if (!IsLoaded)
 		{
 			Current?.Unload();
 			Current = this;
