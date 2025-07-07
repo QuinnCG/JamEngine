@@ -85,9 +85,8 @@ public class Rigidbody : Component, IPhysicsUpdateable
 		Body = World.PhysicsWorld.CreateBody(new(Position.X, Position.Y), Rotation, (BodyType)BodyType);
 		Body.Mass = 1f;
 
-		World.RegisterRigidbody(this, Body);
-
 		Body.OnCollision += OnCollision;
+		World.RegisterRigidbody(this, Body);
 	}
 
 	private bool OnCollision(Fixture sender, Fixture other, Contact contact)
@@ -100,14 +99,17 @@ public class Rigidbody : Component, IPhysicsUpdateable
 			return false;
 		}
 
-		bool? shouldCollide = OnCollide?.Invoke(collider);
-
-		if (shouldCollide.HasValue)
+		// Default behavior is to handle the collision.
+		if (OnCollide == null)
 		{
-			return shouldCollide.Value;
+			return true;
 		}
-
-		return true;
+		// If there is an override event, then ask it if we should handle an event or not.
+		// HACK: [Rigidbody.cs] This is an event, not a callback. Multiple subscribers could return different values; which one is selected?
+		else
+		{
+			return OnCollide.Invoke(collider);
+		}
 	}
 
 	public void PhysicsUpdate()

@@ -27,7 +27,7 @@ public static unsafe class Window
 		GLFW.WindowHint(WindowHintInt.ContextVersionMajor, 4);
 		GLFW.WindowHint(WindowHintInt.ContextVersionMinor, 3);
 
-		// TODO: These should be settings as part of some launch config.
+		// TODO: [Window.cs] These should be settings as part of some launch config.
 		GLFW.WindowHint(WindowHintInt.Samples, 2);
 		GLFW.WindowHint(WindowHintBool.Resizable, false);
 

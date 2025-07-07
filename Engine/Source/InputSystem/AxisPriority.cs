@@ -1,4 +1,4 @@
-﻿namespace Engine;
+﻿namespace Engine.InputSystem;
 
 public enum AxisPriority
 {

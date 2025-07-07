@@ -2,6 +2,8 @@
 
 public abstract class Resource
 {
+	private static readonly Dictionary<string, (Resource res, int refCount)> _loadedResources = [];
+
 	/// <summary>
 	/// The path used for the resource.<br/>
 	/// This is not the full OS path, but one that starts just below the <c>Resources</c> folder.
@@ -27,6 +29,17 @@ public abstract class Resource
 	/// <returns>A new instance of the resource or an existing reference if the path was already loaded.</returns>
 	public static T Load<T>(string path) where T : Resource, new()
 	{
+		if (_loadedResources.TryGetValue(path, out (Resource, int) existingPair))
+		{
+			var (existingRes, existingRefCount) = existingPair;
+
+			// Increment ref count.
+			_loadedResources[path] = (existingRes, existingRefCount + 1);
+
+			// Return existing resource.
+			return existingRes as T;
+		}
+
 		byte[] data = LoadResourceRaw(path);
 
 		var res = new T()
@@ -46,6 +59,17 @@ public abstract class Resource
 	/// <returns>A new instance of the resource or an existing reference if the path was already loaded.</returns>
 	public static T LoadEngineResource<T>(string path) where T : Resource, new()
 	{
+		if (_loadedResources.TryGetValue(path, out (Resource, int) existingPair))
+		{
+			var (existingRes, existingRefCount) = existingPair;
+
+			// Increment ref count.
+			_loadedResources[path] = (existingRes, existingRefCount + 1);
+
+			// Return existing resource.
+			return existingRes as T;
+		}
+
 		path = path.Replace('/', '\\').Replace('\\', '.');
 		path = $"Engine.Resources.{path}";
 
@@ -73,8 +97,20 @@ public abstract class Resource
 	/// <param name="path">The path used to load the specified resource.</param>
 	public static void Release(string path)
 	{
-		throw new NotImplementedException();
-		//TODO: Res
+		if (_loadedResources.TryGetValue(path, out (Resource res, int refCount) value))
+		{
+			var (res, refCount) = value;
+
+			// Decrement ref count.
+			_loadedResources[path] = (res, refCount - 1);
+
+			// Free resource if ref count is <= 0.
+			if (_loadedResources[path].refCount <= 0)
+			{
+				_loadedResources[path].res.OnFree();
+				_loadedResources.Remove(path);
+			}
+		}
 	}
 
 	// No reference counting. Just plain load the reference.

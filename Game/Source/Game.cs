@@ -1,6 +1,7 @@
 ﻿using Engine;
 using Engine.Rendering;
 using Engine.Simulation;
+using Engine.InputSystem;
 using OpenTK.Mathematics;
 
 namespace Sandbox;
@@ -23,15 +24,14 @@ static class Game
 		cam.CreateComponent<CameraView>();
 
 		var e1 = world.CreateEntity<MyEnt>();
-		e1.SetX(0-1);
-		world.CreateEntity<MyEnt>().SetX(1f);
+		world.CreateEntity<MyEnt>().SetY(1f);
 
 		var ground = world.CreateEntity<Entity>();
 		ground.SetY(-2.5f);
 		ground.Scale = new(10f, 0.5f);
-		ground.CreateComponent<SpriteRenderer>();
-		ground.AddComponent(new Rigidbody(RigidbodyType.Dynamic));
-		ground.CreateComponent<BoxCollider>();
+		ground.CreateComponent<SpriteRenderer>().Color = new(0.2f, 0.2f, 0.2f, 1f);
+		ground.CreateComponent<Rigidbody>();
+		ground.AddComponent(new BoxCollider(Vector2.Zero, new(10f, 1f)));
 
 		world.Load();
 
@@ -50,8 +50,6 @@ static class Game
 		}
 	}
 }
-
-// FIX: Not colliding with ground.
 
 class MyEnt : Entity
 {

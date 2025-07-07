@@ -155,6 +155,13 @@ public class World
 		}
 	}
 
+	/// <summary>
+	/// Constructs the entity of the specified type and adds it to this world.<br/>
+	/// If the world is loaded, then it will be added at the end of the current frame.<br/>
+	/// If the world is not loaded, then it will be added instantly, but <see cref="Entity.OnCreate"/> and <see cref="Entity.OnStart"/> won't be called until the world is loaded.
+	/// </summary>
+	/// <typeparam name="T">A class that inherits from <see cref="Entity"/> and has a parameterless constructor.</typeparam>
+	/// <returns>The constructed entity.</returns>
 	public T CreateEntity<T>() where T : Entity, new()
 	{
 		var entity = new T();

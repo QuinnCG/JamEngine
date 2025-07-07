@@ -2,7 +2,7 @@
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using GLFWWindow = OpenTK.Windowing.GraphicsLibraryFramework.Window;
 
-namespace Engine;
+namespace Engine.InputSystem;
 
 public static class Input
 {

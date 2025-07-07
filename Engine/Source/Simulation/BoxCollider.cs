@@ -20,6 +20,7 @@ public class BoxCollider : Collider
 
 	protected override Fixture CreateFixture(Body body)
 	{
-		return body.CreateRectangle(Size.X, Size.Y, DefaultDensity, new(Offset.X, Offset.Y));
+		// Size * Scale.
+		return body.CreateRectangle(Size.X * Scale.X, Size.Y * Scale.Y, DefaultDensity, new(Offset.X, Offset.Y));
 	}
 }
