@@ -1,18 +1,42 @@
-﻿namespace Engine;
+﻿using AeWorld = nkast.Aether.Physics2D.Dynamics.World;
+using AeBody = nkast.Aether.Physics2D.Dynamics.Body;
+using Engine.Simulation;
+using OpenTK.Mathematics;
+using Engine.Source.Simulation;
+
+namespace Engine;
 
 public class World
 {
 	public static World Current { get; private set; }
 
 	public bool IsLoaded { get; private set; }
+	/// <summary>
+	/// The internal physics world.
+	/// </summary>
+	internal AeWorld PhysicsWorld { get; } = new();
 
 	private readonly HashSet<Entity> _entities = [];
 	private readonly HashSet<Entity> _toCreate = [];
 	private readonly HashSet<Entity> _toDestroy = [];
 
+	private readonly HashSet<IPhysicsUpdateable> _physicsUpdateReceivers = [];
+	private readonly Dictionary<AeBody, Rigidbody> _rigidbodies = [];
+	private float _nextPhysStepTime;
+
 	private World() { }
 
-	public static World Create() => new();
+	/// <summary>
+	/// Contructs and returns a new world. You must still call <see cref="World.Load"/> yourself.
+	/// </summary>
+	/// <param name="gravity">A default value for gravity in this world. Only applies to <see cref="Rigidbody"/>s.</param>
+	public static World Create(Vector2 gravity = default)
+	{
+		var world = new World();
+		world.PhysicsWorld.Gravity = new(gravity.X, gravity.Y);
+
+		return world;
+	}
 
 	public void Load()
 	{
@@ -26,15 +50,54 @@ public class World
 			{
 				entity.Create(this);
 			}
+
+			foreach (var entity in _entities)
+			{
+				entity.Start();
+			}
 		}
+	}
+
+	internal void RegisterRigidbody(Rigidbody rigidbody, AeBody body)
+	{
+		_rigidbodies.Add(body, rigidbody);
+	}
+
+	internal void UnregisterRigidbody(AeBody body)
+	{
+		_rigidbodies.Remove(body);
+	}
+
+	/// <summary>
+	/// Convert the internal physics engine's version of a rigidbody to the <see cref="Component"/> version.
+	/// </summary>
+	internal Rigidbody GetRigidybody(AeBody body)
+	{
+		return _rigidbodies[body];
 	}
 
 	internal void Update()
 	{
+		// Update physics world.
+		if (Time.Now > _nextPhysStepTime)
+		{
+			_nextPhysStepTime = Time.Now + Physics.StepDelta;
+			PhysicsWorld.Step(Physics.StepDelta);
+
+			foreach (var physUpdate in _physicsUpdateReceivers)
+			{
+				physUpdate.PhysicsUpdate();
+			}
+		}
+
 		// Update entities.
 		foreach (var entity in _entities)
 		{
 			entity.Update();
+		}
+		foreach (var entity in _entities)
+		{
+			entity.LateUpdate();
 		}
 
 		// Add any deferred additions.
@@ -85,8 +148,12 @@ public class World
 		else
 		{
 			entity.Create(this);
+			entity.Start();
 			_entities.Add(entity);
 		}
+
+		var physicsUpdaters = entity.GetAllTypes<IPhysicsUpdateable>();
+		_physicsUpdateReceivers.AddRange(physicsUpdaters);
 
 		return entity;
 	}
@@ -103,5 +170,18 @@ public class World
 			entity.Destroy();
 			_entities.Remove(entity);
 		}
+
+		var physicsUpdaters = entity.GetAllTypes<IPhysicsUpdateable>();
+		_physicsUpdateReceivers.RemoveRange(physicsUpdaters);
+	}
+
+	internal void RegisterPhyiscsCallback(IPhysicsUpdateable callback)
+	{
+		_physicsUpdateReceivers.Add(callback);
+	}
+
+	internal void UnregisterPhyiscsCallback(IPhysicsUpdateable callback)
+	{
+		_physicsUpdateReceivers.Remove(callback);
 	}
 }

@@ -9,7 +9,13 @@ public static class Application
 	/// Called after initializing, but before entering the main loop.
 	/// </summary>
 	public static event Action OnLoad;
+	/// <summary>
+	/// Called every frame, before updating global managers and entites.
+	/// </summary>
 	public static event Action OnUpdate;
+	/// <summary>
+	/// Called just before shutting down.
+	/// </summary>
 	public static event Action OnQuit;
 
 	public static void Run()
@@ -37,6 +43,9 @@ public static class Application
 
 	private static void Update()
 	{
+		// Reset input state for next frame.
+		Input.Clear();
+		// Poll new inputs.
 		Window.PollEvents();
 
 		OnUpdate?.Invoke();
@@ -45,9 +54,6 @@ public static class Application
 
 		Renderer.Render();
 		Window.SwapBuffers();
-
-		// Reset input state for next frame.
-		Input.Clear();
 
 		// Update the time class with the current GLFW window time. Updating occurs after the main loop so that game logic starts with a time of 0s.
 		double glfwTime = GLFW.GetTime();

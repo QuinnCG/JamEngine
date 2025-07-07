@@ -1,4 +1,5 @@
-﻿using OpenTK.Mathematics;
+﻿using Engine.Source.Simulation;
+using OpenTK.Mathematics;
 
 namespace Engine;
 
@@ -42,6 +43,81 @@ public class Entity
 		Scale = new Vector2(Position.X, yScale);
 	}
 
+	/// <summary>
+	/// Search this entity and all of its components and return the first instance of the given type.
+	/// </summary>
+	/// <typeparam name="T">The type to search for. This can be a component, an interface, etc.</typeparam>
+	/// <returns>The found instance, or null, if it wasn't found.</returns>
+	public T GetFirstType<T>()
+	{
+		if (this is T e)
+		{
+			return e;
+		}
+		else
+		{
+			foreach (var component in _components)
+			{
+				if (component is T c)
+				{
+					return c;
+				}
+			}
+		}
+
+		return default;
+	}
+
+	/// <summary>
+	/// Get all instances of the specified type on this entity and all of its components.
+	/// </summary>
+	/// <typeparam name="T">The type to search for. This can be a component, an interface, etc.</typeparam>
+	/// <returns>The found instances, or an empty set, if none were found.</returns>
+	public IEnumerable<T> GetAllTypes<T>()
+	{
+		var set = new HashSet<T>();
+
+		if (this is T e)
+		{
+			set.Add(e);
+		}
+		else
+		{
+			foreach (var component in _components)
+			{
+				if (component is T c)
+				{
+					set.Add(c);
+				}
+			}
+		}
+
+		return set;
+	}
+
+	public T GetComponent<T>() where T : Component
+	{
+		if (_components.TryGetValue(typeof(T), out Component c))
+		{
+			return c as T;
+		}
+
+		return default;
+	}
+
+	public bool HasComponent<T>()
+	{
+		return _components.ContainsKey(typeof(T));
+	}
+
+	public bool TryGetComponent<T>(out T component) where T : Component
+	{
+		bool success = _components.TryGetValue(typeof(T), out var c);
+
+		component = c as T;
+		return success;
+	}
+
 	public T CreateComponent<T>() where T : Component, new()
 	{
 		if (_components.ContainsKey(typeof(T)))
@@ -52,12 +128,46 @@ public class Entity
 		var comp = new T();
 		_components.Add(typeof(T), comp);
 
-		if (World == null || !World.IsLoaded)
+		if (World != null && World.IsLoaded)
 		{
+			if (comp is IPhysicsUpdateable phys)
+			{
+				World.RegisterPhyiscsCallback(phys);
+			}
+
 			comp.Create(this);
+			comp.Start();
 		}
 
 		return comp;
+	}
+
+	/// <summary>
+	/// Add a preconstructed component. Useful, if you wish to use a component with a constructor that has parameters.
+	/// </summary>
+	public void AddComponent(Component component)
+	{
+		if (_components.ContainsKey(component.GetType()))
+		{
+			throw new InvalidOperationException($"Component of type {component.GetType().Name} already exists on this entity!");
+		}
+		else if (component.Entity != null)
+		{
+			throw new Exception("A component can't be attached to two entities!");
+		}
+
+		_components.Add(component.GetType(), component);
+
+		if (World != null && World.IsLoaded)
+		{
+			if (component is IPhysicsUpdateable phys)
+			{
+				World.RegisterPhyiscsCallback(phys);
+			}
+
+			component.Create(this);
+			component.Start();
+		}
 	}
 
 	public void DestroyComponent<T>() where T : Component
@@ -81,22 +191,45 @@ public class Entity
 	{
 		World = world;
 
-		OnCreate();
-
-		foreach (var component in _components.Values)
+		if (World.IsLoaded)
 		{
-			component.Create(this);
+			OnCreate();
+
+			foreach (var component in _components.Values)
+			{
+				component.Create(this);
+			}
 		}
+	}
+
+	internal void Start()
+	{
+		foreach (var comp in _components.Values)
+		{
+			comp.Start();
+		}
+
+		OnStart();
 	}
 
 	internal void Update()
 	{
-		OnUpdate();
-
 		foreach (var component in _components.Values)
 		{
 			component.Update();
 		}
+
+		OnUpdate();
+	}
+
+	internal void LateUpdate()
+	{
+		foreach (var component in _components.Values)
+		{
+			component.LateUpdate();
+		}
+
+		OnLateUpdate();
 	}
 
 	/// <summary>
@@ -112,7 +245,26 @@ public class Entity
 		}
 	}
 
+	/// <summary>
+	/// Called first. Acts like a pseudo constructor.
+	/// </summary>
 	protected virtual void OnCreate() { }
+	/// <summary>
+	/// Called after <see cref="OnCreate"/>.<br/>
+	/// When a <see cref="Engine.World"/> is first loaded, all entities and components have <see cref="OnCreate"/> called before a single <see cref="OnStart"/> is called.
+	/// </summary>
+	protected virtual void OnStart() { }
+	/// <summary>
+	/// Called every-frame. Use this for common game-logic.<br/>
+	/// This is not meant for rendering or physics.
+	/// </summary>
 	protected virtual void OnUpdate() { }
+	/// <summary>
+	/// Called after all <see cref="OnUpdate"/>s are called for this frame.
+	/// </summary>
+	protected virtual void OnLateUpdate() { }
+	/// <summary>
+	/// Called just before destruction.
+	/// </summary>
 	protected virtual void OnDestroy() { }
 }
