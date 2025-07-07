@@ -11,7 +11,7 @@ public enum RigidbodyType
 	/// </summary>
 	Static = 0,
 	/// <summary>
-	/// Zero mass, non-zero velocity set by user, moved by solver
+	/// Zero mass, non-zero velocity set by user, moved by solver.
 	/// </summary>
 	Kinematic = 1,
 }

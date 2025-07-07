@@ -22,8 +22,9 @@ static class Game
 		var cam = world.CreateEntity<Entity>();
 		cam.CreateComponent<CameraView>();
 
-		world.CreateEntity<MyEnt>().SetX(-1f);
-		world.CreateEntity<MyEnt>().SetX(1f);
+		var e1 = world.CreateEntity<MyEnt>();
+		e1.SetX(0f);
+		//world.CreateEntity<MyEnt>().SetX(1f);
 
 		var ground = world.CreateEntity<Entity>();
 		ground.SetY(-2.5f);
@@ -33,6 +34,12 @@ static class Game
 		ground.CreateComponent<BoxCollider>();
 
 		world.Load();
+
+		e1.GetComponent<Rigidbody>().OnCollide += c =>
+		{
+			Log.Info("Hit!");
+			return true;
+		};
 	}
 
 	private static void OnUpdate()
@@ -43,8 +50,6 @@ static class Game
 		}
 	}
 }
-
-// FIX: Rigidbodies launch way from each other, as if their actual colliders are spawning within one another. Rigidbodies don't collide with static ground.
 
 class MyEnt : Entity
 {
@@ -60,6 +65,5 @@ class MyEnt : Entity
 	protected override void OnUpdate()
 	{
 		_renderer.Color = Color4.FromHsv(new Vector4(Time.Now % 1f, 1f, 1f, 1f));
-		GetComponent<Rigidbody>().AngularVelocity = Position.X > 0f ? 10f : -10f;
 	}
 }

@@ -1,11 +1,17 @@
 ﻿using Engine.Source.Simulation;
 using nkast.Aether.Physics2D.Dynamics;
+using nkast.Aether.Physics2D.Dynamics.Contacts;
 using OpenTK.Mathematics;
 
 namespace Engine.Simulation;
 
 public class Rigidbody : Component, IPhysicsUpdateable
 {
+	/// <summary>
+	/// • <c>Dynamic</c> - Positive mass, non-zero velocity determined by forces, moved by solver.<br/>
+	/// • <c>Static</c> - Zero velocity, may be manually moved. Note: even static bodies have mass.<br/>
+	/// • <c>Kinematic</c> - Zero mass, non-zero velocity set by user, moved by solver.
+	/// </summary>
 	public RigidbodyType BodyType { get; } = RigidbodyType.Dynamic;
 
 	public Vector2 LinearVelocity
@@ -13,6 +19,9 @@ public class Rigidbody : Component, IPhysicsUpdateable
 		get => new(Body.LinearVelocity.X, Body.LinearVelocity.Y);
 		set => Body.LinearVelocity = new(value.X, value.Y);
 	}
+	/// <summary>
+	/// The mass of this rigidbody. This is 1, by default.
+	/// </summary>
 	public float Mass
 	{
 		get => Body.Mass;
@@ -33,6 +42,10 @@ public class Rigidbody : Component, IPhysicsUpdateable
 		get => Body.AngularDamping;
 		set => Body.AngularDamping = value;
 	}
+	/// <summary>
+	/// If false, rotation won't be simulated, although manually setting the <see cref="Entity.Rotation"/> will still work.<br/>
+	/// This is true, by default.
+	/// </summary>
 	public bool CanRotate
 	{
 		get => Body.FixedRotation;
@@ -44,8 +57,20 @@ public class Rigidbody : Component, IPhysicsUpdateable
 		}
 	}
 
+	/// <summary>
+	/// The internal physics engine's representation of a rigidbody.<br/>
+	/// This is used by <see cref="Rigidbody"/>, like a handle.
+	/// </summary>
 	internal Body Body { get; private set; }
 
+	/// <summary>
+	/// Passes the hit collider as input, and takes a return value, that, if false, will ignore the collision, altogether.
+	/// </summary>
+	public event Func<Collider, bool> OnCollide;
+
+	/// <summary>
+	/// Create a <see cref="RigidbodyType.Dynamic"/> body.
+	/// </summary>
 	public Rigidbody() { }
 	public Rigidbody(RigidbodyType type)
 	{
@@ -54,27 +79,55 @@ public class Rigidbody : Component, IPhysicsUpdateable
 
 	protected override void OnCreate()
 	{
+		Entity.OnPositionChange += OnPosChanged;
+		Entity.OnRotationChange += OnRotChanged;
+
 		Body = World.PhysicsWorld.CreateBody(new(Position.X, Position.Y), Rotation, (BodyType)BodyType);
 		Body.Mass = 1f;
 
 		World.RegisterRigidbody(this, Body);
+
+		Body.OnCollision += OnCollision;
+
+		Log.Info("Set initial rigidbody pos!");
+	}
+
+	private bool OnCollision(Fixture sender, Fixture other, Contact contact)
+	{
+		var collider = World.GetCollider(other);
+		bool? shouldCollide = OnCollide?.Invoke(collider);
+
+		if (shouldCollide.HasValue)
+		{
+			return shouldCollide.Value;
+		}
+
+		return true;
 	}
 
 	public void PhysicsUpdate()
 	{
-		Position = new(Body.Position.X, Body.Position.Y);
-		Rotation = Body.Rotation;
-	}
+		Entity.RawPosition = new(Body.Position.X, Body.Position.Y);
+		Entity.RawRotation = Body.Rotation;
 
-	protected override void OnLateUpdate()
-	{
-		Body.Position = new(Position.X, Position.Y);
-		Body.Rotation = Rotation;
+		Log.Info($"Applying rigidbody pos after phys update! {Position:0.00}");
 	}
 
 	protected override void OnDestroy()
 	{
 		World.UnregisterRigidbody(Body);
 		World.PhysicsWorld.Remove(Body);
+	}
+
+	private void OnPosChanged(Vector2 oldValue, Vector2 newValue)
+	{
+		Body.Position = new(Position.X, Position.Y);
+
+		Log.Info($"Updating rigidbody pos to match new ent pos! old: {oldValue:0.00} new {newValue:0.00}");
+	}
+
+	private void OnRotChanged(float oldValue, float newValue)
+	{
+		Body.Rotation = Rotation;
 	}
 }

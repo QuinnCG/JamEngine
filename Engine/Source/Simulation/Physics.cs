@@ -11,7 +11,7 @@ public static class Physics
 	/// <summary>
 	/// The fixed interval between physics world updates.
 	/// </summary>
-	public static float StepDelta => 1f / StepRate;
+	public static float StepDelta => 1f / StepRate * Time.Scale;
 
 	/// <summary>
 	/// Get or set the gravity of the current world.

@@ -1,8 +1,10 @@
-﻿using AeWorld = nkast.Aether.Physics2D.Dynamics.World;
-using AeBody = nkast.Aether.Physics2D.Dynamics.Body;
-using Engine.Simulation;
+﻿using Engine.Simulation;
 using OpenTK.Mathematics;
 using Engine.Source.Simulation;
+
+using AeWorld = nkast.Aether.Physics2D.Dynamics.World;
+using AeBody = nkast.Aether.Physics2D.Dynamics.Body;
+using AeFixture = nkast.Aether.Physics2D.Dynamics.Fixture;
 
 namespace Engine;
 
@@ -22,6 +24,7 @@ public class World
 
 	private readonly HashSet<IPhysicsUpdateable> _physicsUpdateReceivers = [];
 	private readonly Dictionary<AeBody, Rigidbody> _rigidbodies = [];
+	private readonly Dictionary<AeFixture, Collider> _colliders = [];
 	private float _nextPhysStepTime;
 
 	private World() { }
@@ -62,10 +65,18 @@ public class World
 	{
 		_rigidbodies.Add(body, rigidbody);
 	}
-
 	internal void UnregisterRigidbody(AeBody body)
 	{
 		_rigidbodies.Remove(body);
+	}
+
+	internal void RegisterCollider(Collider collider, AeFixture fixture)
+	{
+		_colliders.Add(fixture, collider);
+	}
+	internal void UnregisterCollider(AeFixture fixture)
+	{
+		_colliders.Remove(fixture);
 	}
 
 	/// <summary>
@@ -74,6 +85,10 @@ public class World
 	internal Rigidbody GetRigidybody(AeBody body)
 	{
 		return _rigidbodies[body];
+	}
+	internal Collider GetCollider(AeFixture fixture)
+	{
+		return _colliders[fixture];
 	}
 
 	internal void Update()
@@ -105,6 +120,10 @@ public class World
 		{
 			_entities.Add(entity);
 			entity.Create(this);
+		}
+		foreach (var entity in _toCreate)
+		{
+			entity.Start();
 		}
 
 		// Remove any deferred removals.
@@ -147,8 +166,6 @@ public class World
 		}
 		else
 		{
-			entity.Create(this);
-			entity.Start();
 			_entities.Add(entity);
 		}
 

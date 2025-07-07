@@ -44,7 +44,14 @@ public abstract class Collider : Component
 			_fixture = CreateFixture(body.Body);
 
 			_fixture.Friction = 1f;
+
+			World.RegisterCollider(this, _fixture);
 		}
+	}
+
+	protected override void OnDestroy()
+	{
+		World.UnregisterCollider(_fixture);
 	}
 
 	protected abstract Fixture CreateFixture(Body body);

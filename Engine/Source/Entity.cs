@@ -3,14 +3,87 @@ using OpenTK.Mathematics;
 
 namespace Engine;
 
+/// <summary>
+/// A thing that can exist in a <see cref="Engine.World"/>. It can have <see cref="Component"/>s attached to it, as well.<br/>
+/// Entities have world-space transforms, and do not support having child or parent entities.
+/// </summary>
 public class Entity
 {
+	/// <summary>
+	/// The world that this entity exists in. This is what updates this entity.
+	/// </summary>
 	public World World { get; private set; }
 
-	public Vector2 Position { get; set; }
-	public float Rotation { get; set; }
-	public Vector2 Scale { get; set; } = Vector2.One;
+	/// <summary>
+	/// The world-space position of this entity.
+	/// </summary>
+	public Vector2 Position
+	{
+		get => RawPosition;
+		set
+		{
+			Vector2 old = RawPosition;
+			RawPosition  = value;
 
+			OnPositionChange?.Invoke(old, value);
+		}
+	}
+	/// <summary>
+	/// The world-space rotation of this entity.
+	/// </summary>
+	public float Rotation
+	{
+		get => RawRotation;
+		set
+		{
+			float old = RawRotation;
+			RawRotation = value;
+
+			OnRotationChange?.Invoke(old, value);
+		}
+	}
+	/// <summary>
+	/// The world-space scale of this entity. This is (1, 1), by default.
+	/// </summary>
+	public Vector2 Scale
+	{
+		get => RawScale;
+		set
+		{
+			Vector2 old = RawScale;
+			RawScale = value;
+
+			OnScaleChange?.Invoke(old, value);
+		}
+	}
+
+	/// <summary>
+	/// Called when the position is set.
+	/// </summary>
+	public event ValueChange<Vector2> OnPositionChange;
+	/// <summary>
+	/// Called when the rotation is set.
+	/// </summary>
+	public event ValueChange<float> OnRotationChange;
+	/// <summary>
+	/// Called when the scale is set.
+	/// </summary>
+	public event ValueChange<Vector2> OnScaleChange;
+
+	/// <summary>
+	/// Setting this won't call <see cref="OnPositionChange"/>.
+	/// </summary>
+	internal Vector2 RawPosition { get; set; }
+	/// <summary>
+	/// Setting this won't call <see cref="OnRotationChange"/>.
+	/// </summary>
+	internal float RawRotation { get; set; }
+	/// <summary>
+	/// Setting this won't call <see cref="OnScaleChange"/>.
+	/// </summary>
+	internal Vector2 RawScale { get; set; } = Vector2.One;
+
+	// The components attached to this entity. An entity updates its components.
 	private readonly Dictionary<Type, Component> _components = [];
 
 	/// <summary>
@@ -118,6 +191,26 @@ public class Entity
 		return success;
 	}
 
+	public IEnumerable<T> GetAllComponents<T>() where T : Component
+	{
+		var set = new HashSet<T>();
+
+		foreach (var comp in _components.Values)
+		{
+			if (comp is T c)
+			{
+				set.Add(c);
+			}
+		}
+
+		return set;
+	}
+
+	/// <summary>
+	/// Create a component and add it to this entity.
+	/// </summary>
+	/// <typeparam name="T">The type of the component. Must inherit from <see cref="Component"/>.<br/>An entity can only have one component per unique type of component.</typeparam>
+	/// <returns>The created instance of said component.</returns>
 	public T CreateComponent<T>() where T : Component, new()
 	{
 		if (_components.ContainsKey(typeof(T)))
@@ -170,6 +263,11 @@ public class Entity
 		}
 	}
 
+	/// <summary>
+	/// Destroy a component of a particular type.<br/>
+	/// This is not deferred and will occur instantly. You shouldn't call this inside component method calls like <see cref="OnCreate"/>, <see cref="OnUpdate"/>, etc.
+	/// </summary>
+	/// <typeparam name="T">The type of the component to destroy.</typeparam>
 	public void DestroyComponent<T>() where T : Component
 	{
 		if (_components.TryGetValue(typeof(T), out var component))
@@ -195,9 +293,9 @@ public class Entity
 		{
 			OnCreate();
 
-			foreach (var component in _components.Values)
+			foreach (var comp in _components.Values)
 			{
-				component.Create(this);
+				comp.Create(this);
 			}
 		}
 	}
@@ -214,9 +312,9 @@ public class Entity
 
 	internal void Update()
 	{
-		foreach (var component in _components.Values)
+		foreach (var comp in _components.Values)
 		{
-			component.Update();
+			comp.Update();
 		}
 
 		OnUpdate();
@@ -224,9 +322,9 @@ public class Entity
 
 	internal void LateUpdate()
 	{
-		foreach (var component in _components.Values)
+		foreach (var comp in _components.Values)
 		{
-			component.LateUpdate();
+			comp.LateUpdate();
 		}
 
 		OnLateUpdate();

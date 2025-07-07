@@ -16,6 +16,7 @@ public static class Time
 	/// Note: this will be 0s for the first frame.
 	/// </summary>
 	public static float Delta { get; private set; }
+	public static float Scale { get; set; } = 1f;
 
 	private static float _lastTime = 0f;
 
@@ -23,9 +24,9 @@ public static class Time
 	{
 		FrameCount++;
 
-		Delta = time - _lastTime;
+		Delta = (time - _lastTime) * Scale;
 		_lastTime = time;
 
-		Now = time;
+		Now += Delta;
 	}
 }
