@@ -23,8 +23,8 @@ static class Game
 		cam.CreateComponent<CameraView>();
 
 		var e1 = world.CreateEntity<MyEnt>();
-		e1.SetX(0f);
-		//world.CreateEntity<MyEnt>().SetX(1f);
+		e1.SetX(0-1);
+		world.CreateEntity<MyEnt>().SetX(1f);
 
 		var ground = world.CreateEntity<Entity>();
 		ground.SetY(-2.5f);
@@ -37,7 +37,7 @@ static class Game
 
 		e1.GetComponent<Rigidbody>().OnCollide += c =>
 		{
-			Log.Info("Hit!");
+			Log.Info($"Hit! {c.Entity.GetType().Name}");
 			return true;
 		};
 	}
@@ -50,6 +50,8 @@ static class Game
 		}
 	}
 }
+
+// FIX: Not colliding with ground.
 
 class MyEnt : Entity
 {

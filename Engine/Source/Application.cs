@@ -48,12 +48,9 @@ public static class Application
 		// Poll new inputs.
 		Window.PollEvents();
 
-		if (Input.IsKeyReleased(Key.Space))
-		{
-			OnUpdate?.Invoke();
-			GlobalManager.Update();
-			World.Current?.Update();
-		}
+		OnUpdate?.Invoke();
+		GlobalManager.Update();
+		World.Current?.Update();
 
 		Renderer.Render();
 		Window.SwapBuffers();

@@ -4,6 +4,8 @@ namespace Engine;
 
 public abstract class Component
 {
+	public bool IsCreated { get; private set; }
+
 	public Entity Entity { get; private set; }
 	public World World => Entity.World;
 
@@ -29,8 +31,13 @@ public abstract class Component
 
 	internal void Create(Entity entity)
 	{
-		Entity = entity;
-		OnCreate();
+		if (!IsCreated)
+		{
+			IsCreated = true;
+
+			Entity = entity;
+			OnCreate();
+		}
 	}
 
 	internal void Start()

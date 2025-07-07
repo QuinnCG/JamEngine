@@ -88,13 +88,18 @@ public class Rigidbody : Component, IPhysicsUpdateable
 		World.RegisterRigidbody(this, Body);
 
 		Body.OnCollision += OnCollision;
-
-		Log.Info("Set initial rigidbody pos!");
 	}
 
 	private bool OnCollision(Fixture sender, Fixture other, Contact contact)
 	{
 		var collider = World.GetCollider(other);
+
+		// Don't collide with self.
+		if (collider.Entity == Entity)
+		{
+			return false;
+		}
+
 		bool? shouldCollide = OnCollide?.Invoke(collider);
 
 		if (shouldCollide.HasValue)
@@ -109,8 +114,6 @@ public class Rigidbody : Component, IPhysicsUpdateable
 	{
 		Entity.RawPosition = new(Body.Position.X, Body.Position.Y);
 		Entity.RawRotation = Body.Rotation;
-
-		Log.Info($"Applying rigidbody pos after phys update! {Position:0.00}");
 	}
 
 	protected override void OnDestroy()
@@ -122,8 +125,6 @@ public class Rigidbody : Component, IPhysicsUpdateable
 	private void OnPosChanged(Vector2 oldValue, Vector2 newValue)
 	{
 		Body.Position = new(Position.X, Position.Y);
-
-		Log.Info($"Updating rigidbody pos to match new ent pos! old: {oldValue:0.00} new {newValue:0.00}");
 	}
 
 	private void OnRotChanged(float oldValue, float newValue)
