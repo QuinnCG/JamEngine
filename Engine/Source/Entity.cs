@@ -10,6 +10,23 @@ namespace Engine;
 public class Entity
 {
 	/// <summary>
+	/// The entity's set name, or the type name, if no name was set.
+	/// </summary>
+	public string Name
+	{
+		get
+		{
+			if (string.IsNullOrEmpty(_name))
+			{
+				return GetType().Name;
+			}
+
+			return _name;
+		}
+		set => _name = value;
+	}
+
+	/// <summary>
 	/// The world that this entity exists in. This is what updates this entity.
 	/// </summary>
 	public World World { get; private set; }
@@ -83,8 +100,13 @@ public class Entity
 	/// </summary>
 	internal Vector2 RawScale { get; set; } = Vector2.One;
 
+	// If this is null or empty, then the name will be the type name.
+	private string _name = string.Empty;
+
 	// The components attached to this entity. An entity updates its components.
 	private readonly Dictionary<Type, Component> _components = [];
+
+	public override string ToString() => Name;
 
 	/// <summary>
 	/// Sets only the x component of <see cref="Position"/>.

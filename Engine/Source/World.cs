@@ -5,6 +5,7 @@ using Engine.Source.Simulation;
 using AeWorld = nkast.Aether.Physics2D.Dynamics.World;
 using AeBody = nkast.Aether.Physics2D.Dynamics.Body;
 using AeFixture = nkast.Aether.Physics2D.Dynamics.Fixture;
+using System.Text;
 
 namespace Engine;
 
@@ -17,6 +18,9 @@ public class World
 	/// The internal physics world.
 	/// </summary>
 	internal AeWorld PhysicsWorld { get; } = new();
+
+	public IEnumerable<Entity> Entities => _entities;
+	public int EntityCount => _entities.Count;
 
 	private readonly HashSet<Entity> _entities = [];
 	private readonly HashSet<Entity> _toCreate = [];
@@ -207,5 +211,26 @@ public class World
 	internal void UnregisterPhyiscsCallback(IPhysicsUpdateable callback)
 	{
 		_physicsUpdateReceivers.Remove(callback);
+	}
+
+	public void PrintHierarchy()
+	{
+		var builder = new StringBuilder();
+
+		builder.AppendLine("World:");
+
+		foreach (var entity in _entities)
+		{
+			builder.AppendLine($"  - {entity}:");
+
+			foreach (var component in entity.GetAllComponents<Component>())
+			{
+				builder.AppendLine($"    - {component}");
+			}
+
+			builder.AppendLine();
+		}
+
+		Log.Info(builder.ToString());
 	}
 }

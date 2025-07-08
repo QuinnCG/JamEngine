@@ -89,6 +89,11 @@ public class Rigidbody : Component, IPhysicsUpdateable
 		World.RegisterRigidbody(this, Body);
 	}
 
+	public override string ToString()
+	{
+		return base.ToString() + $" <Type: {BodyType}, Mass: {Mass}>";
+	}
+
 	private bool OnCollision(Fixture sender, Fixture other, Contact contact)
 	{
 		var collider = World.GetCollider(other);

@@ -18,6 +18,11 @@ public class BoxCollider : Collider
 		Size = size;
 	}
 
+	public override string ToString()
+	{
+		return base.ToString() + $" <Offset: {Offset}, Size: {Size}>";
+	}
+
 	protected override Fixture CreateFixture(Body body)
 	{
 		// Size * Scale.

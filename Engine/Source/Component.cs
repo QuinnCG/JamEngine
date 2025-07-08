@@ -13,6 +13,11 @@ public abstract class Component
 	public float Rotation { get => Entity.Rotation; set => Entity.Rotation = value; }
 	public Vector2 Scale { get => Entity.Scale; set => Entity.Scale = value; }
 
+	public override string ToString()
+	{
+		return GetType().Name;
+	}
+
 	public bool HasComponent<T>() where T : Component
 	{
 		return Entity.HasComponent<T>();

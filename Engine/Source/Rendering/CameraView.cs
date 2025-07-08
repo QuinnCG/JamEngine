@@ -12,6 +12,11 @@ public class CameraView : Component
 	public Matrix4 ProjectionMatrix => GetProjectionMatrix();
 	public Matrix4 ViewProjectionMatrix => ViewMatrix * ProjectionMatrix;
 
+	public override string ToString()
+	{
+		return base.ToString() + $" <OrthoSize: {OrthographicSize}>";
+	}
+
 	protected override void OnCreate()
 	{
 		Current ??= this;

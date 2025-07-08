@@ -5,6 +5,11 @@ public class RenderLayer : IComparable<RenderLayer>
 	public static readonly RenderLayer Default = new();
 	private static readonly List<RenderLayer> Layers = [ Default ];
 
+	public override string ToString()
+	{
+		return Layers.IndexOf(this).ToString();
+	}
+
 	public int CompareTo(RenderLayer other)
 	{
 		if (other == this)

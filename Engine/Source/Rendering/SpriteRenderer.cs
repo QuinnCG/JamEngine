@@ -14,6 +14,11 @@ public class SpriteRenderer : Component, IRenderable
 	/// </summary>
 	public Shader Shader { get; set; }
 
+	public override string ToString()
+	{
+		return base.ToString() + $" <Color: ({Color.R}, {Color.G}, {Color.B}, {Color.A}), Layer: {Layer}, Texture: N/A>";
+	}
+
 	public RenderLayer GetRenderLayer() => Layer;
 
 	protected override void OnCreate()

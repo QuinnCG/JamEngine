@@ -1,10 +1,20 @@
-﻿namespace Engine;
+﻿using OpenTK.Mathematics;
 
-public static class Random
+namespace Engine;
+
+/// <summary>
+/// A static utility class for easily generating various randon values.
+/// </summary>
+public static class Rand
 {
+	/// <summary>
+	/// Get a random float at least 0f and less than 1f.<br/>
+	/// Each time you read from this property, a new random number is generated and returned.
+	/// </summary>
 	public static float Value => _shared.NextSingle();
 
-	private static readonly System.Random _shared = new();
+	// The internal shared System.Random instance.
+	private static readonly Random _shared = new();
 
 	public static int Next()
 	{
@@ -17,6 +27,16 @@ public static class Random
 	public static int Next(int minInclusive, int maxExclusive)
 	{
 		return _shared.Next(minInclusive, maxExclusive);
+	}
+
+	public static float Next(float max)
+	{
+		return Value * max;
+	}
+	public static float Next(float min, float max)
+	{
+		float size = max - min;
+		return min + (Value * size);
 	}
 
 	/// <summary>
@@ -37,5 +57,10 @@ public static class Random
 	public static T[] GetItems<T>(T[] pool, int length)
 	{
 		return _shared.GetItems(pool, length);
+	}
+
+	public static Color4 Color(float minH, float maxH, float minS = 1f, float maxS = 1f, float minV = 1f, float maxV = 1f, float alpha = 1f)
+	{
+		return Color4.FromHsv(new(Next(minH, maxH), Next(minS, maxS), Next(minV, maxV), alpha));
 	}
 }

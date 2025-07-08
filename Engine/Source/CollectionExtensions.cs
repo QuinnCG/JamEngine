@@ -41,7 +41,7 @@ public static class CollectionExtensions
 	{
 		if (collection.Count != 0)
 		{
-			return collection.ElementAt(Random.Next(0, collection.Count));
+			return collection.ElementAt(Rand.Next(0, collection.Count));
 		}
 
 		return default;
