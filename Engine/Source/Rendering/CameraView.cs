@@ -17,6 +17,22 @@ public class CameraView : Component
 		return base.ToString() + $" <OrthoSize: {OrthographicSize}>";
 	}
 
+	public Vector2 ScreenToWorldPoint(Vector2 screenPoint)
+	{
+		// Convert to a point between -1 and +1.
+		Vector2 point = screenPoint / Window.Resolution;
+		// Make y-up positive.
+		point.Y = 1f - point.Y;
+
+		point *= 2f;
+		point -= Vector2.One;
+
+		// Apply camera transform.
+		var transformed = new Vector4(point.X, point.Y, 0f, 1f) * GetReverseViewMatrix() * GetProjectionMatrix();
+
+		return new(transformed.X, transformed.Y);
+	}
+
 	protected override void OnCreate()
 	{
 		Current ??= this;
@@ -26,6 +42,16 @@ public class CameraView : Component
 	{
 		return Matrix4.CreateTranslation(-Entity.Position.X, -Entity.Position.Y, 0f) *
 			   Matrix4.CreateRotationZ(Entity.Rotation * MathX.DegToRad) *
+			   Matrix4.CreateScale(Entity.Scale.X, Entity.Scale.Y, 1f);
+	}
+
+	/// <summary>
+	/// Normally, if the camera goes right, everything goes left, but here, if the camera goes right, then the screen-world point will always go right.
+	/// </summary>
+	private Matrix4 GetReverseViewMatrix()
+	{
+		return Matrix4.CreateTranslation(Entity.Position.X, Entity.Position.Y, 0f) *
+			   Matrix4.CreateRotationZ(-Entity.Rotation * MathX.DegToRad) *
 			   Matrix4.CreateScale(Entity.Scale.X, Entity.Scale.Y, 1f);
 	}
 

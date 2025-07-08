@@ -24,7 +24,7 @@ public abstract class Collider : Component
 		}
 	}
 	/// <summary>
-	/// By default, this is 0.
+	/// By default, this is 1.
 	/// </summary>
 	public float Friction
 	{
@@ -74,7 +74,7 @@ public abstract class Collider : Component
 			Rigidbody = body;
 			_fixture = CreateFixture(body.Body);
 
-			_fixture.Friction = 0f;
+			_fixture.Friction = 1f;
 			_fixture.Restitution = 0f;
 
 			_fixture.CollisionCategories = Category.All;
