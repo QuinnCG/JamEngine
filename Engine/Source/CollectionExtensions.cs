@@ -31,4 +31,19 @@ public static class CollectionExtensions
 			dictionary.Remove(item);
 		}
 	}
+
+	/// <summary>
+	/// Get a random item from the given collection, or default(T), if the collection is empty.
+	/// </summary>
+	/// <param name="collection">The collection to take from.</param>
+	/// <returns>The randomly chosen item.</returns>
+	public static T GetRandom<T>(this ICollection<T> collection)
+	{
+		if (collection.Count != 0)
+		{
+			return collection.ElementAt(Random.Next(0, collection.Count));
+		}
+
+		return default;
+	}
 }
