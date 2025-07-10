@@ -49,6 +49,7 @@ public class Shader : Resource
 	protected override void OnFree()
 	{
 		GL.DeleteProgram(Handle);
+		Handle = -1;
 	}
 
 	private static int CreateModule(ShaderType type, string source)

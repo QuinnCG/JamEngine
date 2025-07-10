@@ -1,6 +1,6 @@
 ﻿namespace Engine;
 
-public class BinaryResource : Resource
+public class BinaryResource : Resource, ISaveable
 {
 	public byte[] Data { get; private set; } = [];
 
@@ -14,8 +14,8 @@ public class BinaryResource : Resource
 		Data = [];
 	}
 
-	protected override byte[] OnSave()
+	public void Save()
 	{
-		return Data;
+		File.WriteAllBytes(FullPath, Data);
 	}
 }

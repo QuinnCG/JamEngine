@@ -22,7 +22,17 @@ out vec4 f_color;
 
 uniform vec4 u_color;
 
+uniform bool u_useTex = false;
+uniform sampler2D u_tex;
+
 void main()
 {
-	f_color = u_color;
+	if (u_useTex)
+	{
+		f_color = u_color * texture(u_tex, v_uv);
+	}
+	else
+	{
+		f_color = u_color;
+	}
 }

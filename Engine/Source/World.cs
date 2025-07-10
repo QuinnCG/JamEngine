@@ -213,7 +213,7 @@ public class World
 		_physicsUpdateReceivers.Remove(callback);
 	}
 
-	public void PrintHierarchy()
+	public void LogHierarchy()
 	{
 		var builder = new StringBuilder();
 
@@ -229,6 +229,11 @@ public class World
 			}
 
 			builder.AppendLine();
+		}
+
+		if (_entities.Count == 0)
+		{
+			builder.AppendLine("  - No Entites Spawned");
 		}
 
 		Log.Info(builder.ToString());

@@ -1,4 +1,6 @@
-﻿namespace Engine;
+﻿using System.Text;
+
+namespace Engine;
 
 public abstract class Resource
 {
@@ -14,6 +16,29 @@ public abstract class Resource
 	/// </summary>
 	public string FullPath { get; private set; } = string.Empty;
 	public bool IsEngineResource { get; private set; }
+
+	/// <summary>
+	/// Writes all active resources to the console.
+	/// </summary>
+	public static void LogResources()
+	{
+		var builder = new StringBuilder();
+
+		builder.AppendLine("Resources:");
+
+		foreach (var pair in _loadedResources.Values)
+		{
+			var res = pair.res;
+			builder.AppendLine($"  - {res.GetType().Name}");
+		}
+
+		if (_loadedResources.Count == 0)
+		{
+			builder.AppendLine("  - No Resources Loaded");
+		}
+
+		Log.Info(builder.ToString());
+	}
 
 	/// <summary>
 	/// Load a resource from disk.
@@ -50,6 +75,8 @@ public abstract class Resource
 		};
 		res.OnLoad(data);
 
+		_loadedResources.Add(path, (res, 1));
+
 		return res;
 	}
 
@@ -59,6 +86,9 @@ public abstract class Resource
 	/// <returns>A new instance of the resource or an existing reference if the path was already loaded.</returns>
 	public static T LoadEngineResource<T>(string path) where T : Resource, new()
 	{
+		path = path.Replace('/', '\\').Replace('\\', '.');
+		path = $"Engine.Resources.{path}";
+
 		if (_loadedResources.TryGetValue(path, out (Resource, int) existingPair))
 		{
 			var (existingRes, existingRefCount) = existingPair;
@@ -69,9 +99,6 @@ public abstract class Resource
 			// Return existing resource.
 			return existingRes as T;
 		}
-
-		path = path.Replace('/', '\\').Replace('\\', '.');
-		path = $"Engine.Resources.{path}";
 
 		var stream = typeof(Resource).Assembly.GetManifestResourceStream(path)
 			?? throw new Exception($"Failed to get engine resource '{path}'!");
@@ -86,7 +113,10 @@ public abstract class Resource
 			FullPath = path
 		};
 
+		_loadedResources.Add(path, (res, 1));
+
 		res.OnLoad(data);
+
 		return res;
 	}
 
@@ -177,21 +207,4 @@ public abstract class Resource
 
 	protected abstract void OnLoad(byte[] data);
 	protected abstract void OnFree();
-
-	/// <summary>
-	/// Use the resource's custom save implementation to serialize the resource to disk.
-	/// </summary>
-	public void Save()
-	{
-		if (IsEngineResource)
-		{
-			throw new Exception($"Cannot save engine resource '{GetType().Name}'!");
-		}
-
-		// Save only if it's not an engine resource.
-		byte[] data = OnSave();
-		File.WriteAllBytes(FullPath, data);
-	}
-
-	protected virtual byte[] OnSave() => [];
 }

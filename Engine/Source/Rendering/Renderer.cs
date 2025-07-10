@@ -25,6 +25,9 @@ public static class Renderer
 	{
 		GL.Enable(EnableCap.DebugOutput);
 		GL.DebugMessageCallback(OnGLMessage, 0);
+
+		GL.Enable(EnableCap.Blend);
+		GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 	}
 
 	private static unsafe void OnGLMessage(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, nint message, nint userParam)
@@ -49,6 +52,9 @@ public static class Renderer
 
 		foreach (var renderable in _renderables)
 		{
+			// Unbind any active texture.
+			GL.BindTexture(TextureTarget.Texture2D, 0);
+			// Execute the render code for the given render object.
 			int indexCount = renderable.Render();
 
 			if (indexCount > 0)

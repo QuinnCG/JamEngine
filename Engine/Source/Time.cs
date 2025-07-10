@@ -11,11 +11,14 @@ public static class Time
 	/// The current scaled time of the game, in seconds.
 	/// </summary>
 	public static float Now { get; private set; }
+	public static float UnscaledNow { get; private set; }
 	/// <summary>
 	/// The time, in seconds, that the last frame took to render.<br/>
 	/// Note: this will be 0s for the first frame.
 	/// </summary>
 	public static float Delta { get; private set; }
+	public static float UnscaledDelta { get; private set; }
+
 	public static float Scale { get; set; } = 1f;
 
 	private static float _lastTime = 0f;
@@ -23,8 +26,10 @@ public static class Time
 	internal static void Update(float time)
 	{
 		FrameCount++;
+		UnscaledNow = time;
 
-		Delta = (time - _lastTime) * Scale;
+		UnscaledDelta = time - _lastTime;
+		Delta = UnscaledDelta * Scale;
 		_lastTime = time;
 
 		Now += Delta;

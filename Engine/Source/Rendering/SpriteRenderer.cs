@@ -6,6 +6,7 @@ public class SpriteRenderer : Component, IRenderable
 {
 	public const string DefaultShaderPath = "DefaultSprite.shader";
 
+	public Texture Texture { get; set; } = null;
 	public Color4 Color { get; set; } = Color4.White;
 	public RenderLayer Layer { get; set; } = RenderLayer.Default;
 	/// <summary>
@@ -41,6 +42,9 @@ public class SpriteRenderer : Component, IRenderable
 
 		Shader.SetUniform("u_mvp", mvp);
 		Shader.SetUniform("u_color", Color);
+
+		Shader.SetUniform("u_useTex", Texture != null);
+		Texture?.Bind();
 
 		return SpriteManager.Instance.BindSpriteMesh();
 	}
