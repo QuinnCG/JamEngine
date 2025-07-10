@@ -69,6 +69,16 @@ public static class MathX
 	{
 		return Math.Clamp(value, min, max);
 	}
+	public static float Max(float x, float y)
+	{
+		return MathF.Max(x, y);
+	}
+	public static float Min(float x, float y)
+	{
+		return MathF.Min(x, y);
+	}
+
+	// TODO: [MathX.cs] Max and Min functions with params float[] values.
 
 	public static float Sin(float x)
 	{

@@ -15,9 +15,26 @@ public class SpriteRenderer : Component, IRenderable
 	/// </summary>
 	public Shader Shader { get; set; }
 
+	/// <summary>
+	/// The the A channel of <see cref="Color"/>.
+	/// </summary>
+	public float Alpha
+	{
+		get => Color.A;
+		set
+		{
+			var color = Color;
+			color.A = value;
+			Color = color;
+		}
+	}
+
+	public Bounds RenderBounds => new(Position, Scale);
+
 	public override string ToString()
 	{
-		return base.ToString() + $" <Color: ({Color.R}, {Color.G}, {Color.B}, {Color.A}), Layer: {Layer}, Texture: N/A>";
+		string texture = (Texture == null) ? "No Texture" : Texture.RelativePath;
+		return base.ToString() + $" <Color: ({Color.R}, {Color.G}, {Color.B}, {Color.A}), Layer: {Layer}, Texture: {texture}>";
 	}
 
 	public RenderLayer GetRenderLayer() => Layer;

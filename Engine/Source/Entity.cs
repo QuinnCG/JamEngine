@@ -25,6 +25,7 @@ public class Entity
 		}
 		set => _name = value;
 	}
+	public int UID { get; private set; } = -1;
 
 	/// <summary>
 	/// The world that this entity exists in. This is what updates this entity.
@@ -310,6 +311,7 @@ public class Entity
 	internal void Create(World world)
 	{
 		World = world;
+		UID = world.ClaimUID();
 
 		if (World.IsLoaded)
 		{

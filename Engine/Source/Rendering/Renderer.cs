@@ -52,8 +52,20 @@ public static class Renderer
 
 		Sort();
 
+		var viewBounds = CameraView.Current.ViewBounds;
+
+		int rendered = 0;
+
 		foreach (var renderable in _renderables)
 		{
+			// Cull render objects not in view.
+			if (viewBounds.IsNotTouchingBounds(renderable.RenderBounds))
+			{
+				continue;
+			}
+
+			rendered++;
+
 			// Unbind any active texture.
 			GL.BindTexture(TextureTarget.Texture2D, 0);
 			// Execute the render code for the given render object.

@@ -7,8 +7,9 @@ public class CameraView : Component
 	public static CameraView Current { get; private set; }
 
 	public float OrthographicSize { get; set; } = 5f;
+	public float Ratio => (float)Window.Resolution.X / Window.Resolution.Y;
 
-	public Bounds ViewBounds => new(Position, Scale * OrthographicSize);
+	public Bounds ViewBounds => new(Position, new Vector2(Scale.X * Ratio, Scale.Y) * OrthographicSize);
 
 	public Matrix4 ViewMatrix => GetViewMatrix();
 	public Matrix4 ProjectionMatrix => GetProjectionMatrix();

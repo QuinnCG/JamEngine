@@ -5,6 +5,11 @@ namespace Engine.Rendering;
 public interface IRenderable
 {
 	/// <summary>
+	/// The bounds that this render object can be seen within.
+	/// </summary>
+	public Bounds RenderBounds { get; }
+
+	/// <summary>
 	/// Get the instance of the render layer that's used for this object in sorting.
 	/// </summary>
 	/// <returns>The exact instance of the layer to use for sorting.</returns>

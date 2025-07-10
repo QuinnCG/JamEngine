@@ -13,6 +13,8 @@ public class World
 {
 	public static World Current { get; private set; }
 
+	public int GreatestEntityID = -1;
+
 	public bool IsLoaded { get; private set; }
 	/// <summary>
 	/// The internal physics world.
@@ -157,6 +159,15 @@ public class World
 				entity.Destroy();
 			}
 		}
+	}
+
+	/// <summary>
+	/// Claims the next logical UID. Claimed UIDs won't ever be used again until the world is destroyed.
+	/// </summary>
+	/// <returns>The claimed ID. A positive integer.</returns>
+	public int ClaimUID()
+	{
+		return ++GreatestEntityID;
 	}
 
 	/// <summary>
