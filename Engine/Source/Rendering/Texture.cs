@@ -24,27 +24,13 @@ public class Texture : Resource
 	/// </summary>
 	public int ChannelCount { get; private set; } = -1;
 
-	public bool IsAntialiased { get; set; }
-
-	private int _noAASampler;
-	private int _aaSampler;
-
-	// HACK: Could probably just have a few global samplers for all possible states, instead of each texture creating its own samplers.
-
 	public void Bind()
 	{
 		GL.ActiveTexture(TextureUnit.Texture0);
 		GL.BindTexture(TextureTarget.Texture2D, Handle);
-		
-		if (IsAntialiased)
-		{
-			GL.BindSampler(Handle, _aaSampler);
-		}
-		else
-		{
-			GL.BindSampler(Handle, _noAASampler);
-		}
 	}
+
+	// TODO: [Texture.cs] Add option for antialiasing the texture.
 
 	protected override void OnLoad(byte[] data)
 	{
@@ -68,27 +54,11 @@ public class Texture : Resource
 
 		GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, image.Width, image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, image.Data.ToArray());
 		GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-
-		_aaSampler = GL.GenSampler();
-		_noAASampler = GL.GenSampler();
-
-		GL.SamplerParameter(_aaSampler, SamplerParameterName.TextureMagFilter, (float)TextureMagFilter.Nearest);
-		GL.SamplerParameter(_aaSampler, SamplerParameterName.TextureMinFilter, (float)TextureMinFilter.Nearest);
-		GL.SamplerParameter(_aaSampler, SamplerParameterName.TextureWrapS, (float)TextureWrapMode.ClampToEdge);
-		GL.SamplerParameter(_aaSampler, SamplerParameterName.TextureWrapT, (float)TextureWrapMode.ClampToEdge);
-
-		GL.SamplerParameter(_noAASampler, SamplerParameterName.TextureMagFilter, (float)TextureMagFilter.Nearest);
-		GL.SamplerParameter(_noAASampler, SamplerParameterName.TextureMinFilter, (float)TextureMinFilter.Nearest);
-		GL.SamplerParameter(_noAASampler, SamplerParameterName.TextureWrapS, (float)TextureWrapMode.ClampToEdge);
-		GL.SamplerParameter(_noAASampler, SamplerParameterName.TextureWrapT, (float)TextureWrapMode.ClampToEdge);
-
-		GL.BindSampler(Handle, _noAASampler);
 	}
 
 	protected override void OnFree()
 	{
 		GL.DeleteTexture(Handle);
-		GL.DeleteSampler(_aaSampler);
 		Handle = -1;
 	}
 }

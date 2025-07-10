@@ -1,7 +1,6 @@
 ﻿using Engine;
 using Engine.Rendering;
 using Engine.Simulation;
-using Engine.InputSystem;
 using OpenTK.Mathematics;
 
 namespace Sandbox;
@@ -38,11 +37,6 @@ class MyEnt : Entity
 		}
 
 		_renderer.Color = Color4.FromHsv(new Vector4((_seed + (Time.Now * 0.1f)) % 1f, 1f, 1f, _renderer.Alpha));
-
-		if (Input.IsKeyPressed(Key.Tab))
-		{
-			_renderer.Texture.IsAntialiased = !_renderer.Texture.IsAntialiased;
-		}
 	}
 
 	protected override void OnDestroy()

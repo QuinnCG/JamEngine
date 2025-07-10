@@ -30,8 +30,6 @@ public static class Renderer
 		GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 	}
 
-	// TODO: Sprite culling.
-
 	private static unsafe void OnGLMessage(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, nint message, nint userParam)
 	{
 		if (severity is not (DebugSeverity.DebugSeverityHigh or DebugSeverity.DebugSeverityMedium))
