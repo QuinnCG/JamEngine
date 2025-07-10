@@ -8,6 +8,8 @@ public class CameraView : Component
 
 	public float OrthographicSize { get; set; } = 5f;
 
+	public Bounds ViewBounds => new(Position, Scale * OrthographicSize);
+
 	public Matrix4 ViewMatrix => GetViewMatrix();
 	public Matrix4 ProjectionMatrix => GetProjectionMatrix();
 	public Matrix4 ViewProjectionMatrix => ViewMatrix * ProjectionMatrix;
