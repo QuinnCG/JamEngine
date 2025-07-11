@@ -5,6 +5,18 @@ using System.Drawing;
 
 namespace Engine.Rendering;
 
+/// <summary>
+/// A batch mesh of sprites.<br/><br/>
+/// 
+/// Usage:<br/>
+/// <c>
+///	- Clear();<br/>
+///	- Sprite(...);<br/>
+///	- Sprite(...);<br/>
+///	- Generate();<br/>
+/// - Renderer.Register(batch);
+/// </c>
+/// </summary>
 public class SpriteBatch : IRenderable, IDisposable
 {
 	struct SpriteData
@@ -14,8 +26,10 @@ public class SpriteBatch : IRenderable, IDisposable
 		public Vector2 Scale;
 
 		public Color4 Color;
+		public float[] UVs;
 	}
 
+	public Texture Texture { get; set; }
 	public RenderLayer RenderLayer { get; set; } = RenderLayer.Default;
 	// HACK: [SpriteBatch.cs] Implement render bounds.
 	public Bounds RenderBounds => new(default, Vector2.PositiveInfinity);
@@ -49,8 +63,8 @@ public class SpriteBatch : IRenderable, IDisposable
 	/// <param name="rotation">The world-space rotation of the sprite.</param>
 	/// <param name="scale">The world-space scale of the sprite.</param>
 	/// <param name="color">The color tint of the sprite.</param>
-	/// <param name="texture">The texture of the sprite, or null, if it doesn't have a texture.</param>
-	public void Sprite(Vector2 pos, float rotation, Vector2 scale, Color4 color)
+	/// <param name="customUVs">Assign custom UVs to this sprite. Leave this emtpy to automatically use the default sprite UVs.</param>
+	public void Sprite(Vector2 pos, float rotation, Vector2 scale, Color4 color, params float[] customUVs)
 	{
 		var sprite = new SpriteData()
 		{
@@ -58,12 +72,17 @@ public class SpriteBatch : IRenderable, IDisposable
 			Rotation = rotation,
 			Scale = scale,
 
-			Color = color
+			Color = color,
+			// Use custom UVs, if provided. Otherwise, use default UVs for a quad mesh.
+			UVs = (customUVs == null || customUVs.Length == 0) ? [ 0f, 0f, 0f, 1f, 1f, 1f, 1f, 0f ] : customUVs
 		};
 
 		_spritesToGenerate.Add(sprite);
 	}
 
+	/// <summary>
+	/// Generate/regenerate the internal mesh buffer.
+	/// </summary>
 	public void Generate()
 	{
 		// Generate the initial buffers.
@@ -120,20 +139,22 @@ public class SpriteBatch : IRenderable, IDisposable
 			float b = sprite.Color.B;
 			float a = sprite.Color.A;
 
+			var uvs = sprite.UVs;
+
 			// TODO: [SpriteBatch.cs] Apply rotation to the vertices.
 
 			var vertices = new float[]
 			{
-				// X-Pos			 // Y-Pos		 // UV		 // Color
-				(-0.5f * w) + x, (-0.5f * h) +  y,	 0f, 0f,	 r, g, b, a,
-				(-0.5f * w) + x, ( 0.5f * h) +  y,   0f, 1f,     r, g, b, a,
-				( 0.5f * w) + x, ( 0.5f * h) +  y,   1f, 1f,     r, g, b, a,
-				( 0.5f * w) + x, (-0.5f * h) +  y,   1f, 0f,     r, g, b, a,
+				// Pos								 // UV				 // Color
+				(-0.5f * w) + x, (-0.5f * h) +  y,	 uvs[0], uvs[1],	 r, g, b, a,
+				(-0.5f * w) + x, ( 0.5f * h) +  y,   uvs[2], uvs[3],     r, g, b, a,
+				( 0.5f * w) + x, ( 0.5f * h) +  y,   uvs[4], uvs[5],     r, g, b, a,
+				( 0.5f * w) + x, (-0.5f * h) +  y,   uvs[6], uvs[7],     r, g, b, a,
 			};
 
-			// ToArray() will copy it.
+			// ToArray() makes a copy of the indices.
 			var indices = SpriteManager.Instance.Indices.ToArray();
-			
+
 			// Offset each index's value.
 			for (int j = 0; j < indices.Length; j++)
 			{
@@ -194,8 +215,13 @@ public class SpriteBatch : IRenderable, IDisposable
 		SpriteManager.Instance.SpriteBatchShader.Bind();
 		GL.BindVertexArray(_vao);
 
+		var shader = SpriteManager.Instance.SpriteBatchShader;
+
 		var mvp = CameraView.Current.ViewProjectionMatrix;
-		SpriteManager.Instance.SpriteBatchShader.SetUniform("u_mvp", mvp);
+		shader.SetUniform("u_mvp", mvp);
+
+		Texture?.Bind();
+		shader.SetUniform("u_useTex", Texture != null);
 
 		return _indexCount;
 	}

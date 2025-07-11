@@ -39,8 +39,9 @@ static class Game
 		ground.AddComponent(new BoxCollider(Vector2.Zero, new(10f, 1f)));
 
 		var batch = new SpriteBatch();
-		batch.Sprite(new Vector2(2), 0f, Vector2.One, Color4.Red);
+		batch.Sprite(new Vector2(2), 0f, new(0.5f, 1f), Color4.Red, [ 0f, 0f, 0f, 1f, 0.5f, 1f, 0.5f, 0f ]);
 		batch.Sprite(new Vector2(4f, 1f), 0f, Vector2.One, Color4.Blue);
+		batch.Texture = Resource.Load<Texture>("Logo.png");
 		batch.Generate();
 		Renderer.Register(batch);
 

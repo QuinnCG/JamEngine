@@ -26,7 +26,17 @@ in vec4 v_color;
 
 out vec4 f_color;
 
+uniform bool u_useTex = false;
+uniform sampler2D u_texture;
+
 void main()
 {
-	f_color = v_color;
+	if (u_useTex)
+	{
+		f_color = v_color * texture(u_texture, v_uv);
+	}
+	else
+	{
+		f_color = v_color;
+	}
 }
