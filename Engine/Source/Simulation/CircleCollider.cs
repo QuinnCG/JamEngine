@@ -17,7 +17,7 @@ public class CircleCollider : Collider
 
 	protected override Fixture CreateFixture(Body body)
 	{
-		float avg = (Scale.X + Scale.Y) / 2f;
+		float avg = MathF.Min(Scale.X, Scale.Y) + (MathX.Abs(Scale.X - Scale.Y) / 2f);
 		return body.CreateCircle(Radius * avg, DefaultDensity, new(Offset.X, Offset.Y));
 	}
 }

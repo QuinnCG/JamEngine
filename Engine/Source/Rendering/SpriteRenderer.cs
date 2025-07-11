@@ -52,6 +52,9 @@ public class SpriteRenderer : Component, IRenderable
 			throw new NullReferenceException("Shader is not set for SpriteRenderer!");
 		}
 
+		Shader.Bind();
+		SpriteManager.Instance.BindSpriteMesh();
+
 		var mvp = Matrix4.CreateScale(Entity.Scale.X, Entity.Scale.Y, 1f)
 			* Matrix4.CreateRotationZ(-Entity.Rotation * MathX.DegToRad)
 			* Matrix4.CreateTranslation(Entity.Position.X, Entity.Position.Y, 0f)

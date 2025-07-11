@@ -38,6 +38,12 @@ static class Game
 		ground.AddComponent(new Rigidbody(RigidbodyType.Static));
 		ground.AddComponent(new BoxCollider(Vector2.Zero, new(10f, 1f)));
 
+		var batch = new SpriteBatch();
+		batch.Sprite(new Vector2(2), 0f, Vector2.One, Color4.Red);
+		batch.Sprite(new Vector2(4f, 1f), 0f, Vector2.One, Color4.Blue);
+		batch.Generate();
+		Renderer.Register(batch);
+
 		world.Load();
 	}
 

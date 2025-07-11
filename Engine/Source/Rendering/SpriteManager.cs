@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL4;
+using System.Runtime.Versioning;
 
 namespace Engine.Rendering;
 
@@ -10,6 +11,9 @@ public class SpriteManager : GlobalManager
 {
 	public static SpriteManager Instance { get; private set; }
 
+	/// <summary>
+	/// Position, UV
+	/// </summary>
 	public float[] Vertices =
 	[
 		-0.5f, -0.5f,   0f, 0f,
@@ -23,6 +27,11 @@ public class SpriteManager : GlobalManager
 		0, 1, 2,
 		3, 0, 2
 	];
+
+	/// <summary>
+	/// The shader resource used by <see cref="SpriteBatch"/> instances.
+	/// </summary>
+	internal Shader SpriteBatchShader { get; private set; }
 
 	private int _spriteMeshVAO;
 	private int _vbo, _ibo;
@@ -39,6 +48,7 @@ public class SpriteManager : GlobalManager
 
 	protected override void OnBegin()
 	{
+		SpriteBatchShader = Resource.LoadEngineResource<Shader>("BatchSprite.shader");
 		Instance = this;
 
 		_spriteMeshVAO = GL.GenVertexArray();
@@ -70,5 +80,6 @@ public class SpriteManager : GlobalManager
 		GL.DeleteBuffer(_ibo);
 
 		Instance = null;
+		SpriteBatchShader.Release();
 	}
 }

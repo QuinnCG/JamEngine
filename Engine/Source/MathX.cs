@@ -105,4 +105,9 @@ public static class MathX
 	{
 		return a + (b - a) * t;
 	}
+
+	public static float Abs(float value)
+	{
+		return MathF.Abs(value);
+	}
 }

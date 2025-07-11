@@ -41,7 +41,8 @@ public abstract class Resource
 	}
 
 	/// <summary>
-	/// Load a resource from disk.
+	/// Load a resource from disk.<br/>
+	/// Note: if you are trying to load an engine resource, use <see cref="LoadEngineResource{T}(string)"/>, instead.
 	/// </summary>
 	/// 
 	/// <remarks>
