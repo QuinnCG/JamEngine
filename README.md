@@ -1,2 +1,2 @@
 # Jam Engine
-A hobbiest engine for game jams I participate in.
+A hobbyist game engine, prospectively for the smaller game jams I participate in.
